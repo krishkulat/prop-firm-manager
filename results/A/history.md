@@ -70,3 +70,4 @@ Same 426 signal times as J-20261101-001, same stop distance and 2R target, only 
 **Recommendation to the Orchestrator:** reject H-001 / strategy A (no bug; the edge points the other way).
 Ask Research to write the fade as its own hypothesis (H-002, "London-open false-breakout fade"), with the above
 as the motivating in-sample observation, and push it through walk-forward → sealed holdout → propsim like any other.
+- 2026-11-01 — [orchestrator] **Stage → `rejected`.** Failed `backtested` (J-20261101-001: PF 0.23, maxDD 146.5%, all years −17% to −28%); R-002 audit found no implementation bug. Not sent back as a redesign: the evidence says the breakout premise is wrong, not its parameters. The fade observation goes to Research as a separate hypothesis (H-002 via R-001), with the in-sample discovery disclosed. Final H-001 trial count: 7 rows in trials.csv.

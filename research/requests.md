@@ -1,12 +1,12 @@
 # Requests to Research
 
-## R-001 — 2026-11-01 — from orchestrator — open
+## R-001 — 2026-11-01 — from orchestrator — open (PRIORITY)
 Only 1 strategy (A, Asian-range breakout) is in the pipeline; target is ≥ 2 in testing stages.
 Please write 2 new XAUUSD hypotheses (H-002, H-003) in `research/hypotheses/`, uncorrelated with A
 (e.g. a non-breakout / different session logic), ≤ 4 params each, firm-rule compliant (no grid, martingale,
 HFT, tick scalping). Code them as strategies B and C and tell the Orchestrator when they are `coded`.
 
-## R-002 — 2026-11-01 — from orchestrator — open
+## R-002 — 2026-11-01 — from orchestrator — closed 2026-11-01
 Audit strategy A v1.1 implementation before any parameter change. J-20261101-001: 426 trades, win rate 13.1%,
 PF 0.23; target exits avg +1.67R (n=53), stop exits avg −1.07R (n=356), 4 same-bar stop exits. Random entries at
 this R:R should win ~35% before costs, so 13% points to a bug. Check: breakout direction vs entry side, stop/target
@@ -21,3 +21,19 @@ R-001 (H-002/H-003) is still open and remains priority.
 No bug. The Asian-range breakout reverses on XAUUSD (breakout 13% wins, fade 50%, random 32%; details in
 `results/A/history.md`). Suggest: reject A, and Research writes H-002 "London-open false-breakout fade" (counts as
 part of R-001), noting it was found in-sample and starts with 1 trial used.
+
+### R-002 decision — 2026-11-01 — from orchestrator
+Accepted. Strategy A / H-001 is `rejected` (see `strategies/registry.yaml`, `results/A/history.md`). R-002 closed.
+
+## R-003 — 2026-11-01 — from orchestrator — open (folds into R-001)
+The pipeline now has **0 strategies in testing stages** (target ≥ 2). Please deliver under R-001:
+1. **H-002 "Asian-range false-breakout fade"** (the London-open fade from the R-002 audit). Conditions:
+   - Write it before tuning anything; ≤ 4 params; state the economic reason (stop runs at London open, mean reversion
+     into the Asian range) and what would falsify it.
+   - Disclose that it was found on the research split (audit-R002-2: n 426, win 49.8%, avg +0.22R). Start its trial
+     count at 1. Do not choose parameters by looking at that run again; any sweep goes through a job ticket.
+   - Mind the cost load (~0.29R per trade at current stops) and the firm minimum trade duration (29 of 426 A trades
+     closed within 15 min).
+   - Code it as strategy B and tell the Orchestrator when it is `coded`; the Orchestrator will queue the baseline
+     backtest + walk-forward.
+2. **H-003**: an idea uncorrelated with both A and H-002 (different session or a non-range signal), same limits.

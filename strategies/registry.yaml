@@ -5,9 +5,10 @@ strategies:
     name: Asian-range breakout
     module: strategies.A_asian_breakout.strategy
     version: "1.1"
-    stage: coded
+    stage: rejected
     hypothesis: research/hypotheses/H-001-asian-range-breakout.md
     firm_product: the5ers/hs50k_10d
     redesigns: 0
     notes: Seed strategy. v1.1 rescaled the range filter (see results/A/history.md). Real data is on the research PC.
       2026-11-01 J-20261101-001 failed backtested gate (PF 0.23, 426 trades). Held at coded pending code audit R-002; not a redesign yet.
+      2026-11-01 REJECTED by orchestrator: R-002 audit found no bug; breakout systematically reverses on XAUUSD (breakout 13% wins vs random 32%). Fade goes to Research as new hypothesis H-002 (R-001), not a redesign of A.

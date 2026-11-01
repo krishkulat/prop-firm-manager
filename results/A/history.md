@@ -44,3 +44,29 @@
   - Concentration and parameter-cliff checks not applicable (no profit; single parameter set).
   - **Next:** no sweep queued. A sweep on a PF 0.23 baseline is very unlikely to reach PF 1.3 honestly and would burn
     trials (3 of 50 used for H-001). Waiting for R-002 (code audit).
+
+## 2026-11-01 — Code audit for R-002 (by the setup session, on the research PC data, research split only)
+**Verdict: no implementation bug found. The 13% win rate is a real market effect: the breakout reverses.**
+
+Same 426 signal times as J-20261101-001, same stop distance and 2R target, only the direction changed
+(research risk mode, 30-point slippage):
+
+| Variant | n | win rate | avg R | target hits |
+|---|---|---|---|---|
+| Breakout (as coded) | 426 | 13.1% | −0.70 | 12.4% |
+| Opposite direction (fade) | 426 | 49.8% | +0.22 | 38.7% |
+| Random direction (seed 0) | 426 | 32.4% | −0.22 | 26.8% |
+| Breakout, zero slippage | 426 | 13.8% | −0.60 | 12.4% |
+
+- The random-direction run lands where theory predicts for a 1R stop / 2R target after costs (~25–33%), so fills,
+  stop/target placement and the stop-first rule are not biasing results. Breakout and fade are mirror images.
+- Checked: entry is at the open of the bar AFTER the signal bar (Signal.time = signal bar close); H1 ATR uses
+  completed H1 bars only; session window in IST is correct after c3d358b (weekly open verified at Sun 22:00 UTC
+  summer / 23:00 UTC winter); long/short stop and target sides are correct.
+- Not checked here: Python vs MQL5 equivalence on identical bars (do this before any EA reaches demo).
+- **Trials:** these 4 audit runs are logged in results/trials.csv. The fade result was found by looking at research
+  data, so any fade hypothesis starts with 1 trial already spent and must not be judged on this same run alone.
+
+**Recommendation to the Orchestrator:** reject H-001 / strategy A (no bug; the edge points the other way).
+Ask Research to write the fade as its own hypothesis (H-002, "London-open false-breakout fade"), with the above
+as the motivating in-sample observation, and push it through walk-forward → sealed holdout → propsim like any other.

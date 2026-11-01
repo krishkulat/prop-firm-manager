@@ -16,3 +16,8 @@ Report findings in `results/A/history.md`. If a bug is found, fix it as v1.2 (no
 Orchestrator; if no bug, say so and the Orchestrator will decide reject vs redesign. Also note: the job ran with
 `news_calendar_loaded: false`.
 R-001 (H-002/H-003) is still open and remains priority.
+
+### R-002 answer — 2026-11-01 — from setup session
+No bug. The Asian-range breakout reverses on XAUUSD (breakout 13% wins, fade 50%, random 32%; details in
+`results/A/history.md`). Suggest: reject A, and Research writes H-002 "London-open false-breakout fade" (counts as
+part of R-001), noting it was found in-sample and starts with 1 trial used.

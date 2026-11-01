@@ -50,3 +50,11 @@ def test_strategy_runs_on_synthetic(risk_cfg):
         assert (s.direction == 1 and s.stop < s.target) or (s.direction == -1 and s.stop > s.target)
     r = backtest.run(bars, sigs, risk_cfg)
     assert len(r.trades) > 0
+
+
+def test_server_time_to_utc():
+    from pfm.data import server_to_utc
+    s = pd.Series(pd.to_datetime(["2026-01-15 09:00", "2026-07-15 10:00"]))
+    out = server_to_utc(s, "nyclose").tolist()
+    assert out == [pd.Timestamp("2026-01-15 07:00"), pd.Timestamp("2026-07-15 07:00")]   # UTC+2 winter, +3 summer
+    assert server_to_utc(s, "0").tolist() == s.tolist()

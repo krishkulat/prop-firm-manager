@@ -1,3 +1,4 @@
 time_utc,job_id,kind,strategy,hypothesis,params,trades,pf,max_dd_pct,sharpe
 2026-11-01T08:30:00+00:00,manual-diag-1,backtest,A,H-001,"{""rr"": 2.0, ""stop_atr"": 1.2, ""min_range_atr"": 0.5, ""max_range_atr"": 2.0}",17,0.0,6.01,
 2026-11-01T08:35:00+00:00,manual-diag-2,backtest,A,H-001,"{""rr"": 2.0, ""stop_atr"": 1.2, ""min_range_atr"": 1.5, ""max_range_atr"": 4.0}",21,0.14,6.12,
+2026-11-01T08:22:15+00:00,J-20261101-001,backtest,A,H-001,"{""rr"": 2.0, ""stop_atr"": 1.2, ""min_range_atr"": 1.5, ""max_range_atr"": 4.0}",426,0.23,146.54,-4.483

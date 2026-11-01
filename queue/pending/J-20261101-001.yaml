@@ -1,0 +1,9 @@
+job_id: J-20261101-001
+kind: backtest
+strategy: A
+hypothesis: H-001
+requested_by: orchestrator
+data: {symbol: XAUUSD, timeframe: M15}
+params: {rr: 2.0, stop_atr: 1.2, min_range_atr: 0.5, max_range_atr: 2.0}
+risk_profile: the5ers_hs50k_10d
+notes: First baseline backtest of strategy A v1.0 on research split (default params). Must run on the research PC with real data.

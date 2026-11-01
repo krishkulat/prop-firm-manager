@@ -14,7 +14,7 @@ ENTRY_START, ENTRY_END = time(13, 30), time(16, 30)
 
 class AsianBreakout(Strategy):
     name = "A"
-    default_params = {"rr": 2.0, "stop_atr": 1.2, "min_range_atr": 0.5, "max_range_atr": 2.0}
+    default_params = {"rr": 2.0, "stop_atr": 1.2, "min_range_atr": 1.5, "max_range_atr": 4.0}
 
     def generate_signals(self, bars: pd.DataFrame, params: dict | None = None) -> list[Signal]:
         p = {**self.default_params, **(params or {})}

@@ -4,7 +4,7 @@
 //| All orders go through CRiskEngine (PFM/RiskEngine.mqh).
 //+------------------------------------------------------------------+
 #property copyright "Prop Firm Manager"
-#property version   "1.00"
+#property version   "1.10"
 #property strict
 
 #include <PFM/RiskEngine.mqh>
@@ -12,8 +12,8 @@
 input group "=== Strategy A ==="
 input double InpRR          = 2.0;
 input double InpStopATR     = 1.2;
-input double InpMinRangeATR = 0.5;
-input double InpMaxRangeATR = 2.0;
+input double InpMinRangeATR = 1.5;
+input double InpMaxRangeATR = 4.0;
 input string InpRangeStart  = "05:30";  // IST
 input string InpRangeEnd    = "12:30";  // IST
 input string InpTradeStart  = "13:30";  // IST, first M15 close considered is after this

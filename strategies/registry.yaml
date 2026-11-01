@@ -4,9 +4,9 @@ strategies:
   A:
     name: Asian-range breakout
     module: strategies.A_asian_breakout.strategy
-    version: "1.0"
+    version: "1.1"
     stage: coded
     hypothesis: research/hypotheses/H-001-asian-range-breakout.md
     firm_product: the5ers/hs50k_10d
     redesigns: 0
-    notes: Seed strategy. Needs real XAUUSD data before the first backtest.
+    notes: Seed strategy. v1.1 rescaled the range filter (see results/A/history.md). Real data is on the research PC.

@@ -99,6 +99,9 @@ def run_job(job: dict) -> dict:
     costs = biz["research"]["costs"]
     slip = costs["slippage_points"]
     risk = config.risk_profile(job.get("risk_profile", "the5ers_hs50k_10d"))
+    # Research mode: measure the edge over the whole period. The account-level kill switch and the drawdown
+    # throttle belong to the challenge (tested in propsim); with them on, a backtest stops at the first 6% DD.
+    research_risk = {**risk, "kill_dd_pct": 1e9, "throttle_dd_pct": 1e9}
     gates = biz["gates"]
     out = RESULTS / job["job_id"]
     out.mkdir(parents=True, exist_ok=True)
@@ -115,12 +118,12 @@ def run_job(job: dict) -> dict:
 
     if kind in ("backtest", "holdout"):
         bars = _bars(job)
-        res, s = run_one(strat, bars, params, risk, slip, news)
+        res, s = run_one(strat, bars, params, research_risk, slip, news)
         res.trades.to_csv(out / "trades.csv", index=False)
         res.daily.to_csv(out / "equity.csv", index=False)
         s["rejections"] = res.rejections
         # stress: +50% slippage
-        _, s_stress = run_one(strat, bars, params, risk, slip * 1.5, news)
+        _, s_stress = run_one(strat, bars, params, research_risk, slip * 1.5, news)
         s["stress_slip_pf"] = s_stress["pf"]
         if kind == "holdout":
             rets = np.diff(np.r_[res.initial, res.daily["equity"].to_numpy()]) / res.initial
@@ -136,7 +139,7 @@ def run_job(job: dict) -> dict:
         bars = _bars(job)
         used = trials_for(job.get("hypothesis", ""))
         cap = biz["research"]["max_trials_per_hypothesis"] - used
-        table = sweep(strat, bars, job["grid"], risk, slip, max_trials=cap, news=news)
+        table = sweep(strat, bars, job["grid"], research_risk, slip, max_trials=cap, news=news)
         table.to_csv(out / "sweep.csv", index=False)
         keys = list(job["grid"])
         log_trials(job, [{"params": {k: r[k] for k in keys}, **r} for r in table.to_dict("records")])
@@ -147,12 +150,12 @@ def run_job(job: dict) -> dict:
     elif kind == "walkforward":
         bars = _bars(job)
         wf = job.get("walkforward", {})
-        trades, chosen, _ = walkforward(strat, bars, job["grid"], risk, slip,
+        trades, chosen, _ = walkforward(strat, bars, job["grid"], research_risk, slip,
                                         wf.get("train_months", 24), wf.get("test_months", 6), news=news)
         chosen.to_csv(out / "windows.csv", index=False)
         trades.to_csv(out / "trades.csv", index=False)
         s = summarize(trades, daily_from_trades(trades, risk["account_size"]), risk["account_size"])
-        _, s_is = run_one(strat, bars, params, risk, slip, news)
+        _, s_is = run_one(strat, bars, params, research_risk, slip, news)
         ok, fails = check_gate("walkforward", s, gates, s_is)
         summary.update(oos=s, in_sample=s_is, windows=len(chosen), gate={"name": "walkforward", "pass": ok, "fails": fails})
         log_trials(job, [{"params": r, **r} for r in chosen.to_dict("records")])

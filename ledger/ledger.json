@@ -1,0 +1,12 @@
+{
+  "currency": "USD",
+  "total": 250,
+  "lines": [
+    {"id": "acct1", "label": "Account #1 (The5ers $50K HS 10% D)", "amount": 99, "status": "reserved", "request_id": null},
+    {"id": "retry", "label": "Retry for a breached account", "amount": 99, "status": "locked", "request_id": null},
+    {"id": "free",  "label": "Unallocated", "amount": 52, "status": "free", "request_id": null}
+  ],
+  "spent": [],
+  "payouts": [],
+  "breached_attempts": 0
+}

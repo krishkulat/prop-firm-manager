@@ -1,0 +1,56 @@
+# The5ers products we may buy. Source: The5ers live catalogue (read 2026-10-31) + public rule pages.
+# Research re-checks weekly. Verify on the Hub before every purchase.
+firm: The5ers
+platform: MT5
+ea_policy: allowed; visible SL required; own source code; no HFT/tick scalping/arbitrage/copying others
+checked: 2026-11-01
+
+products:
+  hs50k_10d:
+    name: "$50K High Stakes 10% D"
+    price_usd: 99
+    account_size: 50000
+    steps:                         # profit targets per evaluation step, % of initial balance
+      - {target_pct: 10.0, min_profitable_days: 3}
+      - {target_pct: 5.0,  min_profitable_days: 3}
+    daily_loss_pct: 3.0            # vs start-of-day balance/equity (confirm basis on purchase)
+    max_loss_pct: 10.0             # static from initial balance
+    max_loss_trailing: false
+    profitable_day_min_pct: 0.5
+    news_window_min: 2             # no open/close 2 min around high-impact news
+    min_trade_seconds: 60
+    leverage: 100
+    inactivity_days: 30
+    funded_split_pct: 80
+  hs5k_10:
+    name: "$5K High Stakes 10%"
+    price_usd: 35
+    account_size: 5000
+    steps:
+      - {target_pct: 10.0, min_profitable_days: 3}
+      - {target_pct: 5.0,  min_profitable_days: 3}
+    daily_loss_pct: 5.0
+    max_loss_pct: 10.0
+    max_loss_trailing: false
+    profitable_day_min_pct: 0.5
+    news_window_min: 2
+    min_trade_seconds: 60
+    leverage: 100
+    inactivity_days: 30
+    funded_split_pct: 80
+  hs100k_10v:
+    name: "$100K High Stakes 10% V"
+    price_usd: 149
+    account_size: 100000
+    steps:
+      - {target_pct: 10.0, min_profitable_days: 3}
+      - {target_pct: 5.0,  min_profitable_days: 3}
+    daily_loss_pct: 3.0
+    max_loss_pct: 10.0
+    max_loss_trailing: false
+    profitable_day_min_pct: 0.5
+    news_window_min: 2
+    min_trade_seconds: 60
+    leverage: 100
+    inactivity_days: 30
+    funded_split_pct: 80

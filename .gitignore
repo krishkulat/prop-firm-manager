@@ -1,0 +1,10 @@
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+data/*
+!data/README.md
+*.ex5
+*.log
+results/**/equity.csv

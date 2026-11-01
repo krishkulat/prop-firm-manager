@@ -1,0 +1,21 @@
+# Risk-engine settings for The5ers $50K High Stakes 10% D. Values may only be tightened without owner approval.
+# These are mirrored into the EA .set file by `python -m pfm.release make-set`.
+account_size: 50000
+risk_per_trade_pct: 0.5          # of initial balance
+throttle_dd_pct: 3.0             # at this overall DD, risk is cut
+throttle_risk_pct: 0.25
+daily_stop_pct: 1.5              # firm daily limit 3.0 → 50% buffer
+kill_dd_pct: 6.0                 # firm max loss 10.0 → kill at 60%
+daily_profit_stop_pct: 1.5       # stop for the day after +1.5% (profitable-day pacing)
+max_day_share_of_target: 0.40    # no single day > 40% of the step target
+max_open_positions: 2
+max_open_risk_pct: 1.0
+max_trades_per_day: 3
+entry_start_ist: "13:30"
+entry_end_ist: "21:00"
+flat_by_ist: "22:30"
+news_flat_before_min: 10
+news_resume_after_min: 15
+min_hold_seconds: 120            # firm minimum 60
+spread_max_ratio: 1.5            # vs 20-day median for the hour
+stale_feed_seconds: 30

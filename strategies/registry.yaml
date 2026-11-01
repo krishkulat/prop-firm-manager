@@ -1,0 +1,12 @@
+# Only the Orchestrator changes `stage`, and only with gate evidence in results/.
+# Stages: idea, coded, backtested, walkforward, holdout, propsim, demo, release, live, retired, rejected
+strategies:
+  A:
+    name: Asian-range breakout
+    module: strategies.A_asian_breakout.strategy
+    version: "1.0"
+    stage: coded
+    hypothesis: research/hypotheses/H-001-asian-range-breakout.md
+    firm_product: the5ers/hs50k_10d
+    redesigns: 0
+    notes: Seed strategy. Needs real XAUUSD data before the first backtest.

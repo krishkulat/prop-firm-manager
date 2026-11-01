@@ -1,0 +1,12 @@
+default: {rr: 2.0, stop_atr: 1.2, min_range_atr: 0.5, max_range_atr: 2.0}
+ranges:
+  rr: [1.5, 2.0, 2.5]
+  stop_atr: [0.8, 1.2, 1.6]
+  min_range_atr: [0.3, 0.5, 0.7]
+  max_range_atr: [1.5, 2.0, 2.5]
+fixed:
+  range_start_ist: "05:30"
+  range_end_ist: "12:30"
+  entry_start_ist: "13:30"
+  entry_end_ist: "16:30"
+  timeframe: M15

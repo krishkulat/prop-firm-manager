@@ -10,3 +10,4 @@ strategies:
     firm_product: the5ers/hs50k_10d
     redesigns: 0
     notes: Seed strategy. v1.1 rescaled the range filter (see results/A/history.md). Real data is on the research PC.
+      2026-11-01 J-20261101-001 failed backtested gate (PF 0.23, 426 trades). Held at coded pending code audit R-002; not a redesign yet.

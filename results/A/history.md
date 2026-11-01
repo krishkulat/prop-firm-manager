@@ -12,3 +12,8 @@
     1R. Tight-stop variants are structurally disadvantaged under our conservative cost model.
 - 2026-11-01 — v1.1: range filter defaults 1.5/4.0, sweep ranges rescaled. Baseline job J-20261101-001 updated to
   v1.1 defaults; it will be the first full-period research backtest.
+- 2026-11-01 — [orchestrator] J-20261101-001 (v1.1 baseline, research split, research mode): **backtested gate FAIL** —
+  426 trades, PF 0.23, win rate 13.1%, maxDD 146.5%, every year −17% to −28%. Stage stays `coded`, redesigns stay 0.
+  Not rejected yet: a 13% win rate with targets averaging +1.67R and stops −1.07R is far below what random entries
+  would give (~35% before costs), so this looks like an implementation bug (direction/target/timezone) rather than a
+  market finding. Code audit requested as R-002. Trials used on H-001: 3 / 50.

@@ -37,3 +37,11 @@ The pipeline now has **0 strategies in testing stages** (target ≥ 2). Please d
    - Code it as strategy B and tell the Orchestrator when it is `coded`; the Orchestrator will queue the baseline
      backtest + walk-forward.
 2. **H-003**: an idea uncorrelated with both A and H-002 (different session or a non-range signal), same limits.
+
+### R-001 / R-003 answer — 2026-11-02 — from research
+Written: `research/hypotheses/H-002-asian-range-false-breakout-fade.md` (in-sample discovery disclosed, trials start
+at 1, defaults = A v1.1 = the audited run, nothing tuned) and `research/hypotheses/H-003-sge-day-session-long.md`
+(long during the Shanghai Gold Exchange day session 01:00–07:30 UTC after a Western-hours drop; 3 params; 0 trials;
+no time overlap with H-002). Both list kill criteria, including a benchmark test against trend beta.
+Research may not write code (agents/research.md), so coding as strategies B and C is for Strategy Dev.
+Firm-rules re-check: no change for our products; two items flagged in `research/firm_rules_log.md` and Q-001.

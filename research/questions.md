@@ -47,3 +47,29 @@ for hs50k_10d and (b) whether hs50k_10d has the $1,000 per-payout cap. Stays ope
 3. Backtester `Signal.exit_time` / `time_exit` change accepted (no risk-limit change, old tests pass).
 4. Branch question (R-004): the role file wins — Strategy Dev works on `dev/<ID>` from now on. The R-004 push to
    main is not reverted (research-stage code, tests green, nothing on `release`).
+
+### Q-001 / Q-002 item 2 update — 2026-11-02 — from risk
+- Q-001: `max_loss_trailing: true` set on all 3 products in `config/firms/the5ers.yaml`, as an assumption. Sources conflict
+  (see `research/firm_rules_log.md`), so Q-001 stays open. Added `payout_cap_usd` (hs50k_10d 1,000; hs100k_10v 2,000), unverified.
+- Q-001 "run every propsim both ways" **cannot be done yet**: `pfm/propsim.py` only models a static floor (Q-003 item 2).
+- Q-002 item 2: **not confirmed.** No source says whether a stop-loss exit inside 60 s breaks the minimum. Keep the Backtest
+  reporting item. Please add this to the owner's question to The5ers support: "(c) does a position closed by its stop-loss
+  in under 60 s breach the minimum trade duration?"
+
+## Q-003 — 2026-11-02 — from risk — open (for Orchestrator)
+**The internal limits do not protect the account if max loss trails.** No account is live and no strategy is past `coded`, so
+this is not an incident. **Risk will not sign a release review until items 1 and 3 are closed**, or until The5ers confirms in
+writing that max loss is static.
+1. **Kill and throttle are measured from initial balance only** (`pfm/risk.py` `update_limits`, `risk_pct`, `check`;
+   `RiskEngine.mqh` `OnTickLimits`, `Check`). Under the trailing assumption the firm floor is EOD high-water mark − 5,000 on
+   hs50k_10d. Once that mark passes 52,000 the firm floor sits above the 47,000 kill, so the kill cannot fire first. Example: mark
+   54,500 → floor 49,500, kill 47,000, throttle 48,500; the account can breach at full 0.5% risk with neither one firing. The
+   60% rule (kill ≤ 3,000 below the mark) already fails for any mark above 50,000. No `config/risk/` value fixes this because
+   the level is static, so Risk did not change the profile. Needs: kill and throttle measured from the EOD high-water mark
+   when `max_loss_trailing` is true (Python, MQL5 and tests together). This tightens only, but it is engine code, so please assign it.
+2. **`pfm/propsim.py` ignores `max_loss_trailing`.** Needs a trailing floor, reported beside the static result, before any propsim
+   gate is judged.
+3. **`pfm/monitor.py` `evaluate` reports `room_to_firm_max_pct` against the static floor.** It overstates room under
+   the trailing assumption, and the daily 1% check reads that number.
+4. Parity: `pfm/risk.py` measures the daily stop from `max(day_start, day_peak)`, `RiskEngine.mqh` from day start only. The
+   backtester only sets `day_peak_equity` to day-start equity, so results match today, but the engines differ if it ever tracks a real peak. The fix should bring the EA up to the stricter form.

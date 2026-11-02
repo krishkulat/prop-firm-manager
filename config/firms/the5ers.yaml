@@ -1,9 +1,12 @@
 # The5ers products we may buy. Source: The5ers live catalogue (read 2026-10-31) + public rule pages.
 # Research re-checks weekly. Verify on the Hub before every purchase.
+# max_loss_trailing: true is a conservative ASSUMPTION (end-of-day high-water mark), set by Risk 2026-11-02 per Q-001.
+# The connector says trailing, third-party rule pages say static; owner's written answer from The5ers is pending.
+# Nothing reads this flag yet: propsim, pfm/risk.py, RiskEngine.mqh and pfm/monitor.py are all static (see Q-003).
 firm: The5ers
 platform: MT5
 ea_policy: allowed; visible SL required; own source code; no HFT/tick scalping/arbitrage/copying others
-checked: 2026-11-01
+checked: 2026-11-02
 
 products:
   hs50k_10d:
@@ -14,14 +17,15 @@ products:
       - {target_pct: 10.0, min_profitable_days: 3}
       - {target_pct: 5.0,  min_profitable_days: 3}
     daily_loss_pct: 3.0            # vs start-of-day balance/equity (confirm basis on purchase)
-    max_loss_pct: 10.0             # static from initial balance
-    max_loss_trailing: false
+    max_loss_pct: 10.0             # floor assumed to trail EOD high-water mark (see header)
+    max_loss_trailing: true
     profitable_day_min_pct: 0.5
     news_window_min: 2             # no open/close 2 min around high-impact news
     min_trade_seconds: 60
     leverage: 100
     inactivity_days: 30
     funded_split_pct: 80
+    payout_cap_usd: 1000           # per withdrawal; third-party report 2026-10-29, unverified, assume it applies
   hs5k_10:
     name: "$5K High Stakes 10%"
     price_usd: 35
@@ -31,7 +35,7 @@ products:
       - {target_pct: 5.0,  min_profitable_days: 3}
     daily_loss_pct: 5.0
     max_loss_pct: 10.0
-    max_loss_trailing: false
+    max_loss_trailing: true
     profitable_day_min_pct: 0.5
     news_window_min: 2
     min_trade_seconds: 60
@@ -47,10 +51,11 @@ products:
       - {target_pct: 5.0,  min_profitable_days: 3}
     daily_loss_pct: 3.0
     max_loss_pct: 10.0
-    max_loss_trailing: false
+    max_loss_trailing: true
     profitable_day_min_pct: 0.5
     news_window_min: 2
     min_trade_seconds: 60
     leverage: 100
     inactivity_days: 30
     funded_split_pct: 80
+    payout_cap_usd: 2000           # third-party report 2026-07-15 (Summer 10/5, $149), unverified, assume it applies

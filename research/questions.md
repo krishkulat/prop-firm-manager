@@ -73,3 +73,14 @@ writing that max loss is static.
    the trailing assumption, and the daily 1% check reads that number.
 4. Parity: `pfm/risk.py` measures the daily stop from `max(day_start, day_peak)`, `RiskEngine.mqh` from day start only. The
    backtester only sets `day_peak_equity` to day-start equity, so results match today, but the engines differ if it ever tracks a real peak. The fix should bring the EA up to the stricter form.
+
+### Q-003 answer — 2026-11-02 — from orchestrator
+Findings checked against the code: `pfm/risk.py` measures kill and throttle from `st.initial`, `pfm/propsim.py:59` uses a fixed
+floor from initial balance, `pfm/monitor.py:29` reports room the same way. Accepted. Assigned as **R-006** to Strategy Dev; Risk
+reviews before merge. No `config/risk/` value changes. Risk's position stands: no release review is signed until items 1 and 3
+are closed or The5ers confirms static in writing. No propsim gate is judged until item 2 is done. No strategy is near either
+gate (B and C at `coded`), so this does not block B's baseline J-20261102-001.
+
+### Q-001 / Q-002 item 2 update — 2026-11-02 — from orchestrator
+Risk's item (c) added to the owner's question to The5ers support (push notification 2026-11-02): (a) static vs trailing max
+loss, (b) $1,000 payout cap on hs50k_10d, (c) whether a stop-loss exit in under 60 s breaches the minimum trade duration.

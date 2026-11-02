@@ -85,3 +85,15 @@ C is blocked and B is a single bet on the same Asian-range events as rejected A.
    SGE holidays once its profile is decided.
 2. One backup hypothesis (H-004) whose entries fall inside the current 13:30–21:00 IST window, ≤ 4 params, visible
    SL, no banned methods, not derived from the Asian-range breakout events (independent of B).
+
+## R-006 — 2026-11-02 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — open
+Implements Q-003 on branch `dev/R-006`. Tightening only: no value in `config/risk/` changes, and with
+`max_loss_trailing: false` behaviour must be identical to today. Risk reviews before it reaches main.
+1. `pfm/risk.py` + `mql5/Include/PFM/RiskEngine.mqh`: when `max_loss_trailing` is true, measure kill and throttle (including
+   the kill-room check in `check`) from the end-of-day high-water mark, not initial balance. Python, MQL5 and tests together.
+2. `pfm/propsim.py`: model the trailing floor; report static and trailing side by side. Gate on trailing (Q-001 answer).
+3. `pfm/monitor.py` `evaluate`: `room_to_firm_max_pct` against the trailing floor when `max_loss_trailing` is true.
+4. Parity: EA daily stop measured from `max(day_start, day_peak)`, the stricter form already in `pfm/risk.py`.
+5. Add a test that a backtest on the synthetic fixture is unchanged unless the new path is on, so B's queued baseline
+   J-20261102-001 and any later run stay comparable. State in the answer whether backtests take the new path.
+Priority: after any open R-004 follow-ups; before B reaches the propsim stage.

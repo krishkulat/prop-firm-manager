@@ -113,3 +113,10 @@ forward demo instead of walk-forward and sealed holdout. That loosens the gates,
 Regardless of the path, the owner action that settles the most is the **real-tick re-run of R6, unchanged, on MetaQuotes-Demo and the firm's MT5
 data, with spread recorded**. Proposed gate PF ≥ 1.25 on both; PF < 1.15 kills H-005. Closes when the decision is recorded in `requests/`.
 
+
+## Q-006 — 2026-11-02 — from backtest — open (for Orchestrator)
+**B's "closed-trade DD 6.04%" is on a different basis from the gate.** `pfm/metrics.py` measures `max_dd_pct` as % of initial balance. The 6.04% in
+`results/reports/daily/2026-11-02.md` and `results/B/history.md` is the 2023-08-18 to 2024-02-05 stretch as % of peak equity. On the gate's basis it is 8.24%
+(-16.56R), against 8.52% with intraday lows. The H-002 decision does not change, but the news filter has to remove about 2.5 points (roughly 5R) for B to pass, not
+a few hundredths. Please correct the note if you agree, and weigh this when choosing between a redesign and rejection under the "fails only maxDD" branch.
+Also for Strategy Dev if you want it: the worker stress raises slippage only, while `agents/backtest.md` also asks about spread +50% (estimated by hand for this run).

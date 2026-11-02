@@ -1,0 +1,47 @@
+{
+  "job_id": "J-20261102-001",
+  "kind": "backtest",
+  "strategy": "B",
+  "params": {
+    "rr": 2.0,
+    "stop_atr": 1.2,
+    "min_range_atr": 1.5,
+    "max_range_atr": 4.0
+  },
+  "news_calendar_loaded": false,
+  "trades": 426,
+  "pf": 1.427,
+  "win_rate": 0.498,
+  "avg_r": 0.221,
+  "net_pct": 46.17,
+  "max_dd_pct": 8.52,
+  "yearly_pct": {
+    "2018": 0.0,
+    "2019": -2.99,
+    "2020": 8.67,
+    "2021": 8.27,
+    "2022": 11.71,
+    "2023": 5.87,
+    "2024": 2.31,
+    "2025": 12.33
+  },
+  "worst_year_pct": -2.99,
+  "sharpe": 1.184,
+  "best_month_share": 0.096,
+  "exit_reasons": {
+    "stop": 201,
+    "target": 165,
+    "session_end": 60
+  },
+  "rejections": {
+    "spread": 25
+  },
+  "stress_slip_pf": 1.282,
+  "gate": {
+    "name": "backtested",
+    "pass": false,
+    "fails": [
+      "maxDD 8.52% > 6.0%"
+    ]
+  }
+}

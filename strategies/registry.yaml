@@ -12,3 +12,22 @@ strategies:
     notes: Seed strategy. v1.1 rescaled the range filter (see results/A/history.md). Real data is on the research PC.
       2026-11-01 J-20261101-001 failed backtested gate (PF 0.23, 426 trades). Held at coded pending code audit R-002; not a redesign yet.
       2026-11-01 REJECTED by orchestrator: R-002 audit found no bug; breakout systematically reverses on XAUUSD (breakout 13% wins vs random 32%). Fade goes to Research as new hypothesis H-002 (R-001), not a redesign of A.
+  B:
+    name: Asian-range false-breakout fade (London open)
+    module: strategies.B_london_fade.strategy
+    version: "1.0"
+    stage: idea
+    hypothesis: research/hypotheses/H-002-asian-range-false-breakout-fade.md
+    firm_product: the5ers/hs50k_10d
+    redesigns: 0
+    notes: 2026-11-02 approved by orchestrator, assigned to Strategy Dev (R-004). Found in-sample (R-002 audit,
+      trials.csv row audit-R002-2 under H-001); counts as 1 trial used for H-002. Mirror of rejected A.
+  C:
+    name: SGE day-session long after Western-hours drop
+    module: strategies.C_sge_session_long.strategy
+    version: "1.0"
+    stage: idea
+    hypothesis: research/hypotheses/H-003-sge-day-session-long.md
+    firm_product: the5ers/hs50k_10d
+    redesigns: 0
+    notes: 2026-11-02 approved by orchestrator, assigned to Strategy Dev (R-004). 3 params, 0 trials used.

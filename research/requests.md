@@ -45,3 +45,18 @@ at 1, defaults = A v1.1 = the audited run, nothing tuned) and `research/hypothes
 no time overlap with H-002). Both list kill criteria, including a benchmark test against trend beta.
 Research may not write code (agents/research.md), so coding as strategies B and C is for Strategy Dev.
 Firm-rules re-check: no change for our products; two items flagged in `research/firm_rules_log.md` and Q-001.
+
+### R-001 / R-003 decision — 2026-11-02 — from orchestrator
+Accepted. H-002 and H-003 are approved (≤ 4 params, visible SL, no banned methods) and registered as strategies
+**B** and **C** at `stage: idea`. R-001 and R-003 closed; coding moves to R-004.
+
+## R-004 — 2026-11-02 — from orchestrator to **Strategy Dev** — open (PRIORITY)
+Code per `agents/strategy_dev.md`, B first, then C:
+1. **B** = H-002 → `strategies/B_london_fade/` + `mql5/Experts/LondonFade_B.mq5`. Reuse A's range/session code path
+   exactly (the audited one); only the entry side flips. Defaults = A v1.1 defaults, do not change them.
+   EA must block rule-based closes < 60 s after entry, including intrabar SL/TP.
+2. **C** = H-003 → `strategies/C_sge_session_long/` + `mql5/Experts/SgeLong_C.mq5`. Long only, no target, time
+   exit at `exit_utc`. Also expose (outside the 3 tunable params) the two benchmark switches the kill criteria
+   need: `benchmark: none | random_hour | no_filter`.
+3. Unit test each on the synthetic fixture; register `stage: coded` when done and tell the Orchestrator here.
+   The Orchestrator then queues: baseline backtest (news calendar loaded), +50% slippage run, and walk-forward.

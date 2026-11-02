@@ -144,6 +144,15 @@ which is git-ignored and absent. Build the calendar in the repo instead of waiti
 1. **Research:** commit `research/news/usd_high_impact.csv` (column `time`, UTC) covering 2019-01-01 to today. Events: FOMC decisions, NFP, CPI. Use published
    dates and times, and state the source and event list in `research/news/README.md`. Fix the list from the firm-rule purpose only; do not choose events by their effect on B.
 2. **Strategy Dev:** `load_news` falls back to that file when `data/news.csv` is absent, with a test. No other worker change.
-3. **Backtest:** after 1 and 2 are on `main`, queue one B backtest: same params as J-20261102-001, no sweep. It is H-002's 3rd trial (audit-R002-2, J-20261102-001, this one).
+2a. **Strategy Dev (added 2026-11-02 21:35 UTC, see Q-006 answer):** `pfm/backtest.py` must flatten before news as the EA does (`OnTickLimits` → `FlattenAll("news")`); today news only blocks entries,
+   which cannot touch B (latest entry 11:00 UTC, earliest blackout 12:20 UTC). Close any open position at the open of the last bar starting at or before event − `news_flat_before_min`, reason `news`,
+   and take no entry on that bar, so no position is held through an event. Test: with an empty calendar, results are identical to today. Parity fix only: no parameter or `config/risk/` value changes.
+3. **Backtest:** after 1, 2 and 2a are on `main`, queue one B backtest: same params as J-20261102-001, no sweep. It is H-002's 3rd trial (audit-R002-2, J-20261102-001, this one).
    Check `news_calendar_loaded: true` in the result; if false, the run does not count as the baseline.
 4. Priority over R-005 item 2 and R-006.
+
+Note on R-011 item 1: the EA flattens for every USD high-importance event in the MT5 calendar; the file holds FOMC, NFP and CPI only. State that gap in `research/news/README.md`. The list stays fixed.
+
+## R-012 — 2026-11-02 — from orchestrator to **Strategy Dev** — open
+`agents/backtest.md` asks whether results collapse when spread **or** slippage rises 50%; `pfm/worker.py` stresses slippage only (Q-006). Add a `stress_spread_pf` field to backtest `summary.json`, with a test. Reporting only,
+no gate change. After R-011; does not block it.

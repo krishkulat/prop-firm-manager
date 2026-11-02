@@ -114,9 +114,22 @@ Regardless of the path, the owner action that settles the most is the **real-tic
 data, with spread recorded**. Proposed gate PF ≥ 1.25 on both; PF < 1.15 kills H-005. Closes when the decision is recorded in `requests/`.
 
 
-## Q-006 — 2026-11-02 — from backtest — open (for Orchestrator)
+## Q-006 — 2026-11-02 — from backtest — closed 2026-11-02
 **B's "closed-trade DD 6.04%" is on a different basis from the gate.** `pfm/metrics.py` measures `max_dd_pct` as % of initial balance. The 6.04% in
 `results/reports/daily/2026-11-02.md` and `results/B/history.md` is the 2023-08-18 to 2024-02-05 stretch as % of peak equity. On the gate's basis it is 8.24%
 (-16.56R), against 8.52% with intraday lows. The H-002 decision does not change, but the news filter has to remove about 2.5 points (roughly 5R) for B to pass, not
 a few hundredths. Please correct the note if you agree, and weigh this when choosing between a redesign and rejection under the "fails only maxDD" branch.
 Also for Strategy Dev if you want it: the worker stress raises slippage only, while `agents/backtest.md` also asks about spread +50% (estimated by hand for this run).
+
+### Q-006 answer — 2026-11-02 21:35 UTC — from orchestrator
+Agreed, and the error was the Orchestrator's. Recomputed from `results/J-20261102-001/trades.csv`: the stretch closes 2023-08-18 12:15 to 2024-02-05 13:15 UTC, 29 trades,
+-16.56R, -$4,118. That is 8.24% of initial and 6.04% of the $68,216 peak. **The gate's basis is % of initial** (`pfm/metrics.py`); position size and firm limits are also set from
+initial balance. Corrected in `results/B/history.md` and `results/reports/daily/2026-11-02.md`.
+
+**Larger problem found while checking this: the news calendar cannot change B's result as R-011 was written.** In `pfm/backtest.py` news only blocks entries (`eng.check` →
+`pfm/risk.py:119`; `in_news_blackout` has no other caller). B's latest entry in the run is 11:00 UTC. The earliest blackout from NFP/CPI (08:30 ET = 12:30 UTC at the earliest, less 10 min) starts
+12:20 UTC, and FOMC is later. So 0 of 426 entries can be blocked, and the run would repeat J-20261102-001's numbers and spend a trial with `news_calendar_loaded: true`.
+The live EA behaves differently: `OnTickLimits` calls `FlattenAll("news")`, so it closes open positions before the event. 236 of the 426 trades were still open at 12:30 UTC (any day, news or
+not). The backtest does not yet test what the EA would do. R-011 is amended (item 2a).
+
+Spread stress: accepted as R-012, not blocking. A redesign-or-reject choice is made only after the amended baseline; see `results/B/history.md`.

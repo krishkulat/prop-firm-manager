@@ -1,5 +1,12 @@
 # Strategy B: Asian-range false-breakout fade — history
 
+## 2026-11-02 21:35 UTC — Orchestrator: Q-006 closed, R-011 amended
+
+Stage unchanged: `coded`, `redesigns: 0`. Gate-basis closed-trade DD is 8.24% of initial (6.04% was % of peak).
+News blocks entries only in `pfm/backtest.py`, and B's entries end at 11:00 UTC, before any FOMC/NFP/CPI blackout, so R-011 as written would repeat J-20261102-001 and waste a trial.
+The EA flattens before news; the backtest did not. R-011 item 2a adds that. **Do not queue the baseline until 1, 2 and 2a are on `main`.** The rules set below stand. If maxDD still fails, the choice between
+one redesign and rejection is made then, and a redesign must not be picked by looking at the 2023-08 to 2024-02 stretch.
+
 ## 2026-11-02 — Orchestrator decision on J-20261102-001 (backtested gate: FAIL)
 
 **Decision: held at `coded`, `redesigns: 0`. Not rejected.** Evidence: `results/J-20261102-001/summary.json`, full table in
@@ -14,7 +21,7 @@
 
 **Set before that run:**
 - Passes all four limits → queue walk-forward.
-- Fails only maxDD → Orchestrator chooses one redesign (counts toward the 3) or rejection. Closed-trade DD alone was 6.04%, so the news filter would have to help for it to pass.
+- Fails only maxDD → Orchestrator chooses one redesign (counts toward the 3) or rejection. Closed-trade DD on the gate's basis is 8.24% (corrected from 6.04%, see Q-006).
 - PF < 1.3 or trades < 200 → H-002 kill criterion: rejected.
 - Lowering risk below 0.5% to pass is not allowed: the gate is defined at 0.5% risk.
 

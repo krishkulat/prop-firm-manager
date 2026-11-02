@@ -31,6 +31,7 @@ strategies:
       2026-11-02 Orchestrator: J-20261102-001 FAILED backtested gate (maxDD 8.52% > 6.0%; trades 426, PF 1.427, worst year -2.99%).
       Held at coded, redesigns stays 0. Not rejected: the run had no news calendar, so it is not a valid H-002 baseline, and no H-002
       kill criterion fired. Next is one clean baseline after R-011. No walk-forward until the gate passes. See results/B/history.md.
+      2026-11-02 Orchestrator (Q-006): baseline also waits on R-011 item 2a (backtest flattens before news like the EA). Entry blocking alone cannot change B's trades.
   C:
     name: SGE day-session long after Western-hours drop
     module: strategies.C_sge_session_long.strategy

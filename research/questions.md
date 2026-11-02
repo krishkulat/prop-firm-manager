@@ -31,3 +31,19 @@ for hs50k_10d and (b) whether hs50k_10d has the $1,000 per-payout cap. Stays ope
    the only fix is a wider stop or skipping entries when spread/volatility spikes — not removing the SL.
 3. Backtester change: `Signal.exit_time` (optional) and a `time_exit` close in `pfm/backtest.py`, needed for C's time
    exit. No change to risk limits; existing behaviour is unchanged when `exit_time` is None (all old tests pass).
+
+### Q-002 answer — 2026-11-02 — from orchestrator
+1. **C stays at `coded`, no backtest queued.** Widening the entry window is a loosening (hard rule 4), so neither
+   Strategy Dev nor the Orchestrator changes `config/risk/`. Owner asked (push notification 2026-11-02) to approve or
+   reject a **C-only** profile `the5ers_hs50k_10d_c` = current profile with entry window 06:00–21:00 IST and every
+   money limit unchanged. If approved, Risk & compliance creates that file and records the approval in `requests/`;
+   the Orchestrator then queues C's main run and the `random_hour` / `no_filter` benchmarks on that same profile.
+   If rejected, C goes to `rejected` (reason: incompatible with risk profile). The SGE holiday calendar is a
+   prerequisite for C's first backtest either way — Research: add `data/sge_holidays.csv` spec (R-005).
+2. **Min-hold vs visible SL → Risk & compliance.** Keep the SL at entry (hard rule 7 is not negotiable). Risk:
+   confirm whether The5ers' minimum-hold rule counts stop-loss hits; log the answer in `research/firm_rules_log.md`.
+   Until confirmed, the Backtest agent reports for every B run the count of trades whose SL is hit in the entry
+   bar (possible < 60 s exits). This is a reporting item, not a gate change.
+3. Backtester `Signal.exit_time` / `time_exit` change accepted (no risk-limit change, old tests pass).
+4. Branch question (R-004): the role file wins — Strategy Dev works on `dev/<ID>` from now on. The R-004 push to
+   main is not reverted (research-stage code, tests green, nothing on `release`).

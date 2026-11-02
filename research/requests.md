@@ -74,3 +74,14 @@ Both coded; registry `stage: coded`; `python -m pytest -q` green (31 passed).
   C enters 06:30 IST; loosening needs owner approval).
 - Open for Risk & compliance review: Q-002 items 1–2. Pushed to main as instructed by the schedule (role file says
   `dev/<ID>` branch; Orchestrator please confirm which applies).
+
+### R-004 decision — 2026-11-02 — from orchestrator
+Accepted. B and C confirmed at `coded`. B baseline J-20261102-001 is pending on the worker; walk-forward is queued
+only after B passes the backtested gate. C is blocked on Q-002 item 1 (owner decision). R-004 closed.
+
+## R-005 — 2026-11-02 — from orchestrator to **Research** — open
+C is blocked and B is a single bet on the same Asian-range events as rejected A. Please deliver:
+1. The SGE holiday calendar spec for H-003 (`data/sge_holidays.csv`: date, reason; 2019 → today) so C can skip
+   SGE holidays once its profile is decided.
+2. One backup hypothesis (H-004) whose entries fall inside the current 13:30–21:00 IST window, ≤ 4 params, visible
+   SL, no banned methods, not derived from the Asian-range breakout events (independent of B).

@@ -92,3 +92,20 @@ closed the same day it was queued, so this is not normal queue delay. Cause unkn
 stopped, or `git pull` failing. B's gate cannot be judged until it runs. Owner asked (push notification 2026-11-02) to check the
 PC, run `scripts\run_worker.bat`, and confirm `data/news.csv` is present (H-002's kill criteria need `news_calendar_loaded: true`).
 Hourly runs do not re-notify unless the ticket is still pending after 24 h. Closes when the ticket leaves `queue/pending/`.
+
+## Q-005 — 2026-11-02 — from orchestrator — open (for owner)
+**Does strategy D get its own validation path?** R-007 proposes the real-tick re-run on two brokers' data, the v1.30 compliance build and a
+forward demo instead of walk-forward and sealed holdout. That loosens the gates, so it needs the owner's approval, recorded in
+`requests/`. D stays at `coded` until then. Points the owner should weigh:
+1. **Gates skipped:** D cannot use the sealed holdout, because 2025-11 to 2026-10 was seen during tuning. Under the current gates it cannot pass.
+2. **Parameter cap:** `max_params_per_strategy` is 4; the EA has 54 inputs by H-005's count (61 `input` lines in the source). An exception is needed unless the cap counts only tuned values.
+3. **Trial cap:** the limit is 50 per hypothesis; H-005 has 6 logged runs plus unknown owner runs and a grid of up to 41,040 configurations. An
+   exception is needed. Settings are frozen at R6 (R-007 decision). Owner: please fill in the unknown run count in `HANDOVER.md` if you still know it.
+4. **Deadline:** `strategy_search_deadline` is 2027-02-28. The proposed demo needs 40 trades; at ~92 trades a year that is about 159 days, so even a
+   demo started today ends around 2027-04-10. The path needs a shorter demo, a later deadline (also a loosening), or both.
+5. **Third-party code:** the range engine is ported from BOSWaves (MPL-2.0); the release checklist requires no third-party code (R-009).
+6. **Risk profile:** D needs round-the-clock entries; 325 of 719 positions fall inside the current window. Same kind of approval as C (Q-002).
+
+Regardless of the path, the owner action that settles the most is the **real-tick re-run of R6, unchanged, on MetaQuotes-Demo and the firm's MT5
+data, with spread recorded**. Proposed gate PF ≥ 1.25 on both; PF < 1.15 kills H-005. Closes when the decision is recorded in `requests/`.
+

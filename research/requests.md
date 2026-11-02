@@ -98,7 +98,7 @@ Implements Q-003 on branch `dev/R-006`. Tightening only: no value in `config/ris
    J-20261102-001 and any later run stay comparable. State in the answer whether backtests take the new path.
 Priority: after any open R-004 follow-ups; before B reaches the propsim stage.
 
-## R-007 — 2026-11-02 — from setup session (owner's imported EA) to **Orchestrator** — open
+## R-007 — 2026-11-02 — from setup session (owner's imported EA) to **Orchestrator** — answered 2026-11-02; item 1 waits on owner (Q-005)
 The owner imported his own EA as strategy D / H-005 (RangeProfileFadeEA v1.22, a failed-breakout fade of
 swing-detected ranges; same family as B). Evaluation and proposed path: `results/D/history.md`. Please decide:
 1. Whether D enters the pipeline on an MT5-native path (no Python port): real-tick re-run on two brokers' data →
@@ -108,3 +108,32 @@ swing-detected ranges; same family as B). Evaluation and proposed path: `results
 3. Ask Capital to model challenge time-to-pass for D (10-20 months at 0.5-1% risk) across The5ers products.
 4. Note for the worker roadmap: an `mt5_tester` job kind (MT5 command-line tester run with an .ini, report parsed
    to summary.json) would let agents run D's tests without the owner. Until then real-tick runs are owner actions.
+
+### R-007 decision — 2026-11-02 — from orchestrator
+D stays at `coded`. The backtested gate is not judged: R6 is an MT5 run with unrecorded spread and modelling, not a PFM run on
+the research split. Rechecked from `R6_positions.csv`: 719 positions, net 72,496.60, PF 1.39; extra round-trip cost +$0.20 / +$0.40 /
++$0.60 per oz gives PF 1.20 / 1.04 / 0.89 (history.md has 1.18 / 1.01 / 0.87; same conclusion); 2019-01 to 2025-10 PF 1.37, n 620.
+1. **MT5-native path: not accepted here, sent to the owner (Q-005).** It replaces walk-forward and sealed holdout, and
+   `config/business.yaml` requires owner approval to loosen anything in it. The real-tick re-run is useful on any path and is the
+   cheapest test of D, so the owner is asked for it first. Kill criterion stays PF < 1.15 (H-005).
+2. **Assigned:** v1.30 compliance build as R-008 (Strategy Dev, Risk review), risk profile proposal and licence check as R-009 (Risk).
+3. **Assigned:** challenge time-to-pass as R-010 (Capital).
+4. **`mt5_tester` job kind: deferred** until the owner decides Q-005 and the research PC is back (Q-004).
+5. **H-005 settings are frozen at R6.** No sweeps and no tuning: the trial count is unknown and may exceed the 50-trial cap.
+
+## R-008 — 2026-11-02 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — open
+On branch `dev/R-008`, after R-006. Skip it if D fails the real-tick re-run. Build `RangeProfileFadeEA` v1.30 per
+`results/D/history.md` section 5.2: include `PFM/RiskEngine.mqh`; no partial or full close by rule before 120 s; USD high-impact news
+blackout; size from initial balance; internal daily stop and kill switch. All v1.22 trading logic and inputs stay at their R6 values.
+Keep a visible SL at entry (hard rule 7). A stop hit inside 60 s stays possible (3 of 719 positions fully closed < 60 s) until
+The5ers answers Q-001 item (c).
+
+## R-009 — 2026-11-02 — from orchestrator to **Risk & compliance** — open
+1. Propose a D-only profile for round-the-clock entries with the 21:00-23:00 UTC break, every money limit unchanged. Proposal only:
+   no file in `config/risk/` changes until the owner approves (hard rule 4, same as C in Q-002). 394 of R6's 719 positions opened outside 13:30-21:00 IST.
+2. Check whether D's range engine, ported from BOSWaves (MPL-2.0), can pass the release item "EA source owned by us (no third-party
+   code)". Write the finding in `research/questions.md` under Q-005.
+
+## R-010 — 2026-11-02 — from orchestrator to **Capital** — open
+Compare time-to-pass for D across The5ers products at 0.5%, 0.75% and 1% risk, with and without +$0.20/oz cost. Analysis only, no
+purchase request (D is not at `release`). The existing figures use a static floor, so mark them provisional until R-006 adds the trailing floor.

@@ -78,3 +78,7 @@ every trade was assumed to reach −1R intrabar (conservative). Trailing max los
    (e.g. fewer steps or lower target) and risk 0.75% vs 1% before any purchase request.
 5. **Forward demo** of v1.30 on the research PC: ≥ 40 trades, PF ≥ 1.0, DD ≤ 10R.
 6. Note correlation with B (both fade failed breakouts): do not run B and D on the same account at full risk.
+
+## 2026-11-02 — Orchestrator decision on R-007
+Held at `coded`, settings frozen at R6. MT5-native path sent to the owner (Q-005); R-008, R-009, R-010 assigned. The 40-trade demo
+takes about 159 days at ~92 trades a year, past the 2027-02-28 search deadline. See `research/requests.md`.

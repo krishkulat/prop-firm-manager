@@ -6,6 +6,8 @@ Conventions
 - Longs buy at ask (bid + spread) + slippage; shorts sell at bid − slippage. Exits pay the other side.
 - If stop and target are both inside one bar, the stop is assumed hit first (conservative).
 - Account limits are checked on each bar's worst price for open positions (conservative).
+- A signal with `exit_time` is closed at the open of the first bar at or after that time ("time_exit").
+  A long with no profit target uses target = +inf (a short: −inf).
 """
 from __future__ import annotations
 
@@ -29,6 +31,7 @@ class Position:
     lots: float
     risk_usd: float
     worst_price: float
+    exit_time: pd.Timestamp | None = None
 
 
 @dataclass
@@ -109,6 +112,10 @@ def run(bars: pd.DataFrame, signals: list[Signal], risk_cfg: dict, initial: floa
             for p in list(positions):
                 close(p, ts, bar["open"], sp, "session_end")
                 positions.remove(p)
+        for p in list(positions):
+            if p.exit_time is not None and ts >= p.exit_time:
+                close(p, ts, bar["open"], sp, "time_exit")
+                positions.remove(p)
 
         # 2) new entry at this bar's open (before intrabar moves, so the entry bar's range is checked too)
         s = sig_at.get(ts)
@@ -121,7 +128,8 @@ def run(bars: pd.DataFrame, signals: list[Signal], risk_cfg: dict, initial: floa
             else:
                 dec = eng.check(st, ts, entry, s.stop, sp, spread_med.loc[ts])
                 if dec.ok:
-                    positions.append(Position(ts, s.direction, entry, s.stop, s.target, dec.lots, dec.risk_usd, entry))
+                    positions.append(Position(ts, s.direction, entry, s.stop, s.target, dec.lots, dec.risk_usd, entry,
+                                              s.exit_time))
                     st.open_positions += 1
                     st.open_risk_usd += dec.risk_usd
                     st.trades_today += 1

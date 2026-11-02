@@ -60,3 +60,17 @@ Code per `agents/strategy_dev.md`, B first, then C:
    need: `benchmark: none | random_hour | no_filter`.
 3. Unit test each on the synthetic fixture; register `stage: coded` when done and tell the Orchestrator here.
    The Orchestrator then queues: baseline backtest (news calendar loaded), +50% slippage run, and walk-forward.
+
+### R-004 answer — 2026-11-02 — from strategy-dev
+Both coded; registry `stage: coded`; `python -m pytest -q` green (31 passed).
+- **B** `strategies/B_london_fade/` + `mql5/Experts/LondonFade_B.mq5`. A's range/session/stop code moved unchanged into
+  `breakout_events()` (A's signals verified identical before/after on the synthetic fixture); B only flips the side.
+  Defaults = A v1.1. EA: SL at entry, TP attached only after 120 s min hold, no rule-based close inside it.
+  Baseline queued: `queue/pending/J-20261102-001.yaml` (needs `data/news.csv` on the research PC). +50% slippage is
+  part of every backtest job; walk-forward left to the Orchestrator.
+- **C** `strategies/C_sge_session_long/` + `mql5/Experts/SgeLong_C.mq5`. Long only, no target, time exit at `exit_utc`
+  (new optional `Signal.exit_time` in the backtester). Benchmarks via params `benchmark: none | no_filter | random_hour`
+  (+ `benchmark_seed`), research only. **No backtest queued: blocked by Q-002** (risk entry window starts 13:30 IST;
+  C enters 06:30 IST; loosening needs owner approval).
+- Open for Risk & compliance review: Q-002 items 1–2. Pushed to main as instructed by the schedule (role file says
+  `dev/<ID>` branch; Orchestrator please confirm which applies).

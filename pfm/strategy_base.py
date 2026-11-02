@@ -13,6 +13,7 @@ class Signal:
     stop: float             # absolute stop price
     target: float           # absolute take-profit price
     tag: str = ""
+    exit_time: pd.Timestamp | None = None   # optional time exit (UTC): close at the open of the first bar >= this
 
 
 class Strategy:

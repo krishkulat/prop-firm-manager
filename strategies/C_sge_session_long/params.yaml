@@ -1,0 +1,18 @@
+# H-003 v1.0. 3 tunable parameters, defaults from the hypothesis, 0 trials used.
+default: {west_drop_atr: 0.5, stop_atr: 2.0, exit_utc: "07:30"}
+ranges:
+  west_drop_atr: [0.0, 0.5, 1.0, 1.5]
+  stop_atr: [1.0, 2.0, 3.0]
+  exit_utc: ["07:30", "09:00"]
+fixed:
+  entry_utc: "01:00"           # SGE day-session open (09:00 Beijing), not tuned
+  west_window_utc: ["13:30", "21:00"]   # previous trading day
+  direction: long_only
+  target: none                 # time exit only (or stop)
+  timeframe: M15
+# Benchmark switches for the H-003 kill criteria — NOT tunable, research only (not in the EA):
+benchmark:
+  benchmark: [none, no_filter, random_hour]   # default none
+  benchmark_seed: 0                           # random_hour only; fixed seed for reproducibility
+# Known gaps (see research/questions.md Q-002): live risk profile entry window 13:30–21:00 IST blocks the
+# 06:30 IST entry; no SGE holiday calendar in the repo yet (days are not skipped for SGE holidays).

@@ -17,20 +17,27 @@ strategies:
     name: Asian-range false-breakout fade (London open)
     module: strategies.B_london_fade.strategy
     version: "1.0"
-    stage: idea
+    stage: coded
     hypothesis: research/hypotheses/H-002-asian-range-false-breakout-fade.md
     firm_product: the5ers/hs50k_10d
     redesigns: 0
     notes: >-
       2026-11-02 approved by orchestrator, assigned to Strategy Dev (R-004). Found in-sample (R-002 audit,
       trials.csv row audit-R002-2 under H-001); counts as 1 trial used for H-002. Mirror of rejected A.
+      2026-11-02 CODED by strategy-dev (R-004): strategies/B_london_fade/ + mql5/Experts/LondonFade_B.mq5. Uses A's
+      audited path (breakout_events) unchanged; only the side flips; stop = A's stop distance (tighter of range
+      midpoint and stop_atr x ATR), not the plain stop_atr x ATR written in H-002 (R-004 "reuse exactly" wins).
+      EA attaches SL at entry, TP only after the risk engine min hold (120 s). First backtest queued J-20261102-001.
   C:
     name: SGE day-session long after Western-hours drop
     module: strategies.C_sge_session_long.strategy
     version: "1.0"
-    stage: idea
+    stage: coded
     hypothesis: research/hypotheses/H-003-sge-day-session-long.md
     firm_product: the5ers/hs50k_10d
     redesigns: 0
     notes: >-
       2026-11-02 approved by orchestrator, assigned to Strategy Dev (R-004). 3 params, 0 trials used.
+      2026-11-02 CODED by strategy-dev (R-004): strategies/C_sge_session_long/ + mql5/Experts/SgeLong_C.mq5, with
+      research-only benchmark switches (none | no_filter | random_hour). NO backtest queued - blocked by Q-002 (the
+      risk profile entry window 13:30-21:00 IST rejects every 06:30 IST entry; a run now would log 0 trades as a trial).

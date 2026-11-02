@@ -1,0 +1,12 @@
+job_id: J-20261102-001
+kind: backtest
+strategy: B
+hypothesis: H-002
+requested_by: strategy_dev
+data: {symbol: XAUUSD, timeframe: M15}
+params: {rr: 2.0, stop_atr: 1.2, min_range_atr: 1.5, max_range_atr: 4.0}
+risk_profile: the5ers_hs50k_10d
+notes: >-
+  First baseline of strategy B v1.0 (H-002) at the untuned defaults (= A v1.1 = audit-R002-2) on the research split.
+  Needs data/news.csv on the research PC (H-002 kill criteria require news_calendar_loaded true). The worker also
+  runs the +50% slippage stress. Walk-forward is for the Orchestrator to queue. Real data only - research PC.

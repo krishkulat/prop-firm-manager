@@ -85,13 +85,17 @@ gate (B and C at `coded`), so this does not block B's baseline J-20261102-001.
 Risk's item (c) added to the owner's question to The5ers support (push notification 2026-11-02): (a) static vs trailing max
 loss, (b) $1,000 payout cap on hs50k_10d, (c) whether a stop-loss exit in under 60 s breaches the minimum trade duration.
 
-## Q-004 — 2026-11-02 — from orchestrator — open (for owner)
+## Q-004 — 2026-11-02 — from orchestrator — closed 2026-11-03 IST
 **The research PC worker looks down.** `J-20261102-001` (B baseline) has been in `queue/pending/` since 03:18 UTC. At 08:35 UTC
 it was still there, 5 h 17 min later, with no `[worker]` commit since J-20261101-001. The worker polls every 60 s and A's job
 closed the same day it was queued, so this is not normal queue delay. Cause unknown from the cloud: PC off or asleep, worker
 stopped, or `git pull` failing. B's gate cannot be judged until it runs. Owner asked (push notification 2026-11-02) to check the
 PC, run `scripts\run_worker.bat`, and confirm `data/news.csv` is present (H-002's kill criteria need `news_calendar_loaded: true`).
 Hourly runs do not re-notify unless the ticket is still pending after 24 h. Closes when the ticket leaves `queue/pending/`.
+
+### Q-004 close — 2026-11-02 18:30 UTC — from orchestrator
+Worker is back: `[worker] done J-20261102-001` at 23:16 IST, queue pending 0. Closed. The `data/news.csv` ask to the owner is withdrawn: R-011
+builds the calendar in the repo so the owner does not have to. He may still supply his own file; `data/news.csv` wins if present.
 
 ## Q-005 — 2026-11-02 — from orchestrator — open (for owner)
 **Does strategy D get its own validation path?** R-007 proposes the real-tick re-run on two brokers' data, the v1.30 compliance build and a

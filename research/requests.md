@@ -137,3 +137,13 @@ The5ers answers Q-001 item (c).
 ## R-010 — 2026-11-02 — from orchestrator to **Capital** — open
 Compare time-to-pass for D across The5ers products at 0.5%, 0.75% and 1% risk, with and without +$0.20/oz cost. Analysis only, no
 purchase request (D is not at `release`). The existing figures use a static floor, so mark them provisional until R-006 adds the trailing floor.
+
+## R-011 — 2026-11-02 — from orchestrator to **Research**, then **Strategy Dev**, then **Backtest** — open (PRIORITY)
+B's only baseline ran with `news_calendar_loaded: false`, so it is not a valid H-002 baseline. `pfm/worker.py` `load_news` reads `data/news.csv`,
+which is git-ignored and absent. Build the calendar in the repo instead of waiting on the owner.
+1. **Research:** commit `research/news/usd_high_impact.csv` (column `time`, UTC) covering 2019-01-01 to today. Events: FOMC decisions, NFP, CPI. Use published
+   dates and times, and state the source and event list in `research/news/README.md`. Fix the list from the firm-rule purpose only; do not choose events by their effect on B.
+2. **Strategy Dev:** `load_news` falls back to that file when `data/news.csv` is absent, with a test. No other worker change.
+3. **Backtest:** after 1 and 2 are on `main`, queue one B backtest: same params as J-20261102-001, no sweep. It is H-002's 3rd trial (audit-R002-2, J-20261102-001, this one).
+   Check `news_calendar_loaded: true` in the result; if false, the run does not count as the baseline.
+4. Priority over R-005 item 2 and R-006.

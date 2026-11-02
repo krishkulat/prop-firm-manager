@@ -28,6 +28,9 @@ strategies:
       audited path (breakout_events) unchanged; only the side flips; stop = A's stop distance (tighter of range
       midpoint and stop_atr x ATR), not the plain stop_atr x ATR written in H-002 (R-004 "reuse exactly" wins).
       EA attaches SL at entry, TP only after the risk engine min hold (120 s). First backtest queued J-20261102-001.
+      2026-11-02 Orchestrator: J-20261102-001 FAILED backtested gate (maxDD 8.52% > 6.0%; trades 426, PF 1.427, worst year -2.99%).
+      Held at coded, redesigns stays 0. Not rejected: the run had no news calendar, so it is not a valid H-002 baseline, and no H-002
+      kill criterion fired. Next is one clean baseline after R-011. No walk-forward until the gate passes. See results/B/history.md.
   C:
     name: SGE day-session long after Western-hours drop
     module: strategies.C_sge_session_long.strategy

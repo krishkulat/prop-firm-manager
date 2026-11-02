@@ -41,3 +41,19 @@ strategies:
       2026-11-02 CODED by strategy-dev (R-004): strategies/C_sge_session_long/ + mql5/Experts/SgeLong_C.mq5, with
       research-only benchmark switches (none | no_filter | random_hour). NO backtest queued - blocked by Q-002 (the
       risk profile entry window 13:30-21:00 IST rejects every 06:30 IST entry; a run now would log 0 trades as a trial).
+  D:
+    name: Range Profile deviation fade (imported RangeProfileFadeEA v1.22)
+    module: null
+    version: "1.22"
+    stage: coded
+    hypothesis: research/hypotheses/H-005-range-profile-deviation-fade.md
+    firm_product: the5ers/hs50k_10d
+    redesigns: 0
+    notes: >-
+      2026-11-02 imported by the setup session from the owner's own work (research/imported/RangeProfileFadeEA/).
+      MQL5 only; no Python port (range engine + partial exits, MT5 is the native test platform). In-sample R6:
+      PF 1.39, 719 positions, max equity DD 4.0% at 0.5% risk. NOT out-of-sample (tuned on 2019-2026, holdout window
+      seen); trial count unknown. Blockers: closes < 60 s (13 positions), no news filter, compounding sizing,
+      round-the-clock entries vs risk profile. Proposed path in results/D/history.md section 5. Stage left at coded
+      for the Orchestrator to decide.
+

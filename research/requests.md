@@ -97,3 +97,14 @@ Implements Q-003 on branch `dev/R-006`. Tightening only: no value in `config/ris
 5. Add a test that a backtest on the synthetic fixture is unchanged unless the new path is on, so B's queued baseline
    J-20261102-001 and any later run stay comparable. State in the answer whether backtests take the new path.
 Priority: after any open R-004 follow-ups; before B reaches the propsim stage.
+
+## R-007 — 2026-11-02 — from setup session (owner's imported EA) to **Orchestrator** — open
+The owner imported his own EA as strategy D / H-005 (RangeProfileFadeEA v1.22, a failed-breakout fade of
+swing-detected ranges; same family as B). Evaluation and proposed path: `results/D/history.md`. Please decide:
+1. Whether D enters the pipeline on an MT5-native path (no Python port): real-tick re-run on two brokers' data →
+   v1.30 compliance build → forward demo, instead of walk-forward + sealed holdout (holdout already seen by the owner).
+2. Assign the v1.30 compliance build (section 5.2) to Strategy Dev with Risk review, and ask Risk for a
+   round-the-clock risk profile proposal (owner decision, like Q-002).
+3. Ask Capital to model challenge time-to-pass for D (10-20 months at 0.5-1% risk) across The5ers products.
+4. Note for the worker roadmap: an `mt5_tester` job kind (MT5 command-line tester run with an .ini, report parsed
+   to summary.json) would let agents run D's tests without the owner. Until then real-tick runs are owner actions.

@@ -1,0 +1,344 @@
+//@lipi=2
+// Range Profile Fade - intraday strategy built on the Range Profile Structure [BOSWaves] range engine
+// Range engine: Mozilla Public License 2.0 - © BOSWaves
+// Idea: when price closes outside an active range and then closes back inside (a failed breakout / deviation),
+// trade back into the range. Stop just beyond the deviation extreme. Default target 2R (set Target R = 1 for the
+// higher win-rate version).
+// All positions are closed by 02:30 IST (21:00 UTC). Not financial advice - test before trading.
+strategy("Range Profile Fade [Intraday]", overlay=true, default_qty_value=1, initial_capital=10000, commission_type=strategy.commission_cash_per_order, commission_value=0.1, process_orders_on_close=true)
+
+// ---------------------------------------------------------------- Inputs
+
+// Range engine
+int swingLen = input.int(3, "Swing Length", minval=2, maxval=30, group="Range Engine")
+int swingMemory = input.int(10, "Swing Memory", minval=4, maxval=20, group="Range Engine")
+int atrLen = input.int(14, "ATR Length", minval=2, group="Range Engine")
+int minTouches = input.int(2, "Touches Per Edge", minval=2, maxval=5, group="Range Engine")
+int minRotations = input.int(3, "Minimum Rotations", minval=3, maxval=10, group="Range Engine")
+int minRangeBars = input.int(8, "Minimum Range Span", minval=3, maxval=100, group="Range Engine")
+float clusterATR = input.float(0.30, "Edge Stability ATR", minval=0.05, maxval=1.0, step=0.05, group="Range Engine")
+float minWidthATR = input.float(1.0, "Minimum Width ATR", minval=0.25, maxval=5.0, step=0.25, group="Range Engine")
+float maxWidthATR = input.float(6.0, "Maximum Width ATR", minval=1.0, maxval=15.0, step=0.25, group="Range Engine")
+float edgeAdapt = input.float(0.20, "Edge Adaptation", minval=0.0, maxval=0.50, step=0.05, group="Range Engine")
+float breakBuffer = input.float(0.0, "Break Buffer ATR", minval=0.0, maxval=2.0, step=0.05, group="Range Engine")
+int breakCloses = input.int(3, "Break Acceptance Closes", minval=1, maxval=5, group="Range Engine")
+int cooldownBars = input.int(4, "New Range Cooldown", minval=0, maxval=50, group="Range Engine")
+
+// Trade rules
+string targetMode = input.string("R multiple", "Target", options=["Opposite edge", "Midline", "R multiple"], group="Trade")
+float targetR = input.float(2.0, "Target R (R multiple mode)", minval=0.5, maxval=5.0, step=0.25, group="Trade")
+float slBufferATR = input.float(0.10, "Stop Buffer ATR (beyond deviation extreme)", minval=0.0, maxval=1.0, step=0.05, group="Trade")
+string sessionMode = input.string("All day", "Entry Window", options=["All day", "London + NY (12:30-01:30 IST)"], group="Trade")
+int flatHourUTC = input.int(21, "Flat At Hour (UTC) - 21 = 02:30 IST", minval=0, maxval=23, group="Trade")
+bool allowLong = input.bool(true, "Allow Longs", group="Trade")
+bool allowShort = input.bool(true, "Allow Shorts", group="Trade")
+
+color bullCol = input.color(#00FF66, "Bullish", group="Display")
+color bearCol = input.color(#FF0066, "Bearish", group="Display")
+
+// ---------------------------------------------------------------- Types
+
+type RangeFit {
+    bool found
+    float top
+    float bottom
+    int left
+}
+
+type Nil {
+    float f
+}
+
+Nil nilv = Nil.new()
+
+// ---------------------------------------------------------------- Swing points
+
+static array<float> swingPrice = array.new<float>(0)
+static array<int> swingBar = array.new<int>(0)
+static array<int> swingSide = array.new<int>(0)
+
+float atr = talib.atr(atrLen)
+
+bool hasPh = false
+bool hasPl = false
+float ph = 0.0
+float pl = 0.0
+if bar_index >= swingLen * 2 {
+    float centerHigh = high[swingLen]
+    float centerLow = low[swingLen]
+    bool isHigh = true
+    bool isLow = true
+    int k = 1
+    while k <= swingLen {
+        if high[swingLen + k] >= centerHigh {
+            isHigh := false
+        }
+        if high[swingLen - k] > centerHigh {
+            isHigh := false
+        }
+        if low[swingLen + k] <= centerLow {
+            isLow := false
+        }
+        if low[swingLen - k] < centerLow {
+            isLow := false
+        }
+        k += 1
+    }
+    if isHigh {
+        ph := centerHigh
+        hasPh := true
+    }
+    if isLow {
+        pl := centerLow
+        hasPl := true
+    }
+}
+
+func addSwing(array<float> prices, array<int> bars, array<int> sides, float price, int bi, int side) {
+    bool sameSide = false
+    if array.length(prices) > 0 {
+        sameSide := array.get(sides, 0) == side
+    }
+    if sameSide {
+        float last = array.get(prices, 0)
+        bool replace = side == 1 ? price >= last : price <= last
+        if replace {
+            array.set(prices, 0, price)
+            array.set(bars, 0, bi)
+        }
+    } else {
+        array.unshift(prices, price)
+        array.unshift(bars, bi)
+        array.unshift(sides, side)
+    }
+    while array.length(prices) > swingMemory {
+        array.pop(prices)
+        array.pop(bars)
+        array.pop(sides)
+    }
+}
+
+func findRange(array<float> prices, array<int> bars, array<int> sides, float atrValue) {
+    bool bestFound = false
+    float bestTop = 0.0
+    float bestBottom = 0.0
+    int bestLeft = 0
+    int n = array.length(prices)
+    int minEvents = math.max(minTouches * 2, minRotations + 1)
+    float tolerance = atrValue * clusterATR
+    if n >= minEvents and atrValue > 0 {
+        int count = minEvents
+        while count <= n {
+            float highSum = 0.0
+            float lowSum = 0.0
+            float highMin = 0.0
+            float highMax = 0.0
+            float lowMin = 0.0
+            float lowMax = 0.0
+            int highCount = 0
+            int lowCount = 0
+            int oldest = bar_index
+            int newest = 0
+            int i = 0
+            while i < count {
+                float p = array.get(prices, i)
+                int bi = array.get(bars, i)
+                int side = array.get(sides, i)
+                oldest := math.min(oldest, bi)
+                newest := math.max(newest, bi)
+                if side == 1 {
+                    highSum += p
+                    highCount += 1
+                    highMin := highCount == 1 ? p : math.min(highMin, p)
+                    highMax := highCount == 1 ? p : math.max(highMax, p)
+                } else {
+                    lowSum += p
+                    lowCount += 1
+                    lowMin := lowCount == 1 ? p : math.min(lowMin, p)
+                    lowMax := lowCount == 1 ? p : math.max(lowMax, p)
+                }
+                i += 1
+            }
+            if highCount >= minTouches and lowCount >= minTouches {
+                float top = highSum / highCount
+                float bottom = lowSum / lowCount
+                float width = top - bottom
+                bool stable = highMax - highMin <= tolerance * 2.0 and lowMax - lowMin <= tolerance * 2.0
+                bool widthOK = width >= atrValue * minWidthATR and width <= atrValue * math.max(maxWidthATR, minWidthATR)
+                bool spanOK = newest - oldest >= minRangeBars
+                bool rotationsOK = count - 1 >= minRotations
+                if top > bottom and stable and widthOK and spanOK and rotationsOK {
+                    bestFound := true
+                    bestTop := top
+                    bestBottom := bottom
+                    bestLeft := oldest
+                }
+            }
+            count += 1
+        }
+    }
+    return RangeFit.new(bestFound, bestTop, bestBottom, bestLeft)
+}
+
+if hasPh {
+    addSwing(swingPrice, swingBar, swingSide, ph, bar_index - swingLen, 1)
+}
+if hasPl {
+    addSwing(swingPrice, swingBar, swingSide, pl, bar_index - swingLen, -1)
+}
+
+// ---------------------------------------------------------------- Range state
+
+static bool rangeActive = false
+static float rangeTop = 0.0
+static float rangeBottom = 0.0
+static int rangeLeft = 0
+static int breakUpCount = 0
+static int breakDownCount = 0
+static int cooldown = 0
+static int deviationDir = 0
+static float deviationExtreme = 0.0
+
+int devSignal = 0
+float devExtremeSignal = 0.0
+float sigTop = 0.0
+float sigBottom = 0.0
+
+if cooldown > 0 {
+    cooldown -= 1
+}
+
+if not rangeActive and cooldown <= 0 and not na(atr) {
+    RangeFit fit = findRange(swingPrice, swingBar, swingSide, atr)
+    if fit.found {
+        rangeActive := true
+        rangeTop := fit.top
+        rangeBottom := fit.bottom
+        rangeLeft := math.max(fit.left, bar_index - 1500)
+        breakUpCount := 0
+        breakDownCount := 0
+        deviationDir := 0
+        deviationExtreme := 0.0
+    }
+}
+
+if rangeActive {
+    float tolerance = atr * clusterATR
+    if hasPh and bar_index - swingLen >= rangeLeft and math.abs(ph - rangeTop) <= tolerance {
+        rangeTop += (ph - rangeTop) * edgeAdapt
+    }
+    if hasPl and bar_index - swingLen >= rangeLeft and math.abs(pl - rangeBottom) <= tolerance {
+        rangeBottom += (pl - rangeBottom) * edgeAdapt
+    }
+}
+
+int breakDirection = 0
+if rangeActive and barstate.isconfirmed {
+    float buffer = atr * breakBuffer
+    bool outsideUp = close > rangeTop + buffer
+    bool outsideDown = close < rangeBottom - buffer
+    breakUpCount := outsideUp ? breakUpCount + 1 : 0
+    breakDownCount := outsideDown ? breakDownCount + 1 : 0
+    if deviationDir == 0 {
+        if outsideUp {
+            deviationDir := 1
+            deviationExtreme := high
+        } else if outsideDown {
+            deviationDir := -1
+            deviationExtreme := low
+        }
+    } else {
+        if deviationDir == 1 and high > deviationExtreme {
+            deviationExtreme := high
+        }
+        if deviationDir == -1 and low < deviationExtreme {
+            deviationExtreme := low
+        }
+        if close <= rangeTop and close >= rangeBottom {
+            devSignal := deviationDir
+            devExtremeSignal := deviationExtreme
+            sigTop := rangeTop
+            sigBottom := rangeBottom
+            deviationDir := 0
+            deviationExtreme := 0.0
+        }
+    }
+    if breakUpCount >= breakCloses {
+        breakDirection := 1
+    }
+    if breakDownCount >= breakCloses {
+        breakDirection := -1
+    }
+}
+
+bool plotActive = rangeActive
+float plotTop = rangeTop
+float plotBottom = rangeBottom
+
+if rangeActive and breakDirection != 0 {
+    rangeActive := false
+    array.clear(swingPrice)
+    array.clear(swingBar)
+    array.clear(swingSide)
+    breakUpCount := 0
+    breakDownCount := 0
+    deviationDir := 0
+    deviationExtreme := 0.0
+    cooldown := cooldownBars
+}
+
+// ---------------------------------------------------------------- Session
+
+int openMod = hour(time, "UTC") * 60 + minute(time, "UTC")
+int closeTime = time_close()
+int closeMod = hour(closeTime, "UTC") * 60 + minute(closeTime, "UTC")
+int flatMod = flatHourUTC * 60
+bool lastBarOfSession = openMod < flatMod and (closeMod >= flatMod or closeMod < openMod)
+bool inWindow = sessionMode == "All day" ? true : (openMod >= 420 and openMod < 1200)
+
+// ---------------------------------------------------------------- Orders
+
+static int prevClosed = 0
+bool exitedThisBar = strategy.closedtrades > prevClosed
+prevClosed := strategy.closedtrades
+
+bool goLong = false
+bool goShort = false
+
+if lastBarOfSession and strategy.position_size != 0 {
+    strategy.cancel_all()
+    strategy.close_all(comment="EOD 02:30 IST")
+}
+
+if devSignal != 0 and strategy.position_size == 0 and not exitedThisBar and not lastBarOfSession and inWindow and barstate.isconfirmed {
+    int dir = -devSignal
+    float entryPrice = close
+    float stopPrice = devExtremeSignal + devSignal * atr * slBufferATR
+    float risk = math.abs(entryPrice - stopPrice)
+    float mid = (sigTop + sigBottom) / 2.0
+    float targetPrice = targetMode == "Midline" ? mid : targetMode == "Opposite edge" ? (dir == 1 ? sigTop : sigBottom) : entryPrice + dir * risk * targetR
+    bool valid = risk > 0 and (dir == 1 ? (stopPrice < entryPrice and targetPrice > entryPrice) : (stopPrice > entryPrice and targetPrice < entryPrice))
+    if valid and dir == 1 and allowLong {
+        goLong := true
+        strategy.cancel_all()
+        strategy.entry("Fade Long", strategy.long, comment="Fade L")
+        strategy.order("SL", strategy.short, qty=1, stop=stopPrice, oca_name="bracket", oca_type=strategy.oca_cancel, comment="SL")
+        strategy.order("TP", strategy.short, qty=1, limit=targetPrice, oca_name="bracket", oca_type=strategy.oca_cancel, comment="TP")
+    }
+    if valid and dir == -1 and allowShort {
+        goShort := true
+        strategy.cancel_all()
+        strategy.entry("Fade Short", strategy.short, comment="Fade S")
+        strategy.order("SL", strategy.long, qty=1, stop=stopPrice, oca_name="bracket", oca_type=strategy.oca_cancel, comment="SL")
+        strategy.order("TP", strategy.long, qty=1, limit=targetPrice, oca_name="bracket", oca_type=strategy.oca_cancel, comment="TP")
+    }
+}
+
+// ---------------------------------------------------------------- Output
+
+plot(plotActive ? plotTop : nilv.f, title="Range High", color=color.new(bearCol, 0.7), style=plotStyle.linebr, linewidth=2)
+plot(plotActive ? plotBottom : nilv.f, title="Range Low", color=color.new(bullCol, 0.7), style=plotStyle.linebr, linewidth=2)
+plotshape(goLong, title="Fade Long", shape=shape.triangleup, location=location.belowbar, color=bullCol, size=size.small)
+plotshape(goShort, title="Fade Short", shape=shape.triangledown, location=location.abovebar, color=bearCol, size=size.small)
+alertcondition(goLong, title="Fade Long", message="Range Profile Fade: long back into range")
+alertcondition(goShort, title="Fade Short", message="Range Profile Fade: short back into range")

@@ -66,7 +66,7 @@ strategies:
     name: US-open impulse continuation
     module: strategies.E_us_open_impulse.strategy
     version: "1.0"
-    stage: idea
+    stage: coded
     hypothesis: research/hypotheses/H-004-us-open-impulse-continuation.md
     firm_product: the5ers/hs50k_10d
     redesigns: 0
@@ -74,3 +74,6 @@ strategies:
       2026-11-03 approved by orchestrator, assigned to Strategy Dev (R-013). 3 params, 0 trials used. Entries 19:00 or 20:00 IST, inside the current
       risk window, so no owner approval is needed. Not derived from the Asian-range events. Before demo it needs a check against the full MT5
       high-importance event list (H-004 "known problem").
+      2026-11-03 CODED by strategy-dev (R-013, branch dev/R-013): strategies/E_us_open_impulse/ + mql5/Experts/UsOpenImpulse_E.mq5. Stop is measured from the signal
+      close (09:15 ET bar close), as in C. Benchmarks random_side | opposite_side | no_filter are research only. EA not compiled in MT5 yet; its DST block was compiled
+      with a C shim and matches the tz database 2019-2030. No backtest queued: R-013 item 5 gives the 4 runs to the Orchestrator once R-011 is on main.

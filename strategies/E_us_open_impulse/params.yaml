@@ -1,0 +1,17 @@
+# H-004 v1.0. 3 tunable parameters, defaults from the hypothesis, 0 trials used.
+default: {impulse_atr: 1.0, stop_atr: 1.5, exit_et: "11:30"}
+ranges:                        # 36 combinations; with the 4 first runs that stays under the 50-trial cap
+  impulse_atr: [0.5, 1.0, 1.5]
+  stop_atr: [1.0, 1.5, 2.0, 2.5]
+  exit_et: ["10:30", "11:00", "11:30"]
+fixed:
+  impulse_window_et: ["08:30", "09:30"]   # 08:30 bar open to 09:15 bar close
+  entry_et: "09:30"            # 19:00 IST in US summer time, 20:00 IST in US winter time
+  target: none                 # time exit only (or stop)
+  timeframe: M15
+# Benchmark switches for the H-004 kill criteria - NOT tunable, research only (not in the EA):
+benchmark:
+  benchmark: [none, random_side, opposite_side, no_filter]   # default none
+  benchmark_seed: 0                                          # random_side only; fixed seed for reproducibility
+# Known gap (H-004 "known problem"): 10:00 ET releases are not in research/news/usd_high_impact.csv. If MT5 rates
+# them high importance the EA flattens at 09:50 ET on those days. Required check before demo, not before.

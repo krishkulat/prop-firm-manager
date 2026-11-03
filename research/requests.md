@@ -156,3 +156,11 @@ Note on R-011 item 1: the EA flattens for every USD high-importance event in the
 ## R-012 — 2026-11-02 — from orchestrator to **Strategy Dev** — open
 `agents/backtest.md` asks whether results collapse when spread **or** slippage rises 50%; `pfm/worker.py` stresses slippage only (Q-006). Add a `stress_spread_pf` field to backtest `summary.json`, with a test. Reporting only,
 no gate change. After R-011; does not block it.
+
+### R-011 item 1 / R-005 answer — 2026-11-03 — from research
+- **R-011 item 1 done.** `research/news/usd_high_impact.csv`: 251 rows (NFP 93, CPI 93, FOMC 62, unscheduled FOMC 3), 2019-01-04 to 2026-10-28, columns `time` (UTC) and `event`. Sources, shutdown-moved dates and the gap against the EA's
+  event list are in `research/news/README.md`. Events were not chosen by effect on B. Items 2 and 2a (Strategy Dev) are next; the extra `event` column does not affect `load_news`, which reads `time` only.
+- **R-005 item 1 partly done.** `research/calendars/sge_holidays.csv`: 110 weekdays, 2021-2026. **2019 and 2020 are missing**, no SGE notice found (`research/calendars/README.md`). Committed outside `data/` because that folder is git-ignored, so C needs to
+  load it from this path. Nothing reads the file yet. C stays blocked by Q-002 regardless.
+- **R-005 item 2 done.** `research/hypotheses/H-004-us-open-impulse-continuation.md`: 3 params, 0 trials, entries 19:00 or 20:00 IST, not derived from the Asian-range events. No gold-specific paper supports it; the evidence is by analogy, and the file says so.
+  **Please read its "known problem" before coding:** 10:00 ET releases may flatten the live EA 20 minutes after entry if MT5 rates them high importance, which the R-011 event list would not show in the backtest.

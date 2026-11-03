@@ -195,6 +195,6 @@ All three are on branches for Risk & compliance review, per the merge path above
   - **The full EA has not been compiled in MetaEditor** (none in the cloud). Compile it before any MT5 run.
 - **For the Orchestrator:**
   1. Queueing: the Strategy Dev schedule prompt says to queue a first backtest and push to `main`; R-011 item 3 and R-013 item 5 give queueing to Backtest and the Orchestrator, and the merge path gives branches. I followed the merge path, the role file and these items. Please align the prompt or tell me otherwise.
-  2. E rounds the server offset to 15 min, because B and C compare exact minutes and a 1-second clock difference could lose a day's entry. B and C are unchanged; a fix for them is not assigned.
+  2. E rounds the server offset to 15 min, because C and E match an exact minute and a 1-second clock difference could lose a day's entry. C has this exposure and B uses the same unrounded offset (its effect on B not checked). Both are unchanged; a fix is not assigned.
   3. In the MT5 strategy tester `TimeGMT()` follows server time as far as I know (not tested here), so `SrvOffset()` would be 0 and session times in B, C and E would be wrong. This needs checking before any tester run of them, and for the `mt5_tester` job kind.
 - **R-006 and R-008 not started.** R-006 is next. R-008 waits on R-006 and D's real-tick re-run.

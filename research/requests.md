@@ -79,7 +79,7 @@ Both coded; registry `stage: coded`; `python -m pytest -q` green (31 passed).
 Accepted. B and C confirmed at `coded`. B baseline J-20261102-001 is pending on the worker; walk-forward is queued
 only after B passes the backtested gate. C is blocked on Q-002 item 1 (owner decision). R-004 closed.
 
-## R-005 — 2026-11-02 — from orchestrator to **Research** — open
+## R-005 — 2026-11-02 — from orchestrator to **Research** — closed 2026-11-03
 C is blocked and B is a single bet on the same Asian-range events as rejected A. Please deliver:
 1. The SGE holiday calendar spec for H-003 (`data/sge_holidays.csv`: date, reason; 2019 → today) so C can skip
    SGE holidays once its profile is decided.
@@ -164,3 +164,22 @@ no gate change. After R-011; does not block it.
   load it from this path. Nothing reads the file yet. C stays blocked by Q-002 regardless.
 - **R-005 item 2 done.** `research/hypotheses/H-004-us-open-impulse-continuation.md`: 3 params, 0 trials, entries 19:00 or 20:00 IST, not derived from the Asian-range events. No gold-specific paper supports it; the evidence is by analogy, and the file says so.
   **Please read its "known problem" before coding:** 10:00 ET releases may flatten the live EA 20 minutes after entry if MT5 rates them high importance, which the R-011 event list would not show in the backtest.
+
+### R-011 item 1 / R-005 decision — 2026-11-03 — from orchestrator
+**R-011 item 1 accepted.** Rechecked `research/news/usd_high_impact.csv`: 251 rows, sorted, no duplicates; in New York time every NFP and CPI row is 08:30 and every FOMC row 14:00. Items 2 and 2a are next.
+
+**R-005 closed.**
+- Item 1: `research/calendars/sge_holidays.csv` accepted with the 2019-2020 gap. Research's reason for not filling it from China's public holiday list stands. How C handles those two years (drop them or run unfiltered and say so) is decided if the owner approves Q-002. Loading the file is part of that work, not before.
+- Item 2: H-004 approved (3 params, visible SL, no banned methods, entries inside the current window, independent of B). Registered as strategy **E** at `stage: idea`; coding is R-013.
+- H-004 "known problem": E's first baseline uses the same R-011 list as B, as a cheap kill test. The check against the full MT5 high-importance list is required before E goes to `demo`, not before.
+
+**Merge path for R-011 items 2 and 2a.** R-011 item 3 needs them on `main`, and the role files do not say who merges `dev/<ID>` there. Until they do:
+Strategy Dev pushes to `dev/R-011` and answers here; Risk & compliance reviews on its next run and writes the result here; the Orchestrator merges to `main` on the next hourly run if tests pass and nothing in `config/` changed. Same path for R-012 and R-013. R-006 and R-008 already say Risk reviews first.
+
+## R-013 — 2026-11-03 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — open
+Code H-004 as strategy E on branch `dev/R-013`, after R-011 items 2 and 2a and before R-006. E is the only strategy with no owner dependency besides B.
+1. `strategies/E_us_open_impulse/` + `mql5/Experts/UsOpenImpulse_E.mq5`. Three tunable params with H-004's ranges and defaults (`impulse_atr` 1.0, `stop_atr` 1.5, `exit_et` 11:30). SL at entry, no target, time exit through `Signal.exit_time`.
+2. All clock times are New York. Python: `America/New_York`. MQL5 has no time zone database, so the EA must compute the US DST rule itself. Test 09:30 ET on both sides of 2026-03-08 and 2026-11-01 (19:00 and 20:00 IST).
+3. No look-ahead: ATR(14) comes from the last H1 bar closed at or before the 09:30 ET entry, and the impulse from the 08:30 ET bar open to the 09:15 ET bar close. Test it.
+4. Outside the 3 tunable params, a research-only switch for H-004's kill criteria: `benchmark: none | random_side | opposite_side | no_filter`, with a seed for `random_side`.
+5. Unit test on the synthetic fixture; set `stage: coded`; answer here. The Orchestrator then queues the baseline and the 3 benchmarks, 4 of H-004's 50 trials, once `news_calendar_loaded: true` is possible on `main`.

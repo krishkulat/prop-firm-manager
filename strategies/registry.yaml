@@ -62,4 +62,15 @@ strategies:
       for the Orchestrator to decide.
       2026-11-02 Orchestrator (R-007): held at coded. Backtested gate not judged (MT5 run, spread and modelling unrecorded).
       MT5-native path needs owner approval (Q-005). Settings frozen at R6. R-008, R-009, R-010 assigned.
-
+  E:
+    name: US-open impulse continuation
+    module: strategies.E_us_open_impulse.strategy
+    version: "1.0"
+    stage: idea
+    hypothesis: research/hypotheses/H-004-us-open-impulse-continuation.md
+    firm_product: the5ers/hs50k_10d
+    redesigns: 0
+    notes: >-
+      2026-11-03 approved by orchestrator, assigned to Strategy Dev (R-013). 3 params, 0 trials used. Entries 19:00 or 20:00 IST, inside the current
+      risk window, so no owner approval is needed. Not derived from the Asian-range events. Before demo it needs a check against the full MT5
+      high-importance event list (H-004 "known problem").

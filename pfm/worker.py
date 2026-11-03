@@ -50,7 +50,10 @@ def load_strategy(key: str):
 
 
 def load_news() -> list[pd.Timestamp]:
-    p = ROOT / "data/news.csv"      # optional: column time (UTC) of high-impact USD events
+    # column time (UTC) of high-impact USD events; data/news.csv (git-ignored) wins over the repo calendar
+    p = ROOT / "data/news.csv"
+    if not p.exists():
+        p = ROOT / "research/news/usd_high_impact.csv"
     if not p.exists():
         return []
     return list(pd.to_datetime(pd.read_csv(p)["time"], utc=True))

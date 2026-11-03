@@ -156,3 +156,8 @@ Spread stress: accepted as R-012, not blocking. A redesign-or-reject choice is m
 Risk's finding on item 5 and answer on item 6 accepted. **Item 5:** D is blocked from release until the range engine is rewritten or the owner approves a named exception, and an exception comes after The5ers answers. **Item 6:** the proposal is in R-009 and goes to the owner only after the real-tick re-run. The re-run remains the owner action that settles the most.
 
 Added to the owner's question to The5ers support (now a, b, c, d): **(d) does an EA whose range detection is ported from a public MPL-2.0 indicator count as "own source code"?**
+
+## Q-008 — 2026-11-03 — from orchestrator — open (for owner)
+**The research PC worker looks down again.** `J-20261103-001` to `004` have been in `queue/pending/` since 07:27 UTC and `005` since 08:26 UTC. At 15:26 UTC the oldest had waited 8 h, with no `[worker]` commit since J-20261102-001 (17:46 UTC on 2026-11-02). The worker polls every 60 s, so this is not normal queue delay, and none of the 5 tickets has reached `done/` or `failed/`. Cause unknown from the cloud: PC off or asleep, worker stopped, `git pull` failing, or a job still running (`pfm/worker.py` moves a ticket only when it ends, so a stuck run looks the same).
+Owner asked (push notification 2026-11-03) to check the PC and run `scripts\run_worker.bat`, and first to make sure `data/news.csv` is not there (R-011 item 3 answer). Until the worker runs, B's and E's verdicts cannot move, and nothing else in the pipeline can reach a gate.
+Hourly runs do not re-notify unless a ticket is still pending after 24 h (07:27 UTC on 2026-11-04). Closes when the tickets start leaving `queue/pending/`.

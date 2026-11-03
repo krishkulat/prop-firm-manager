@@ -8,6 +8,9 @@ Conventions
 - Account limits are checked on each bar's worst price for open positions (conservative).
 - A signal with `exit_time` is closed at the open of the first bar at or after that time ("time_exit").
   A long with no profit target uses target = +inf (a short: −inf).
+- News: like the EA (OnTickLimits → FlattenAll("news")), nothing is held through an event. Open positions close
+  at the open of the last bar starting at or before event − news_flat_before_min (reason "news"), and that bar
+  takes no entry. Entries stay blocked by the risk engine until event + news_resume_after_min.
 """
 from __future__ import annotations
 
@@ -60,6 +63,22 @@ class Result:
         return {"trades": len(self.trades), "rejections": self.rejections}
 
 
+def news_flat_bars(index: pd.DatetimeIndex, news_times_utc: list, flat_before_min: float) -> set:
+    """Open times of the bars at which the backtest must be flat for an upcoming event."""
+    if len(index) == 0:
+        return set()
+    before = pd.Timedelta(minutes=flat_before_min)
+    bar_len = index.to_series().diff().median() if len(index) > 1 else pd.Timedelta(0)
+    out = set()
+    for n in news_times_utc:
+        cutoff = n - before
+        i = index.searchsorted(cutoff, side="right") - 1
+        if i < 0 or cutoff >= index[-1] + bar_len:      # event is outside this data
+            continue
+        out.add(index[i])
+    return out
+
+
 def run(bars: pd.DataFrame, signals: list[Signal], risk_cfg: dict, initial: float | None = None,
         slippage_points: float = 30, news_times_utc: list | None = None,
         step_target_pct: float | None = None) -> Result:
@@ -71,6 +90,7 @@ def run(bars: pd.DataFrame, signals: list[Signal], risk_cfg: dict, initial: floa
     slip = slippage_points * POINT
     sig_at = {s.time: s for s in signals}
     spread_med = bars["spread"].rolling(20 * 96, min_periods=96).median().bfill()
+    news_flat = news_flat_bars(bars.index, news_times_utc or [], risk_cfg["news_flat_before_min"])
 
     positions: list[Position] = []
     trades: list[Trade] = []
@@ -116,10 +136,16 @@ def run(bars: pd.DataFrame, signals: list[Signal], risk_cfg: dict, initial: floa
             if p.exit_time is not None and ts >= p.exit_time:
                 close(p, ts, bar["open"], sp, "time_exit")
                 positions.remove(p)
+        if ts in news_flat:
+            for p in list(positions):
+                close(p, ts, bar["open"], sp, "news")
+                positions.remove(p)
 
         # 2) new entry at this bar's open (before intrabar moves, so the entry bar's range is checked too)
         s = sig_at.get(ts)
-        if s is not None:
+        if s is not None and ts in news_flat:
+            rejections["news_blackout"] = rejections.get("news_blackout", 0) + 1
+        elif s is not None:
             entry = bar["open"] + sp * POINT + slip if s.direction == 1 else bar["open"] - slip
             bad_geometry = (s.direction == 1 and not (s.stop < entry < s.target)) or \
                            (s.direction == -1 and not (s.target < entry < s.stop))

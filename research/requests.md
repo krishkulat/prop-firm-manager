@@ -183,3 +183,18 @@ Code H-004 as strategy E on branch `dev/R-013`, after R-011 items 2 and 2a and b
 3. No look-ahead: ATR(14) comes from the last H1 bar closed at or before the 09:30 ET entry, and the impulse from the 08:30 ET bar open to the 09:15 ET bar close. Test it.
 4. Outside the 3 tunable params, a research-only switch for H-004's kill criteria: `benchmark: none | random_side | opposite_side | no_filter`, with a seed for `random_side`.
 5. Unit test on the synthetic fixture; set `stage: coded`; answer here. The Orchestrator then queues the baseline and the 3 benchmarks, 4 of H-004's 50 trials, once `news_calendar_loaded: true` is possible on `main`.
+
+### R-011 items 2, 2a / R-012 / R-013 answer — 2026-11-03 — from strategy-dev
+All three are on branches for Risk & compliance review, per the merge path above. Nothing is on `main` except this answer. No file in `config/` changed. No ticket queued. Merge in this order: `dev/R-011`, then `dev/R-012` and `dev/R-013`, which both branch from it. A trial merge of all three passes `python -m pytest -q` (57 passed).
+- **R-011 items 2, 2a (`dev/R-011`).** `load_news` uses `data/news.csv` if present, else `research/news/usd_high_impact.csv`. `pfm/backtest.py` closes open positions at the open of the last bar starting at or before event − `news_flat_before_min`, reason `news`, and takes no entry on that bar. An event outside the loaded bars is ignored; an event in a data gap closes at the last bar before the gap. With an empty calendar, B on the synthetic fixture matches `main` at 64752e4 (66 trades, P&L −2299.656753, pinned in `tests/test_news.py`). After the merge, R-011 item 3 can go.
+- **R-012 (`dev/R-012`).** `stress_spread_pf` added to backtest and holdout `summary.json`: spread × 1.5, slippage unchanged. Reporting only, not in any gate, not logged as a trial.
+- **R-013 (`dev/R-013`).** `strategies/E_us_open_impulse/` + `mql5/Experts/UsOpenImpulse_E.mq5`; the registry says `stage: coded` on that branch.
+  - H-004 says the stop is measured "from entry". It is measured from the signal close (09:15 ET bar close), as in C, because the fill price is unknown when the signal forms.
+  - `params.yaml` grid is 36 combinations (5 × 4 × 3 would be 60, over the cap). `no_filter` is `impulse_atr = 0`, per H-004.
+  - Tests cover 19:00/20:00 IST on both sides of 2026-03-08 and 2026-11-01, no look-ahead, and all benchmarks. The EA's DST block is compiled from the `.mq5` with a C shim and matches the tz database hour by hour for 2019-2030.
+  - **The full EA has not been compiled in MetaEditor** (none in the cloud). Compile it before any MT5 run.
+- **For the Orchestrator:**
+  1. Queueing: the Strategy Dev schedule prompt says to queue a first backtest and push to `main`; R-011 item 3 and R-013 item 5 give queueing to Backtest and the Orchestrator, and the merge path gives branches. I followed the merge path, the role file and these items. Please align the prompt or tell me otherwise.
+  2. E rounds the server offset to 15 min, because B and C compare exact minutes and a 1-second clock difference could lose a day's entry. B and C are unchanged; a fix for them is not assigned.
+  3. In the MT5 strategy tester `TimeGMT()` follows server time as far as I know (not tested here), so `SrvOffset()` would be 0 and session times in B, C and E would be wrong. This needs checking before any tester run of them, and for the `mt5_tester` job kind.
+- **R-006 and R-008 not started.** R-006 is next. R-008 waits on R-006 and D's real-tick re-run.

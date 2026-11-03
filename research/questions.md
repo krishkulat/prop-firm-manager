@@ -114,6 +114,12 @@ Regardless of the path, the owner action that settles the most is the **real-tic
 data, with spread recorded**. Proposed gate PF ≥ 1.25 on both; PF < 1.15 kills H-005. Closes when the decision is recorded in `requests/`.
 
 
+### Q-005 item 5 finding (R-009 item 2) — 2026-11-03 — from risk
+**D does not pass "EA source owned by us (no third-party code)" as written.** `RangeProfileFadeEA.mq5` lines 4-5 state the range engine is ported from "Range Profile Structure [BOSWaves]" (MPL-2.0, (c) BOSWaves); the Pine source in `research/imported/RangeProfileFadeEA/src/` carries the same notice. A port is a derived copy, not our own code. The owner's wider work (fade rules, sessions, exits) is his; the range detection is not.
+- **The licence itself is probably not the problem.** MPL-2.0 is file-level copyleft, and its source-sharing duties arise on distribution. Running our own EA on our own account should not trigger them; giving the EA or `.ex5` to anyone else would, for the covered files. My reading, not legal advice, and I did not re-read the licence text in this run.
+- **The firm rule is the larger question.** `config/firms/the5ers.yaml` `ea_policy` says "own source code". Whether an EA built on a public MPL indicator counts is unknown, and I found no firm wording on it. It should be added to the owner's question to The5ers support.
+- **Ways out:** (a) replace the range engine with a rewrite from a written functional spec by someone working without the port. That changes code, so D must re-prove itself on real ticks, and "frozen at R6" no longer holds exactly. (b) The owner approves a named exception to the checklist item, recorded in `requests/`, after The5ers answers. Risk cannot waive the item. Until (a) or (b) is done, Risk blocks a D release on this item.
+
 ## Q-006 — 2026-11-02 — from backtest — closed 2026-11-02
 **B's "closed-trade DD 6.04%" is on a different basis from the gate.** `pfm/metrics.py` measures `max_dd_pct` as % of initial balance. The 6.04% in
 `results/reports/daily/2026-11-02.md` and `results/B/history.md` is the 2023-08-18 to 2024-02-05 stretch as % of peak equity. On the gate's basis it is 8.24%
@@ -133,3 +139,12 @@ The live EA behaves differently: `OnTickLimits` calls `FlattenAll("news")`, so i
 not). The backtest does not yet test what the EA would do. R-011 is amended (item 2a).
 
 Spread stress: accepted as R-012, not blocking. A redesign-or-reject choice is made only after the amended baseline; see `results/B/history.md`.
+
+## Q-007 — 2026-11-03 — from risk — open (for Orchestrator)
+**Two PFM EAs cannot safely share one account today.** Found reviewing R-013. Not an incident: nothing is live. No `config/risk/` value fixes it. Risk will not sign a release that puts two EAs on one account until this closes.
+- **Same magic (the default):** `InpMagic` is 1010 in `RiskEngine.mqh`, and `pfm/release.py` `make_set` defaults to 1010 for every strategy. `CloseAtExitTime` in `UsOpenImpulse_E.mq5` and `SgeLong_C.mq5` closes every XAUUSD position with that magic, using its own exit time. So E would close a B or C position at its exit time, and C would close others at its own.
+- **Different magics:** `OpenCount` and `OpenRiskUsd` count by magic, so `max_open_positions` 2 and `max_open_risk_pct` 1.0 become per-EA limits, doubling at account level with two EAs.
+- **Either way:** `m_tradesToday` is per EA instance, so `max_trades_per_day` 3 is per EA, not per account.
+- The daily stop and kill read account equity, so those hold in both cases.
+- All of B, C, D, E name `the5ers/hs50k_10d`, and each purchase is one account, so this matters as soon as any two reach it together.
+**Needs one of:** a rule of one EA per account, recorded in `agents/ops.md` and enforced at release; or an engine change: per-strategy magic plus account-wide position, open-risk and trade counts, with E's and C's time exits filtered to their own magic. Please decide and assign. Reading code only; not run in MT5.

@@ -213,3 +213,39 @@ EA time base. Branch `dev/R-014`, after R-006 because both edit `RiskEngine.mqh`
 2. In the tester, the helper and `IstNow()` must give true GMT. MQL5 cannot supply it there, so it needs the broker's offset as input (summer and winter values, with the DST rule already in E, or your better design). Unset in the tester → `OnInit` fails; no silent run on wrong hours. Outside the tester, behaviour is unchanged apart from item 1.
 3. Write down what a tester run does about news (filter off) so no tester result is read as news-flat. Backtest and Validation need this before comparing a tester run with Python.
 4. Test with the C shim as in R-013: the offset helper, tester and non-tester paths. State that the full EAs still need a MetaEditor compile.
+
+### R-011 items 2, 2a / R-012 / R-013 review — 2026-11-03 — from risk
+**All three pass Risk review; the Orchestrator may merge in the stated order** (`dev/R-011` 3805274, `dev/R-012` 5df81ea, `dev/R-013` 3a0901f). This clears code for `main` and backtesting. It is not a release review, and it does not move a stage.
+Checked: trial merge of all three on `main` eb448aa, `python -m pytest -q` 57 passed. No file in `config/` changed on any branch, and no limit value changed. No secrets. The EAs were read, not compiled (no MetaEditor here).
+- **R-011 items 2, 2a: pass.** Independent check, B on the synthetic fixture (900 days, 80 calendar events in range): without the calendar 5 positions are held past an event's cutoff, with it 0 (5 closes with reason `news`). The flatten runs at the bar open, before intrabar stops, and the flatten bar takes no entry. The first bar of the blackout follows directly, so no entry slips between them. Tightens the backtest only. `pfm/metrics.py` only counts exit reasons, so a new reason needs no other change.
+  - Note for later runs: the calendar ends 2026-10-28. `news_calendar_loaded` is true for any non-empty file, so a run on data past that date is unfiltered there without any warning. Research must extend the file before data is refreshed.
+- **R-012: pass.** Reporting only. The spread filter works on a ratio to the rolling median, so spread × 1.5 does not change which entries pass it. The stress run is not a trial row, the same as the existing slippage stress. On a holdout job it runs inside the same single job, so it is not a second holdout read.
+- **R-013: pass for merge at `coded`.**
+  - Items read in `UsOpenImpulse_E.mq5`: SL sent with the order (`Risk.Open(dir,lots,stop,0.0,...)`), never moved. One attempt a day. Goes through `OnTickLimits` and `Check`. Time exit keeps `InpMinHoldSeconds`. No grid, martingale, averaging or hedging. The engine calls it uses all exist in `RiskEngine.mqh`.
+  - Python, synthetic fixture: entries 19:00 and 20:00 IST, latest exit 22:00 IST (flat-by 22:30), shortest non-stop hold 2 h. 61 of 137 signals rejected `size_zero`: the fixture took the account to 47,000.57 (5.999% DD), where kill room is about $0, so that is the fail-safe working, not a sizing fault.
+  - `stage: coded` on the branch is what R-013 item 5 asked for, and it reaches `main` only through the Orchestrator's merge.
+  - **Blocks E's release, not this merge:** shared `InpMagic` (Q-007), R-014, Q-003, a full MetaEditor compile, and the H-004 "known problem" check before demo.
+  - Minor, no limit effect: the EA acts on the first tick that passes `OnTickLimits` in the 09:30 ET bar, so after a blackout or outage it can enter up to ~15 min later than Python assumes. Worth watching in demo.
+
+### R-009 answer — 2026-11-03 — from risk
+**Item 2 (licence): D fails the release item as written.** Finding is in `research/questions.md` under Q-005.
+
+**Item 1 (profile): proposal only, no file written. A `config/risk/` file alone cannot do this**, because the engine cannot express D's session. Figures below were recomputed from `R6_positions.csv` (server time converted with New York + 7 h; this reproduces the 325 of 719 in-window count).
+
+| Setting | Current | Proposed for D | Direction |
+|---|---|---|---|
+| Entry window | 13:30-21:00 IST | 23:00-20:30 UTC (04:30-02:00 IST); keep D's Friday cut | **Loosens**, owner |
+| Flat-by | 22:30 IST | 20:55 UTC (02:25 IST) | **Loosens**, owner |
+| Day roll of daily stop | IST midnight | Firm server midnight | Tightens, required |
+| Saturday IST flatten | from Fri 18:30 UTC | Keep | Unchanged |
+| Risk 0.5%, throttle, daily stop 1.5%, kill 6%, profit stop, news 10/15, min hold 120 s, spread ratio, 2 positions | as `the5ers_hs50k_10d` | Unchanged | Unchanged |
+| `max_trades_per_day` | 3 | 3 | Unchanged |
+
+Engine work needed first (add to R-008, with Python, MQL5 and tests together):
+1. **Day roll is the main risk.** The EA rolls its daily base at IST midnight (18:30 UTC); The5ers is reported to roll at server midnight (about 21:00-22:00 UTC, unconfirmed). Today every trading window sits inside one firm day, so they match (log entry 2026-11-02). With D they do not: 1.5% lost before 18:30 UTC plus 1.5% after it is 3.0% in one firm day under the EA's rule, which is the firm limit with no buffer. In R6, 68 positions were open across IST midnight and 20 opened between 18:30 and 21:00 UTC. D's profile must not exist without this fix.
+2. **Windows do not wrap.** `check` uses `start <= t < end` and `must_be_flat` uses `t >= flat_by`. A 02:25 IST flat-by would flatten almost all day in both `pfm/risk.py` and `RiskEngine.mqh`.
+3. **Friday.** Keeping the Saturday IST flatten closes 8 R6 positions earlier than R6 did and blocks 1 entry. Accepted: the limit stays. So the v1.30 results will not equal R6.
+4. **`max_trades_per_day` 3** drops the fourth trade on 4 R6 days. Accepted for the same reason. R6's maximum concurrent is 1, so 2 positions does not bind.
+5. **Two R6 positions crossed server midnight despite D's daily break:** 2022-01-17 (Martin Luther King Day, −0.74R) and 2025-06-19 (Juneteenth, −0.41R), both US holidays missing from D's early-close list. The likely cause is an early broker close with the exit waiting for the reopen (not verified). Server-midnight flat must be enforced by the engine, not left to D's list.
+
+Risk above 0.5% (R-010 models 0.75% and 1%) is a separate loosening and is not proposed. Q-003 applies to D as well: no sign-off until the trailing kill and throttle are in. **Suggested order:** ask the owner to approve this only if D survives the real-tick re-run (Q-005), since the work is wasted otherwise. R-009 can close once the Orchestrator accepts this.

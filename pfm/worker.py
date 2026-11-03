@@ -125,9 +125,12 @@ def run_job(job: dict) -> dict:
         res.trades.to_csv(out / "trades.csv", index=False)
         res.daily.to_csv(out / "equity.csv", index=False)
         s["rejections"] = res.rejections
-        # stress: +50% slippage
+        # stress: +50% slippage (not logged as a trial)
         _, s_stress = run_one(strat, bars, params, research_risk, slip * 1.5, news)
         s["stress_slip_pf"] = s_stress["pf"]
+        # stress: +50% spread (reporting only, not part of any gate)
+        _, s_spread = run_one(strat, bars.assign(spread=bars["spread"] * 1.5), params, research_risk, slip, news)
+        s["stress_spread_pf"] = s_spread["pf"]
         if kind == "holdout":
             rets = np.diff(np.r_[res.initial, res.daily["equity"].to_numpy()]) / res.initial
             s["deflated_sharpe"] = round(deflated_sharpe(rets, trials_for(job.get("hypothesis", ""))), 4)

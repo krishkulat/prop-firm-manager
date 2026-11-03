@@ -198,3 +198,18 @@ All three are on branches for Risk & compliance review, per the merge path above
   2. E rounds the server offset to 15 min, because C and E match an exact minute and a 1-second clock difference could lose a day's entry. C has this exposure and B uses the same unrounded offset (its effect on B not checked). Both are unchanged; a fix is not assigned.
   3. In the MT5 strategy tester `TimeGMT()` follows server time as far as I know (not tested here), so `SrvOffset()` would be 0 and session times in B, C and E would be wrong. This needs checking before any tester run of them, and for the `mt5_tester` job kind.
 - **R-006 and R-008 not started.** R-006 is next. R-008 waits on R-006 and D's real-tick re-run.
+
+### R-011 items 2, 2a / R-012 / R-013 — 2026-11-03 — from orchestrator
+**Not merged yet.** No Risk & compliance review is written here, so all three branches wait for it (Risk's run is 11:49 IST, 06:19 UTC). The merge path stands: the first hourly run after the review merges `dev/R-011`, then `dev/R-012` and `dev/R-013`. E's `stage: coded` arrives with that merge. No ticket until then, and no gate evidence changed, so no stage moved.
+
+Strategy Dev's three items:
+1. **Queueing: what you did is right.** The merge path, your role file and these items win over the schedule prompt where they differ: push to `dev/<ID>`, queue nothing. After the merge, Backtest queues B (R-011 item 3) and the Orchestrator queues E's 4 runs (R-013 item 5).
+2. **Offset rounding: assigned, R-014 item 1.** Reading `LondonFade_B.mq5` (not tested): if the two clocks differ by 1 s the wrong way, the range bar opening at the range start lands one minute early and leaves the range, so B could trade a different range. The entry-window check looks unaffected.
+3. **`TimeGMT()` in the tester: confirmed, R-014 item 2.** MQL5 docs: "During testing in the strategy tester, `TimeGMT()` is always equal to `TimeTradeServer()` simulated server time" (https://www.mql5.com/en/docs/dateandtime/timegmt). So `SrvOffset()` is 0 there. It reaches further than B, C and E: `RiskEngine.mqh` `IstNow()` also uses `TimeGMT()`, so the entry window and day key are on server time in the tester. `PfmNewsBlackout()` returns false in the tester, so a tester run has no news flatten either. Python backtests do not use this code. None of this affects a result on file, as no B, C or E tester run exists.
+
+## R-014 — 2026-11-03 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — open
+EA time base. Branch `dev/R-014`, after R-006 because both edit `RiskEngine.mqh`. No limit or `config/risk/` value changes. Must land before any MT5 tester run or demo of B, C or E.
+1. One shared server-offset helper in `mql5/Include/PFM/`, rounded to 15 min as in E. B, C and E use it. A is rejected, leave it.
+2. In the tester, the helper and `IstNow()` must give true GMT. MQL5 cannot supply it there, so it needs the broker's offset as input (summer and winter values, with the DST rule already in E, or your better design). Unset in the tester → `OnInit` fails; no silent run on wrong hours. Outside the tester, behaviour is unchanged apart from item 1.
+3. Write down what a tester run does about news (filter off) so no tester result is read as news-flat. Backtest and Validation need this before comparing a tester run with Python.
+4. Test with the C shim as in R-013: the offset helper, tester and non-tester paths. State that the full EAs still need a MetaEditor compile.

@@ -6,7 +6,8 @@
 Package approved bots and tell the owner exactly how to deploy them; confirm they run.
 
 ## Release steps
-1. Check `results/<strategy>/release_review.md` is fully ticked.
+1. Check `results/<strategy>/release_review.md` is fully ticked. **One EA per account (Q-007):** no release goes to an account
+   that already runs a PFM EA, unless it replaces that EA.
 2. Merge `dev/<ID>` → `release`, tag `<strategy>-v<x.y>`.
 3. Build package in `releases/<strategy>-v<x.y>/`: `.mq5` source, settings `.set` generated from
    `config/risk/<firm>.yaml` by `python -m pfm.release make-set`, SHA-256 checksums, `DEPLOY.md` steps.

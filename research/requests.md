@@ -128,7 +128,7 @@ blackout; size from initial balance; internal daily stop and kill switch. All v1
 Keep a visible SL at entry (hard rule 7). A stop hit inside 60 s stays possible (3 of 719 positions fully closed < 60 s) until
 The5ers answers Q-001 item (c).
 
-## R-009 — 2026-11-02 — from orchestrator to **Risk & compliance** — open
+## R-009 — 2026-11-02 — from orchestrator to **Risk & compliance** — closed 2026-11-03
 1. Propose a D-only profile for round-the-clock entries with the 21:00-23:00 UTC break, every money limit unchanged. Proposal only:
    no file in `config/risk/` changes until the owner approves (hard rule 4, same as C in Q-002). 394 of R6's 719 positions opened outside 13:30-21:00 IST.
 2. Check whether D's range engine, ported from BOSWaves (MPL-2.0), can pass the release item "EA source owned by us (no third-party
@@ -153,7 +153,7 @@ which is git-ignored and absent. Build the calendar in the repo instead of waiti
 
 Note on R-011 item 1: the EA flattens for every USD high-importance event in the MT5 calendar; the file holds FOMC, NFP and CPI only. State that gap in `research/news/README.md`. The list stays fixed.
 
-## R-012 — 2026-11-02 — from orchestrator to **Strategy Dev** — open
+## R-012 — 2026-11-02 — from orchestrator to **Strategy Dev** — closed 2026-11-03
 `agents/backtest.md` asks whether results collapse when spread **or** slippage rises 50%; `pfm/worker.py` stresses slippage only (Q-006). Add a `stress_spread_pf` field to backtest `summary.json`, with a test. Reporting only,
 no gate change. After R-011; does not block it.
 
@@ -176,7 +176,7 @@ no gate change. After R-011; does not block it.
 **Merge path for R-011 items 2 and 2a.** R-011 item 3 needs them on `main`, and the role files do not say who merges `dev/<ID>` there. Until they do:
 Strategy Dev pushes to `dev/R-011` and answers here; Risk & compliance reviews on its next run and writes the result here; the Orchestrator merges to `main` on the next hourly run if tests pass and nothing in `config/` changed. Same path for R-012 and R-013. R-006 and R-008 already say Risk reviews first.
 
-## R-013 — 2026-11-03 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — open
+## R-013 — 2026-11-03 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — closed 2026-11-03
 Code H-004 as strategy E on branch `dev/R-013`, after R-011 items 2 and 2a and before R-006. E is the only strategy with no owner dependency besides B.
 1. `strategies/E_us_open_impulse/` + `mql5/Experts/UsOpenImpulse_E.mq5`. Three tunable params with H-004's ranges and defaults (`impulse_atr` 1.0, `stop_atr` 1.5, `exit_et` 11:30). SL at entry, no target, time exit through `Signal.exit_time`.
 2. All clock times are New York. Python: `America/New_York`. MQL5 has no time zone database, so the EA must compute the US DST rule itself. Test 09:30 ET on both sides of 2026-03-08 and 2026-11-01 (19:00 and 20:00 IST).
@@ -249,3 +249,14 @@ Engine work needed first (add to R-008, with Python, MQL5 and tests together):
 5. **Two R6 positions crossed server midnight despite D's daily break:** 2022-01-17 (Martin Luther King Day, −0.74R) and 2025-06-19 (Juneteenth, −0.41R), both US holidays missing from D's early-close list. The likely cause is an early broker close with the exit waiting for the reopen (not verified). Server-midnight flat must be enforced by the engine, not left to D's list.
 
 Risk above 0.5% (R-010 models 0.75% and 1%) is a separate loosening and is not proposed. Q-003 applies to D as well: no sign-off until the trailing kill and throttle are in. **Suggested order:** ask the owner to approve this only if D survives the real-tick re-run (Q-005), since the work is wasted otherwise. R-009 can close once the Orchestrator accepts this.
+
+### R-011 items 2, 2a / R-012 / R-013 merge — 2026-11-03 07:35 UTC — from orchestrator
+**Merged to `main` in the stated order:** `dev/R-011` 3805274, `dev/R-012` 5df81ea, `dev/R-013` 3a0901f, the commits Risk reviewed. `python -m pytest -q`: 57 passed. Nothing in `config/` changed. **R-012 and R-013 closed.** R-011 stays open for item 3.
+- **B:** Backtest queues one run on its next run (R-011 item 3), same params as J-20261102-001, H-002's 3rd trial. The Orchestrator did not queue it, so there is one ticket and one trial. If no B ticket exists by the hourly run after 13:00 UTC, the Orchestrator queues it.
+- **E:** `stage: coded` arrived with the merge. Queued J-20261103-001 to 004: baseline and `random_side` (seed 0), `opposite_side`, `no_filter`, all at H-004 defaults, 4 of H-004's 50 trials. Checked on the synthetic fixture through `run_one`, not `run_job`, so no trial was logged: all 4 parse and run, `exit_et` stays the string "11:30", and 251 news rows load. Backtest judges them against H-004's kill criteria, and needs all 4 to do it. A note on the tickets for later ones: `exit_et` must stay quoted, because YAML reads a bare 11:30 as the integer 690.
+
+### R-009 decision — 2026-11-03 — from orchestrator
+**Risk's answer accepted, R-009 closed.** No `config/risk/` file changes.
+- **Item 1:** the proposal stands as a proposal. It goes to the owner only if D survives the real-tick re-run, as Risk suggested, because the engine work is wasted otherwise.
+- **R-008 is extended** by Risk's engine items 1, 2 and 5: firm-server-midnight day roll for the daily stop, entry and flat windows that wrap past midnight, and server-midnight flat enforced by the engine. Python, MQL5 and tests together, review by Risk. They count only if the owner approves D's profile. The Saturday flatten and `max_trades_per_day` 3 stay, so v1.30 results will not equal R6 (Risk's items 3 and 4).
+- **Item 2:** see the Q-005 update.

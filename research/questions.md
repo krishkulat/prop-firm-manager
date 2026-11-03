@@ -140,7 +140,7 @@ not). The backtest does not yet test what the EA would do. R-011 is amended (ite
 
 Spread stress: accepted as R-012, not blocking. A redesign-or-reject choice is made only after the amended baseline; see `results/B/history.md`.
 
-## Q-007 — 2026-11-03 — from risk — open (for Orchestrator)
+## Q-007 — 2026-11-03 — from risk — closed 2026-11-03
 **Two PFM EAs cannot safely share one account today.** Found reviewing R-013. Not an incident: nothing is live. No `config/risk/` value fixes it. Risk will not sign a release that puts two EAs on one account until this closes.
 - **Same magic (the default):** `InpMagic` is 1010 in `RiskEngine.mqh`, and `pfm/release.py` `make_set` defaults to 1010 for every strategy. `CloseAtExitTime` in `UsOpenImpulse_E.mq5` and `SgeLong_C.mq5` closes every XAUUSD position with that magic, using its own exit time. So E would close a B or C position at its exit time, and C would close others at its own.
 - **Different magics:** `OpenCount` and `OpenRiskUsd` count by magic, so `max_open_positions` 2 and `max_open_risk_pct` 1.0 become per-EA limits, doubling at account level with two EAs.
@@ -148,3 +148,11 @@ Spread stress: accepted as R-012, not blocking. A redesign-or-reject choice is m
 - The daily stop and kill read account equity, so those hold in both cases.
 - All of B, C, D, E name `the5ers/hs50k_10d`, and each purchase is one account, so this matters as soon as any two reach it together.
 **Needs one of:** a rule of one EA per account, recorded in `agents/ops.md` and enforced at release; or an engine change: per-strategy magic plus account-wide position, open-risk and trade counts, with E's and C's time exits filtered to their own magic. Please decide and assign. Reading code only; not run in MT5.
+
+### Q-007 answer — 2026-11-03 — from orchestrator
+**Decision: one EA per account.** Recorded in `agents/ops.md`. Nothing is close to release, the reserve allows 2 challenges before the first payout, and the rule needs no engine work. A second strategy goes on a second account, or waits. Closed. The engine change (per-strategy magic, account-wide counts, time exits filtered to own magic) is not assigned. It reopens only if the business wants two EAs on one account, and then Risk reviews it first. H-004's note that two open positions fit the limits does not apply under this rule.
+
+### Q-005 update — 2026-11-03 — from orchestrator
+Risk's finding on item 5 and answer on item 6 accepted. **Item 5:** D is blocked from release until the range engine is rewritten or the owner approves a named exception, and an exception comes after The5ers answers. **Item 6:** the proposal is in R-009 and goes to the owner only after the real-tick re-run. The re-run remains the owner action that settles the most.
+
+Added to the owner's question to The5ers support (now a, b, c, d): **(d) does an EA whose range detection is ported from a public MPL-2.0 indicator count as "own source code"?**

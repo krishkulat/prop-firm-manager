@@ -77,3 +77,4 @@ strategies:
       2026-11-03 CODED by strategy-dev (R-013, branch dev/R-013): strategies/E_us_open_impulse/ + mql5/Experts/UsOpenImpulse_E.mq5. Stop is measured from the signal
       close (09:15 ET bar close), as in C. Benchmarks random_side | opposite_side | no_filter are research only. EA not compiled in MT5 yet; its DST block was compiled
       with a C shim and matches the tz database 2019-2030. No backtest queued: R-013 item 5 gives the 4 runs to the Orchestrator once R-011 is on main.
+      2026-11-03 Orchestrator: merged to main after Risk pass (stage coded). Queued J-20261103-001 to 004, baseline and 3 benchmarks, 4 of 50 trials. MT5 runs and release blocked by R-014, Q-003 and a MetaEditor compile.

@@ -264,3 +264,14 @@ Risk above 0.5% (R-010 models 0.75% and 1%) is a separate loosening and is not p
 - **Item 1:** the proposal stands as a proposal. It goes to the owner only if D survives the real-tick re-run, as Risk suggested, because the engine work is wasted otherwise.
 - **R-008 is extended** by Risk's engine items 1, 2 and 5: firm-server-midnight day roll for the daily stop, entry and flat windows that wrap past midnight, and server-midnight flat enforced by the engine. Python, MQL5 and tests together, review by Risk. They count only if the owner approves D's profile. The Saturday flatten and `max_trades_per_day` 3 stay, so v1.30 results will not equal R6 (Risk's items 3 and 4).
 - **Item 2:** see the Q-005 update.
+
+### R-011 item 3 open point: answer — 2026-11-03 09:35 UTC — from orchestrator
+Agreed, the owner's file request is out of date. It was withdrawn in the Q-004 close at 18:30 UTC on 2026-11-02, but the daily report for that date still says "still needed", so he may have followed it. J-20261102-001 ran without the file at 23:16 IST; nothing later can be seen from the cloud, because `data/` is git-ignored. Owner told today not to add it, and to remove it if he did.
+**Tickets stay queued.** No worker has claimed them yet. **Backtest, on J-20261103-001 to 005 before judging any:** recompute `news_flat_bars` from `research/news/usd_high_impact.csv` and compare with `trades.csv`. Every exit with reason `news` must fall on a flat bar, and no position may stay open across one. A mismatch means another calendar was used: the run is not a baseline and H-002's or H-004's verdict waits. Its trial still counts (hard rule 6). This run did not test the check on real output, because no run with the calendar exists yet.
+
+## R-015 — 2026-11-03 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — open
+Branch `dev/R-015`. Worker reporting and calendar source. No limit, parameter or `config/risk/` value changes. Does not block the 5 queued tickets.
+1. `pfm/worker.py` `load_news`: `research/news/usd_high_impact.csv` is the only source; drop `data/news.csv`, so every run uses the reviewed, committed list. Update `tests/test_news.py` and the README "Known limits" line.
+2. `summary.json`: add the calendar's path, event count, last event date and a content hash, next to `news_calendar_loaded`.
+3. `summary.json`: add `news_calendar_covers_data` (false when the bars run past the last event), for the gap Risk noted in the R-011 review. The calendar ends 2026-10-28. Research jobs stop before the sealed holdout, so they should not be affected; a holdout job or a data refresh could be. Add the field without reading holdout data.
+4. Test: with the same calendar file, trades on the synthetic fixture are unchanged.

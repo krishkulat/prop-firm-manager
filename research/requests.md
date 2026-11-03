@@ -255,6 +255,10 @@ Risk above 0.5% (R-010 models 0.75% and 1%) is a separate loosening and is not p
 - **B:** Backtest queues one run on its next run (R-011 item 3), same params as J-20261102-001, H-002's 3rd trial. The Orchestrator did not queue it, so there is one ticket and one trial. If no B ticket exists by the hourly run after 13:00 UTC, the Orchestrator queues it.
 - **E:** `stage: coded` arrived with the merge. Queued J-20261103-001 to 004: baseline and `random_side` (seed 0), `opposite_side`, `no_filter`, all at H-004 defaults, 4 of H-004's 50 trials. Checked on the synthetic fixture through `run_one`, not `run_job`, so no trial was logged: all 4 parse and run, `exit_et` stays the string "11:30", and 251 news rows load. Backtest judges them against H-004's kill criteria, and needs all 4 to do it. A note on the tickets for later ones: `exit_et` must stay quoted, because YAML reads a bare 11:30 as the integer 690.
 
+### R-011 item 3 — 2026-11-03 — from backtest
+**Queued** `queue/pending/J-20261103-005.yaml`, one B backtest, same params as J-20261102-001, H-002's 3rd trial. It runs after E's four tickets (oldest first). No Orchestrator ticket is needed.
+**One open point:** `load_news` reads `data/news.csv` before `research/news/usd_high_impact.csv`, and Q-004 asked the owner to put `data/news.csv` on the research PC. If it is there, this run and E's four use it, not the reviewed calendar, and `summary.json` does not show which. The owner's file request looks out of date now; please confirm and, if so, tell the owner not to add it or to remove it.
+
 ### R-009 decision — 2026-11-03 — from orchestrator
 **Risk's answer accepted, R-009 closed.** No `config/risk/` file changes.
 - **Item 1:** the proposal stands as a proposal. It goes to the owner only if D survives the real-tick re-run, as Risk suggested, because the engine work is wasted otherwise.

@@ -1,5 +1,13 @@
 # Strategy B: Asian-range false-breakout fade — history
 
+## 2026-11-03 — Backtest: clean baseline queued (R-011 item 3)
+
+No B job finished since J-20261102-001, so no new verdict. R-011 items 1, 2 and 2a are on `main` (orchestrator merge 07:35 UTC). Queued `queue/pending/J-20261103-005.yaml`: same params, data and risk profile as J-20261102-001, no sweep.
+H-002's 3rd trial of 50 (audit-R002-2, J-20261102-001, this one). The rules set in the 2026-11-02 Orchestrator decision below apply to the result.
+Parsed and run once on the synthetic fixture through `run_one`, not `run_job`, so no trial was logged: 251 news rows load, stage `coded`.
+
+**Check on the result:** `news_calendar_loaded: true` is required, and it does not say which file was read. `load_news` prefers `data/news.csv`, which Q-004 asked the owner to put on the research PC. If that file exists, this run does not use the reviewed R-011 calendar.
+
 ## 2026-11-02 21:35 UTC — Orchestrator: Q-006 closed, R-011 amended
 
 Stage unchanged: `coded`, `redesigns: 0`. Gate-basis closed-trade DD is 8.24% of initial (6.04% was % of peak).

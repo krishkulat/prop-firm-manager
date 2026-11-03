@@ -1,0 +1,12 @@
+job_id: J-20261103-005
+kind: backtest
+strategy: B
+hypothesis: H-002
+requested_by: backtest
+data: {symbol: XAUUSD, timeframe: M15}
+params: {rr: 2.0, stop_atr: 1.2, min_range_atr: 1.5, max_range_atr: 4.0}
+risk_profile: the5ers_hs50k_10d
+notes: >-
+  R-011 item 3: clean baseline of B v1.0 at the same params as J-20261102-001, now with the news calendar and the news flatten (R-011 items 1, 2, 2a on main).
+  H-002's 3rd trial of 50 (audit-R002-2, J-20261102-001, this one). No sweep. Needs news_calendar_loaded true; if false the run does not count as the baseline.
+  Real data only - research PC.

@@ -81,9 +81,11 @@ def news_flat_bars(index: pd.DatetimeIndex, news_times_utc: list, flat_before_mi
 
 def run(bars: pd.DataFrame, signals: list[Signal], risk_cfg: dict, initial: float | None = None,
         slippage_points: float = 30, news_times_utc: list | None = None,
-        step_target_pct: float | None = None) -> Result:
+        step_target_pct: float | None = None, max_loss_trailing: bool = False) -> Result:
+    # max_loss_trailing stays False in research jobs: they run with kill and throttle off (pfm/worker.py run_job),
+    # so a run does not depend on it. Propsim models the trailing floor.
     initial = initial or risk_cfg["account_size"]
-    eng = RiskEngine(risk_cfg, news_times_utc or [])
+    eng = RiskEngine(risk_cfg, news_times_utc or [], max_loss_trailing)
     st = AccountState(initial=initial, equity=initial, day_start_equity=initial)
     if step_target_pct:
         st.step_target_usd = initial * step_target_pct / 100
@@ -119,6 +121,7 @@ def run(bars: pd.DataFrame, signals: list[Signal], risk_cfg: dict, initial: floa
         if day != cur_day:
             if cur_day is not None:
                 daily_rows.append({"date": cur_day, "equity": st.equity, "low": day_low})
+                eng.close_day(st)
             cur_day = day
             st.day_start_equity = st.equity
             st.day_peak_equity = st.equity

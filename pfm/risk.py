@@ -40,6 +40,7 @@ class AccountState:
     open_risk_usd: float = 0.0
     day_closed_pnl: float = 0.0
     step_target_usd: float | None = None   # profit target of the current challenge step
+    eod_hwm: float | None = None           # highest end-of-day equity so far (None = initial)
     killed: bool = False
     locked_for_day: bool = False
 
@@ -48,6 +49,7 @@ class AccountState:
 class RiskEngine:
     cfg: dict
     news_times_utc: list[pd.Timestamp] = field(default_factory=list)
+    max_loss_trailing: bool = False         # firm product flag: kill and throttle follow the EOD high-water mark
 
     def __post_init__(self):
         c = self.cfg
@@ -55,9 +57,19 @@ class RiskEngine:
         self.entry_end = _t(c["entry_end_ist"])
         self.flat_by = _t(c["flat_by_ist"])
 
+    # ---- reference level for kill and throttle -----------------------------------------------------
+    def mark(self, st: AccountState) -> float:
+        """Initial balance, or the EOD high-water mark when max loss trails (Q-003). Never below initial."""
+        return max(st.initial, st.eod_hwm or st.initial) if self.max_loss_trailing else st.initial
+
+    @staticmethod
+    def close_day(st: AccountState) -> None:
+        """Call at each day roll, before day_start_equity moves, with st.equity at the day's end."""
+        st.eod_hwm = max(st.eod_hwm or st.initial, st.equity)
+
     # ---- sizing --------------------------------------------------------------------------------
     def risk_pct(self, st: AccountState) -> float:
-        dd = (st.initial - st.equity) / st.initial * 100
+        dd = (self.mark(st) - st.equity) / st.initial * 100
         return self.cfg["throttle_risk_pct"] if dd >= self.cfg["throttle_dd_pct"] else self.cfg["risk_per_trade_pct"]
 
     @staticmethod
@@ -72,7 +84,7 @@ class RiskEngine:
     def update_limits(self, st: AccountState) -> str | None:
         """Call on every price update. Returns an action string if the account must be flattened."""
         c = self.cfg
-        dd_pct = (st.initial - st.equity) / st.initial * 100
+        dd_pct = (self.mark(st) - st.equity) / st.initial * 100
         if dd_pct >= c["kill_dd_pct"]:
             st.killed = True
             return "kill"
@@ -129,7 +141,7 @@ class RiskEngine:
             return Decision(False, "max_open_risk")
         # a new loss must not be able to push the account through the daily stop or the kill level
         day_room = st.initial * c["daily_stop_pct"] / 100 - (st.day_start_equity - st.equity) - st.open_risk_usd
-        kill_room = st.initial * c["kill_dd_pct"] / 100 - (st.initial - st.equity) - st.open_risk_usd
+        kill_room = st.initial * c["kill_dd_pct"] / 100 - (self.mark(st) - st.equity) - st.open_risk_usd
         risk_usd = min(risk_usd, day_room, kill_room)
         lots = self.lots_for(risk_usd, abs(entry - stop))
         if lots <= 0:

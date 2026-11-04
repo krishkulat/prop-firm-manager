@@ -24,7 +24,8 @@ MAP = {"account_size": "InpAccountSize", "risk_per_trade_pct": "InpRiskPerTradeP
        "news_flat_before_min": "InpNewsFlatBeforeMin", "news_resume_after_min": "InpNewsResumeAfterMin",
        "min_hold_seconds": "InpMinHoldSeconds", "spread_max_ratio": "InpSpreadMaxRatio",
        "stale_feed_seconds": "InpStaleFeedSeconds"}
-STRAT_MAP = {"rr": "InpRR", "stop_atr": "InpStopATR", "min_range_atr": "InpMinRangeATR", "max_range_atr": "InpMaxRangeATR"}
+STRAT_MAP = {"rr": "InpRR", "stop_atr": "InpStopATR", "min_range_atr": "InpMinRangeATR", "max_range_atr": "InpMaxRangeATR",
+             "asia_rise_atr": "InpAsiaRiseATR", "exit_et": "InpExitET"}
 
 
 def make_set(profile: str, strategy: str, step_target: float, magic: int = 1010) -> str:

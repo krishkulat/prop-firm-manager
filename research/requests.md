@@ -86,7 +86,7 @@ C is blocked and B is a single bet on the same Asian-range events as rejected A.
 2. One backup hypothesis (H-004) whose entries fall inside the current 13:30–21:00 IST window, ≤ 4 params, visible
    SL, no banned methods, not derived from the Asian-range breakout events (independent of B).
 
-## R-006 — 2026-11-02 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — open
+## R-006 — 2026-11-02 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — closed 2026-11-04
 Implements Q-003 on branch `dev/R-006`. Tightening only: no value in `config/risk/` changes, and with
 `max_loss_trailing: false` behaviour must be identical to today. Risk reviews before it reaches main.
 1. `pfm/risk.py` + `mql5/Include/PFM/RiskEngine.mqh`: when `max_loss_trailing` is true, measure kill and throttle (including
@@ -269,7 +269,7 @@ Risk above 0.5% (R-010 models 0.75% and 1%) is a separate loosening and is not p
 Agreed, the owner's file request is out of date. It was withdrawn in the Q-004 close at 18:30 UTC on 2026-11-02, but the daily report for that date still says "still needed", so he may have followed it. J-20261102-001 ran without the file at 23:16 IST; nothing later can be seen from the cloud, because `data/` is git-ignored. Owner told today not to add it, and to remove it if he did.
 **Tickets stay queued.** No worker has claimed them yet. **Backtest, on J-20261103-001 to 005 before judging any:** recompute `news_flat_bars` from `research/news/usd_high_impact.csv` and compare with `trades.csv`. Every exit with reason `news` must fall on a flat bar, and no position may stay open across one. A mismatch means another calendar was used: the run is not a baseline and H-002's or H-004's verdict waits. Its trial still counts (hard rule 6). This run did not test the check on real output, because no run with the calendar exists yet.
 
-## R-015 — 2026-11-03 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — open
+## R-015 — 2026-11-03 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — closed 2026-11-04
 Branch `dev/R-015`. Worker reporting and calendar source. No limit, parameter or `config/risk/` value changes. Does not block the 5 queued tickets.
 1. `pfm/worker.py` `load_news`: `research/news/usd_high_impact.csv` is the only source; drop `data/news.csv`, so every run uses the reviewed, committed list. Update `tests/test_news.py` and the README "Known limits" line.
 2. `summary.json`: add the calendar's path, event count, last event date and a content hash, next to `news_calendar_loaded`.
@@ -279,7 +279,7 @@ Branch `dev/R-015`. Worker reporting and calendar source. No limit, parameter or
 ### H-006 decision — 2026-11-04 — from orchestrator
 **Approved as strategy F at `stage: idea`; coding is R-016.** 3 params, visible SL, no banned methods, entry 13:30 IST and latest exit 21:30 IST (flat-by 22:30), so no owner approval is needed. Not derived from the Asian-range events. Rechecked H-006's arithmetic: 4.0-5.4 bp a day, $0.85 round-trip cost, about +0.08R net for PF 1.3 at 0.6R average. All match. The reason to approve is coverage, not confidence: B and E are the only strategies that can reach a gate without the owner, and H-006 itself says a failed baseline is the likeliest result.
 
-## R-016 — 2026-11-04 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — open
+## R-016 — 2026-11-04 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — closed 2026-11-04
 Code H-006 as strategy F on branch `dev/R-016`. No limit or `config/risk/` value changes.
 **Order for Strategy Dev: R-015, R-006, R-016, R-014, R-008.** R-006 has been passed over twice and is needed for any release whatever the results. R-016 waits for it because nothing can run while the worker is down (Q-008). If B and E both fail and R-016 is not done, the Orchestrator moves it up.
 1. `strategies/F_asian_rise_short/` + `mql5/Experts/AsianRiseShort_F.mq5`. Three tunable params with H-006's defaults (`asia_rise_atr` 0.5, `stop_atr` 2.0, `exit_et` 11:00) and ranges. The `params.yaml` grid plus the 4 first runs must stay within 50 trials. Quote `exit_et` strings.
@@ -330,3 +330,24 @@ All three are on branches for Risk & compliance review, per the merge path. Noth
   - Independent checks on a 1,600-day synthetic fixture: changing the entry bar's high, low and close and all later bars leaves every signal up to that bar unchanged, stops included. All entries 13:30 IST, at most 1 trade per IST day, all short, every time exit 11:00 New York, latest exit 21:30 IST, shortest hold 900 s. Grid is 40 combinations, 44 of 50 trials with the first 4 runs.
   - `stage: coded` on the branch reaches `main` only through the Orchestrator's merge, as with R-013. The Orchestrator then queues F's 4 runs.
   - **Blocks F's release, not this merge:** the same list as E (MetaEditor compile, R-014, Q-003, H-006 "known problem" check) plus Q-009. The shared `InpMagic` part is settled by one EA per account (Q-007).
+
+### R-015 / R-006 / R-016 merge — 2026-11-04 06:35 UTC — from orchestrator
+**Merged to `main`:** `dev/R-015` eee2016, `dev/R-006` 4368cb2, `dev/R-016` d5762b1, the commits Risk reviewed. `python -m pytest -q`: 102 passed. Nothing in `config/` changed on any branch. **R-006, R-015 and R-016 closed.**
+- **F:** `stage: coded` arrived with the merge. Queued J-20261104-001 to 004: baseline, `random_side` (seed 0), `opposite_side`, `no_filter`, all at H-006 defaults, 4 of H-006's 50 trials. Checked on a 900-day synthetic fixture through `run_one`, not `run_job`, so no trial was logged: all 4 parse and run, `exit_et` stays the string "11:00", 251 news rows load, `no_filter` trades more days than the baseline (643 vs 224). Backtest judges them against H-006's kill criteria, and needs all 4 to do it.
+- **Calendar check for F:** the R-011 check on `news_flat_bars` applies to J-20261104-001 to 004 too. These runs also write the R-015 fields; `news_calendar_covers_data` false means the verdict waits.
+- **Capital (R-010):** the trailing floor is on `main`. R-010's static-floor figures stay provisional only until a propsim is run on the new path.
+- **Q-009** accepted, assigned as R-017 and R-018 below.
+
+## R-017 — 2026-11-04 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — open
+Closes Q-009 items 1 to 4, on branch `dev/R-017`, after R-014 because both edit `RiskEngine.mqh`. Tightening only: no limit or `config/risk/` value changes. Merge path as R-013. Does not block any backtest. Blocks every release.
+1. `pfm/monitor.py`: argument for the EA status file, no hard-coded `PFM_status_A.json`. A missing or stale status file must still alert. Ops sets the argument in `DEPLOY.md` (R-018).
+2. `RiskEngine.mqh`: tighten-only `InpHwmSeed`, taken as `max` with the stored mark. A deal-history rebuild would also do, but cannot be tested outside MT5, so use the seed.
+3. `RiskEngine.mqh`: keep day key, day base, peak, trades and lock in global variables with the mark, and restore them when the key equals today's. Test Q-009's example: day stop at -750, restart, no further -750 allowed.
+4. `pfm/release.py`: `STRAT_MAP` gains C's `west_drop_atr` and `exit_utc` and E's `impulse_atr`. `make_set` raises on any frozen key with no mapping. Check B, D and F against the same rule.
+Pure arithmetic goes in the block compared against `pfm/risk.py`, as in R-006. **Order for Strategy Dev: R-014, R-017, R-008.** R-008 still waits on D's real-tick re-run.
+
+## R-018 — 2026-11-04 — from orchestrator to **Ops** — open
+Closes Q-009 item 5 and the Ops half of its items 1 and 2. No `DEPLOY.md` exists until a release package is built, so record these as required `DEPLOY.md` steps in `agents/ops.md` release step 3. No deployment.
+1. New monitor `--account` label per step. If The5ers keeps the same login at step 2, stop and ask the owner before restarting the EA, because the mark carries over.
+2. Set the monitor's status-file argument for the strategy deployed, once R-017 is on `main`.
+3. Set `InpHwmSeed` from `eod_hwm` in `results/live/<account>/status.json` on any VPS move or terminal rebuild, once R-017 is on `main`.

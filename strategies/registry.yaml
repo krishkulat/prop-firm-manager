@@ -93,3 +93,4 @@ strategies:
       2026-11-04 CODED by strategy-dev (R-016, branch dev/R-016): strategies/F_asian_rise_short/ + mql5/Experts/AsianRiseShort_F.mq5. Stop is measured from the 08:00 UTC bar open,
       as H-006 writes it, not from the signal close: that open is known at entry. Benchmarks random_side | opposite_side | no_filter are research only; no_filter is a switch, every day.
       EA not compiled in MT5 yet. No backtest queued: R-016 item 5 gives the 4 runs to the Orchestrator after the merge.
+      2026-11-04 Orchestrator: merged to main after Risk pass (stage coded). Queued J-20261104-001 to 004, baseline and 3 benchmarks, 4 of 50 trials. MT5 runs and release blocked by R-014, Q-009, a MetaEditor compile and the H-006 "known problem" check.

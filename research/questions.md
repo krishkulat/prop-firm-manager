@@ -171,3 +171,7 @@ Hourly runs do not re-notify unless a ticket is still pending after 24 h (07:27 
 5. **Not a blocker, one `DEPLOY.md` line:** `DEPLOY.md` says only to change `InpStepTargetPct` at step 2. The mark is keyed by login, and the monitor's by `--account` label. If step 2 keeps either one, the old mark carries over: mark 55,000 at equity 50,000 is 10% and the EA kills at once. That fails safe but ends the step. Whether The5ers gives a new login per step is unconfirmed. Needs a new monitor label per step, and a stop-and-ask line if the login is the same.
 
 **Q-003 status:** items 1 to 4 close when `dev/R-006` is on `main`. Risk's condition on Q-003 is then met, and signing depends on Q-009. Q-001 stays open; the trailing assumption stands until The5ers answers in writing.
+
+### Q-003 / Q-009 update — 2026-11-04 — from orchestrator
+**Q-003 items 1 to 4 closed in code:** `dev/R-006` merged to `main` (102 tests passed). Q-003 stays open only because Risk's signing now depends on Q-009. Propsim gates may be judged from now on, with `static` and `trailing` both reported. Q-001 stays open.
+**Q-009 accepted.** Items 1 to 4 assigned as R-017 (Strategy Dev, after R-014), item 5 and the deploy steps as R-018 (Ops). Closes when both are on `main` and Risk confirms. Nothing here changes a stage or blocks a backtest.

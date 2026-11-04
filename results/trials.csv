@@ -14,3 +14,4 @@ time_utc,job_id,kind,strategy,hypothesis,params,trades,pf,max_dd_pct,sharpe
 2026-11-02T00:00:00+00:00,import-RPF-R6,mt5_import,D,H-005,"{""report"": ""R6"", ""source"": ""owner session""}",719,1.39,4.0,
 2026-11-02T00:00:00+00:00,import-RPF-uncounted,mt5_import,D,H-005,"{""note"": ""owner neighbour runs (unknown count) + browser grid up to 41040 configs; true trial count unknown""}",,,,
 2026-11-02T17:46:34+00:00,J-20261102-001,backtest,B,H-002,"{""rr"": 2.0, ""stop_atr"": 1.2, ""min_range_atr"": 1.5, ""max_range_atr"": 4.0}",426,1.427,8.52,1.184
+2026-11-04T21:02:39+00:00,J-20261103-001,backtest,E,H-004,"{""impulse_atr"": 1.0, ""stop_atr"": 1.5, ""exit_et"": ""11:30"", ""benchmark"": ""none"", ""benchmark_seed"": 0}",617,0.792,32.53,-0.801

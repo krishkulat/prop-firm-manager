@@ -2,7 +2,7 @@
 # Research re-checks weekly. Verify on the Hub before every purchase.
 # max_loss_trailing: true is a conservative ASSUMPTION (end-of-day high-water mark), set by Risk 2026-11-02 per Q-001.
 # The connector says trailing, third-party rule pages say static; owner's written answer from The5ers is pending.
-# Nothing reads this flag yet: propsim, pfm/risk.py, RiskEngine.mqh and pfm/monitor.py are all static (see Q-003).
+# Read by propsim, pfm/risk.py, RiskEngine.mqh and pfm/monitor.py only once dev/R-006 is on main; until that merge they are all static (Q-003).
 firm: The5ers
 platform: MT5
 ea_policy: allowed; visible SL required; own source code; no HFT/tick scalping/arbitrage/copying others

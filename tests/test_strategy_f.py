@@ -197,7 +197,7 @@ def test_runs_through_backtester(bars, risk_cfg):
 
 def test_worker_loads_it_from_the_registry_and_exit_stays_a_string():
     strat, reg = worker.load_strategy("F")
-    assert isinstance(strat, AsianRiseShort) and reg["stage"] == "coded"
+    assert isinstance(strat, AsianRiseShort) and reg["module"] == "strategies.F_asian_rise_short.strategy"
     assert "InpAsiaRiseATR=0.5\n" in release.make_set("the5ers_hs50k_10d", "F", 10.0)
     assert 'InpExitET=11:00\n' in release.make_set("the5ers_hs50k_10d", "F", 10.0)
 

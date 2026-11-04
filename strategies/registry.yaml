@@ -82,7 +82,7 @@ strategies:
     name: Short after Asian rise (London and early New York)
     module: strategies.F_asian_rise_short.strategy
     version: "1.0"
-    stage: idea
+    stage: coded
     hypothesis: research/hypotheses/H-006-western-hours-short-after-asian-rise.md
     firm_product: the5ers/hs50k_10d
     redesigns: 0
@@ -90,3 +90,6 @@ strategies:
       2026-11-04 approved by orchestrator, assigned to Strategy Dev (R-016). 3 params, 0 trials used. Entry 13:30 IST, latest exit 21:30 IST, inside the current
       risk window, so no owner approval is needed. Not derived from the Asian-range events. Thin edge by H-006's own estimate (a failed baseline is the likeliest
       result). Before demo it needs the same check against the full MT5 high-importance event list as E.
+      2026-11-04 CODED by strategy-dev (R-016, branch dev/R-016): strategies/F_asian_rise_short/ + mql5/Experts/AsianRiseShort_F.mq5. Stop is measured from the 08:00 UTC bar open,
+      as H-006 writes it, not from the signal close: that open is known at entry. Benchmarks random_side | opposite_side | no_filter are research only; no_filter is a switch, every day.
+      EA not compiled in MT5 yet. No backtest queued: R-016 item 5 gives the 4 runs to the Orchestrator after the merge.

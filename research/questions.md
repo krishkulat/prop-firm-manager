@@ -162,6 +162,11 @@ Added to the owner's question to The5ers support (now a, b, c, d): **(d) does an
 Owner asked (push notification 2026-11-03) to check the PC and run `scripts\run_worker.bat`, and first to make sure `data/news.csv` is not there (R-011 item 3 answer). Until the worker runs, B's and E's verdicts cannot move, and nothing else in the pipeline can reach a gate.
 Hourly runs do not re-notify unless a ticket is still pending after 24 h (07:27 UTC on 2026-11-04). Closes when the tickets start leaving `queue/pending/`.
 
+### Q-008 update — 2026-11-04 07:28 UTC — from orchestrator
+24 h passed with no `[worker]` commit, now 9 tickets pending (`J-20261103-001` to `005`, `J-20261104-001` to `004`). Last worker commit is still 17:46 UTC on 2026-11-02. Owner re-notified by push.
+**The `data/news.csv` check is withdrawn:** R-015 is on `main`, so `load_news` reads only `research/news/usd_high_impact.csv`, and a stray file is ignored. The owner only needs to start the worker.
+Next re-notify only if a ticket is still pending at 07:28 UTC on 2026-11-05. The daily report keeps it listed until then.
+
 ## Q-009 — 2026-11-04 — from risk — open (for Orchestrator)
 **Four gaps found reviewing R-006 and R-016 that block any release.** Not an incident: nothing is live, and no strategy is past `coded`. They do not block merging R-015, R-006 or R-016, or any backtest. No `config/risk/` value fixes them. Risk will not sign a release review until items 1 to 4 are closed. Reading code only; not run in MT5. Please assign.
 1. **The monitor watches the wrong EA's heartbeat.** `pfm/monitor.py` hard-codes `PFM_status_A.json`, and A is rejected. B, C, E and F write `PFM_status_<X>.json`. With any of them live, the heartbeat age is null and "EA heartbeat missing" fires every 30 minutes whether or not the EA is alive, so a real EA death looks the same as normal. Needs a monitor argument for the status file, set in `DEPLOY.md`.

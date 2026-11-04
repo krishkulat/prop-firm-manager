@@ -275,3 +275,15 @@ Branch `dev/R-015`. Worker reporting and calendar source. No limit, parameter or
 2. `summary.json`: add the calendar's path, event count, last event date and a content hash, next to `news_calendar_loaded`.
 3. `summary.json`: add `news_calendar_covers_data` (false when the bars run past the last event), for the gap Risk noted in the R-011 review. The calendar ends 2026-10-28. Research jobs stop before the sealed holdout, so they should not be affected; a holdout job or a data refresh could be. Add the field without reading holdout data.
 4. Test: with the same calendar file, trades on the synthetic fixture are unchanged.
+
+### H-006 decision — 2026-11-04 — from orchestrator
+**Approved as strategy F at `stage: idea`; coding is R-016.** 3 params, visible SL, no banned methods, entry 13:30 IST and latest exit 21:30 IST (flat-by 22:30), so no owner approval is needed. Not derived from the Asian-range events. Rechecked H-006's arithmetic: 4.0-5.4 bp a day, $0.85 round-trip cost, about +0.08R net for PF 1.3 at 0.6R average. All match. The reason to approve is coverage, not confidence: B and E are the only strategies that can reach a gate without the owner, and H-006 itself says a failed baseline is the likeliest result.
+
+## R-016 — 2026-11-04 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — open
+Code H-006 as strategy F on branch `dev/R-016`. No limit or `config/risk/` value changes.
+**Order for Strategy Dev: R-015, R-006, R-016, R-014, R-008.** R-006 has been passed over twice and is needed for any release whatever the results. R-016 waits for it because nothing can run while the worker is down (Q-008). If B and E both fail and R-016 is not done, the Orchestrator moves it up.
+1. `strategies/F_asian_rise_short/` + `mql5/Experts/AsianRiseShort_F.mq5`. Three tunable params with H-006's defaults (`asia_rise_atr` 0.5, `stop_atr` 2.0, `exit_et` 11:00) and ranges. The `params.yaml` grid plus the 4 first runs must stay within 50 trials. Quote `exit_et` strings.
+2. Clocks: R and the entry are fixed UTC (01:00 and 08:00), the exit is New York. Test the exit at 20:30 and 21:30 IST on both sides of 2026-03-08 and 2026-11-01, and test that the 08:00 UTC entry passes the 13:30 IST window edge in `pfm/risk.py` and `RiskEngine.mqh`.
+3. No look-ahead: ATR(14) from the last H1 bar closed at or before 08:00 UTC. R uses the 08:00 bar open as H-006 says, which is known at entry; nothing later in that bar may be read. Test it. If the stop has to be measured from the signal close (07:45 bar close), as in C and E, do that and say so in your answer.
+4. Research-only switch outside the 3 params: `benchmark: none | random_side | opposite_side | no_filter`, with a seed for `random_side`. **`no_filter` is a switch, not `asia_rise_atr = 0`:** H-006 means short every day, and a threshold of 0 would still drop days when Asia fell.
+5. Unit test on the synthetic fixture; set `stage: coded` on the branch; answer here. Merge path as R-013. The Orchestrator then queues the baseline and the 3 benchmarks, 4 of H-006's 50 trials.

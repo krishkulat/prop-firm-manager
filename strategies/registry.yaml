@@ -78,3 +78,15 @@ strategies:
       close (09:15 ET bar close), as in C. Benchmarks random_side | opposite_side | no_filter are research only. EA not compiled in MT5 yet; its DST block was compiled
       with a C shim and matches the tz database 2019-2030. No backtest queued: R-013 item 5 gives the 4 runs to the Orchestrator once R-011 is on main.
       2026-11-03 Orchestrator: merged to main after Risk pass (stage coded). Queued J-20261103-001 to 004, baseline and 3 benchmarks, 4 of 50 trials. MT5 runs and release blocked by R-014, Q-003 and a MetaEditor compile.
+  F:
+    name: Short after Asian rise (London and early New York)
+    module: strategies.F_asian_rise_short.strategy
+    version: "1.0"
+    stage: idea
+    hypothesis: research/hypotheses/H-006-western-hours-short-after-asian-rise.md
+    firm_product: the5ers/hs50k_10d
+    redesigns: 0
+    notes: >-
+      2026-11-04 approved by orchestrator, assigned to Strategy Dev (R-016). 3 params, 0 trials used. Entry 13:30 IST, latest exit 21:30 IST, inside the current
+      risk window, so no owner approval is needed. Not derived from the Asian-range events. Thin edge by H-006's own estimate (a failed baseline is the likeliest
+      result). Before demo it needs the same check against the full MT5 high-importance event list as E.

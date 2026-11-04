@@ -138,7 +138,7 @@ The5ers answers Q-001 item (c).
 Compare time-to-pass for D across The5ers products at 0.5%, 0.75% and 1% risk, with and without +$0.20/oz cost. Analysis only, no
 purchase request (D is not at `release`). The existing figures use a static floor, so mark them provisional until R-006 adds the trailing floor.
 
-## R-011 — 2026-11-02 — from orchestrator to **Research**, then **Strategy Dev**, then **Backtest** — open (PRIORITY)
+## R-011 — 2026-11-02 — from orchestrator to **Research**, then **Strategy Dev**, then **Backtest** — closed 2026-11-04
 B's only baseline ran with `news_calendar_loaded: false`, so it is not a valid H-002 baseline. `pfm/worker.py` `load_news` reads `data/news.csv`,
 which is git-ignored and absent. Build the calendar in the repo instead of waiting on the owner.
 1. **Research:** commit `research/news/usd_high_impact.csv` (column `time`, UTC) covering 2019-01-01 to today. Events: FOMC decisions, NFP, CPI. Use published
@@ -351,3 +351,25 @@ Closes Q-009 item 5 and the Ops half of its items 1 and 2. No `DEPLOY.md` exists
 1. New monitor `--account` label per step. If The5ers keeps the same login at step 2, stop and ask the owner before restarting the EA, because the mark carries over.
 2. Set the monitor's status-file argument for the strategy deployed, once R-017 is on `main`.
 3. Set `InpHwmSeed` from `eod_hwm` in `results/live/<account>/status.json` on any VPS move or terminal rebuild, once R-017 is on `main`.
+
+### Worker results decision — 2026-11-04 21:30 UTC — from orchestrator
+All 9 tickets ran; none failed. **R-011 closed:** J-20261103-005 is B's valid baseline. The calendar check passed on all 9 jobs (`results/B/history.md`).
+- **E rejected, F rejected** on their kill criteria. **B:** gate failed on maxDD only (7.70%), no kill criterion fired; one redesign chosen, R-019.
+- **Backtest:** still write your verdicts in `results/E/`, `results/F/` and `results/B/history.md`, with the red-flag checks. If your figures disagree with these, raise it in `research/questions.md`. The NFP and CPI day kill criterion was not run, because the others already end E and F, and it is not an H-002 criterion. No ticket until R-019 merges.
+- **Strategy Dev:** order is now **R-019, R-014, R-017, R-008**. R-019 goes first because it is the only one that can move a gate without the owner. Drop H-006's and H-004's "known problem" check; R-017 item 4's E mapping stays, as `make_set` must raise on any unmapped key.
+
+## R-019 — 2026-11-04 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — open (PRIORITY)
+B v1.1, the one redesign chosen in `results/B/history.md`. Branch `dev/R-019`. Python and tests only for now; the EA change is assigned only if v1.1 passes the gate. No `config/` change. Merge path as R-013.
+1. Target = the Asian range midpoint, `(hi + lo) / 2`, for both sides. It replaces `rr`, which goes from `default_params` and `params.yaml`, leaving 3 params. Stop, signal, entry and news handling stay exactly as v1.0.
+2. `breakout_events` is A's audited path. Add `mid` to `BreakoutEvent` and change nothing else there. A test must show the events' times, sides, closes and risks are unchanged.
+3. When the entry bar opens at or past the midpoint, the existing `gap_through_levels` rejection stands: no trade that day. Report the count from the synthetic fixture.
+4. Version `"1.1"` in the registry on the branch; `stage` stays `coded`.
+5. No ticket. The Orchestrator queues the one run after the merge: H-002's 4th trial, no sweep. Do not look at the 2023-08 to 2024-02 stretch or any other run for this.
+
+## R-020 — 2026-11-04 — from orchestrator to **Research** — open (PRIORITY)
+After E and F, B is the only strategy that can reach a gate without the owner, so testing is below 2. **Write 2 new hypotheses** (max 2 a day), for the 13:30-21:00 IST window, so they need no owner approval, and not derived from the Asian-range events, so they are not B again.
+Read `results/E/history.md` and `results/F/history.md` first. What they showed on 2019-2025:
+- Direction taken from a fixed clock return did not beat random direction: E was +0.050R, F was -0.096R. Both lost in all 7 years. Costs are about 0.11-0.14R a trade at those stops.
+- So a new idea needs its own reason why the entry side is right, and an estimate that clears costs by at least +0.15R a trade (H-006's pace figure). State that estimate, as H-006 did.
+- F tested the falling leg that H-003 also rests on, and lost. Say whether that weakens H-003. C stays at `coded`, blocked by Q-002.
+- The usual rules apply: set parameters before any run, keep the random-side benchmark, and state kill criteria.

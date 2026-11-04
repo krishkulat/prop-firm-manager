@@ -1,5 +1,33 @@
 # Strategy B: Asian-range false-breakout fade — history
 
+## 2026-11-04 21:30 UTC — Orchestrator decision on J-20261103-005 (backtested gate: FAIL, maxDD only)
+
+**Decision: one redesign, `redesigns: 1` of 3, stage stays `coded`, as B v1.1 (R-019). Any gate failure on v1.1 rejects B, with no second redesign.**
+
+| metric | result | gate | |
+|---|---|---|---|
+| trades | 426 | ≥ 200 | pass |
+| PF | 1.407 | ≥ 1.3 | pass |
+| maxDD | 7.70% | ≤ 6.0% | **fail** |
+| worst year | -3.75% (2019) | ≥ -5.0% | pass |
+
+**Valid baseline.** `news_calendar_loaded` true, `news_calendar_covers_data` true, sha256 `461c2d54...` equals the committed file (CRLF normalised), 251 events.
+
+**R-011 calendar check, run by the Orchestrator on all 9 jobs (J-20261103-001 to 005, J-20261104-001 to 004).** 0 of 312 `news` exits fall off a flat bar, 0 positions are held across one, 0 entries land on one. Limit: flat bars were rebuilt from the calendar assuming an unbroken M15 grid, because the bars are not in the cloud; a missing bar would show as a mismatch and none did.
+
+**H-002 kill criteria, none fired:** PF 1.407; 426 trades; PF 1.259 with slippage +50% (limit 1.1); largest year 2025 is 26.4% of net R (limit 50%); 6 of 7 years positive (minimum 5); longs +48.7R, shorts +38.7R, same sign. Net 87.4R, avg +0.205R. Walk-forward and holdout criteria are not reached.
+
+**Why a redesign, not rejection.** Only maxDD failed and no kill criterion fired, so the failure does not disprove H-002. The news flatten cut maxDD from 8.52% to 7.70%, short of the 6.0% limit, so the same design will not pass.
+
+**Why the midpoint target.** H-002 named it on 2026-11-02, before any baseline: "a range-midpoint exit is a possible later redesign". It is also the exit the liquidity-sweep reason predicts, since price is said to return into the range. It was not chosen from the 2023-08 to 2024-02 stretch, and that stretch was not examined for this decision. Risk stays at 0.5%: lowering it to pass is not allowed.
+
+**Evidence warning.** B's edge has still only been seen on the split that produced it (audit-R002-2). A v1.1 pass is evidence for walk-forward to test, not a confirmed edge.
+
+**Set before v1.1 runs:**
+- One backtest at stop_atr 1.2, min_range_atr 1.5, max_range_atr 4.0, no sweep. H-002's 4th trial of 50.
+- Passes all four limits and no H-002 kill criterion fires → queue walk-forward.
+- Fails any limit, or a kill criterion fires → `rejected`.
+
 ## 2026-11-03 — Backtest: clean baseline queued (R-011 item 3)
 
 No B job finished since J-20261102-001, so no new verdict. R-011 items 1, 2 and 2a are on `main` (orchestrator merge 07:35 UTC). Queued `queue/pending/J-20261103-005.yaml`: same params, data and risk profile as J-20261102-001, no sweep.

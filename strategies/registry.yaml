@@ -20,7 +20,7 @@ strategies:
     stage: coded
     hypothesis: research/hypotheses/H-002-asian-range-false-breakout-fade.md
     firm_product: the5ers/hs50k_10d
-    redesigns: 0
+    redesigns: 1
     notes: >-
       2026-11-02 approved by orchestrator, assigned to Strategy Dev (R-004). Found in-sample (R-002 audit,
       trials.csv row audit-R002-2 under H-001); counts as 1 trial used for H-002. Mirror of rejected A.
@@ -32,6 +32,8 @@ strategies:
       Held at coded, redesigns stays 0. Not rejected: the run had no news calendar, so it is not a valid H-002 baseline, and no H-002
       kill criterion fired. Next is one clean baseline after R-011. No walk-forward until the gate passes. See results/B/history.md.
       2026-11-02 Orchestrator (Q-006): baseline also waits on R-011 item 2a (backtest flattens before news like the EA). Entry blocking alone cannot change B's trades.
+      2026-11-04 Orchestrator: J-20261103-005 clean baseline FAILED backtested gate on maxDD only (7.70% > 6.0%; trades 426, PF 1.407, worst year -3.75%). No H-002 kill criterion fired. Chose one redesign (redesigns 1 of 3):
+      v1.1 target = range midpoint, the redesign H-002 named before any baseline. R-019. Any gate failure on v1.1 rejects B; no second redesign. See results/B/history.md.
   C:
     name: SGE day-session long after Western-hours drop
     module: strategies.C_sge_session_long.strategy
@@ -66,7 +68,7 @@ strategies:
     name: US-open impulse continuation
     module: strategies.E_us_open_impulse.strategy
     version: "1.0"
-    stage: coded
+    stage: rejected
     hypothesis: research/hypotheses/H-004-us-open-impulse-continuation.md
     firm_product: the5ers/hs50k_10d
     redesigns: 0
@@ -78,11 +80,12 @@ strategies:
       close (09:15 ET bar close), as in C. Benchmarks random_side | opposite_side | no_filter are research only. EA not compiled in MT5 yet; its DST block was compiled
       with a C shim and matches the tz database 2019-2030. No backtest queued: R-013 item 5 gives the 4 runs to the Orchestrator once R-011 is on main.
       2026-11-03 Orchestrator: merged to main after Risk pass (stage coded). Queued J-20261103-001 to 004, baseline and 3 benchmarks, 4 of 50 trials. MT5 runs and release blocked by R-014, Q-003 and a MetaEditor compile.
+      2026-11-04 REJECTED by orchestrator: H-004 kill criterion. Baseline J-20261103-001 PF 0.792 < 1.3 (617 trades, avg -0.095R, maxDD 32.53%, 0 of 7 years positive). Random side avg -0.145R, so the edge over it is 0.050R, below the 0.10R required. See results/E/history.md.
   F:
     name: Short after Asian rise (London and early New York)
     module: strategies.F_asian_rise_short.strategy
     version: "1.0"
-    stage: coded
+    stage: rejected
     hypothesis: research/hypotheses/H-006-western-hours-short-after-asian-rise.md
     firm_product: the5ers/hs50k_10d
     redesigns: 0
@@ -94,3 +97,4 @@ strategies:
       as H-006 writes it, not from the signal close: that open is known at entry. Benchmarks random_side | opposite_side | no_filter are research only; no_filter is a switch, every day.
       EA not compiled in MT5 yet. No backtest queued: R-016 item 5 gives the 4 runs to the Orchestrator after the merge.
       2026-11-04 Orchestrator: merged to main after Risk pass (stage coded). Queued J-20261104-001 to 004, baseline and 3 benchmarks, 4 of 50 trials. MT5 runs and release blocked by R-014, Q-009, a MetaEditor compile and the H-006 "known problem" check.
+      2026-11-04 REJECTED by orchestrator: H-006 kill criteria. Baseline J-20261104-001 PF 0.687 < 1.3 (693 trades, avg -0.169R, maxDD 58.58%, 0 of 7 years positive). It lost to random side (-0.073R) and to long on the same signals (-0.040R). Not relabelled. See results/F/history.md.

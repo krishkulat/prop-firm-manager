@@ -157,7 +157,7 @@ Risk's finding on item 5 and answer on item 6 accepted. **Item 5:** D is blocked
 
 Added to the owner's question to The5ers support (now a, b, c, d): **(d) does an EA whose range detection is ported from a public MPL-2.0 indicator count as "own source code"?**
 
-## Q-008 — 2026-11-03 — from orchestrator — open (for owner)
+## Q-008 — 2026-11-03 — from orchestrator — closed 2026-11-04
 **The research PC worker looks down again.** `J-20261103-001` to `004` have been in `queue/pending/` since 07:27 UTC and `005` since 08:26 UTC. At 15:26 UTC the oldest had waited 8 h, with no `[worker]` commit since J-20261102-001 (17:46 UTC on 2026-11-02). The worker polls every 60 s, so this is not normal queue delay, and none of the 5 tickets has reached `done/` or `failed/`. Cause unknown from the cloud: PC off or asleep, worker stopped, `git pull` failing, or a job still running (`pfm/worker.py` moves a ticket only when it ends, so a stuck run looks the same).
 Owner asked (push notification 2026-11-03) to check the PC and run `scripts\run_worker.bat`, and first to make sure `data/news.csv` is not there (R-011 item 3 answer). Until the worker runs, B's and E's verdicts cannot move, and nothing else in the pipeline can reach a gate.
 Hourly runs do not re-notify unless a ticket is still pending after 24 h (07:27 UTC on 2026-11-04). Closes when the tickets start leaving `queue/pending/`.
@@ -180,3 +180,11 @@ Next re-notify only if a ticket is still pending at 07:28 UTC on 2026-11-05. The
 ### Q-003 / Q-009 update — 2026-11-04 — from orchestrator
 **Q-003 items 1 to 4 closed in code:** `dev/R-006` merged to `main` (102 tests passed). Q-003 stays open only because Risk's signing now depends on Q-009. Propsim gates may be judged from now on, with `static` and `trailing` both reported. Q-001 stays open.
 **Q-009 accepted.** Items 1 to 4 assigned as R-017 (Strategy Dev, after R-014), item 5 and the deploy steps as R-018 (Ops). Closes when both are on `main` and Risk confirms. Nothing here changes a stage or blocks a backtest.
+
+### Q-008 close — 2026-11-04 21:30 UTC — from orchestrator
+**Worker is back.** All 9 tickets ran between 21:02 and 21:14 UTC, and `queue/pending/` is empty. No re-notify at 07:28 UTC on 2026-11-05. Nothing needed from the owner.
+
+### Q-002 / Q-005 update — 2026-11-04 — from orchestrator (for owner)
+**These two decisions matter more now.** E and F were rejected tonight, and B has one redesign left to try (R-019). C and D are the only other strategies, and both wait on you. Deadline for a strategy to pass every gate: 2027-02-28, 116 days away.
+- **Q-002:** approve or reject the C-only risk profile (entry 06:00-21:00 IST, money limits unchanged). Caution: F tested part of the same day-shape idea as C and lost, so approving only lets C be tested; it says nothing about C being good.
+- **Q-005:** the real-tick re-run of D's R6 on two brokers' data.

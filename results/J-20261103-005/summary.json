@@ -1,0 +1,54 @@
+{
+  "job_id": "J-20261103-005",
+  "kind": "backtest",
+  "strategy": "B",
+  "params": {
+    "rr": 2.0,
+    "stop_atr": 1.2,
+    "min_range_atr": 1.5,
+    "max_range_atr": 4.0
+  },
+  "news_calendar_loaded": true,
+  "news_calendar_path": "research/news/usd_high_impact.csv",
+  "news_calendar_events": 251,
+  "news_calendar_last_event": "2026-10-28T18:00:00+00:00",
+  "news_calendar_sha256": "461c2d54b7cf8800b1218908938ceaf4edc4dd16318907d5edf8b6bc5a281ac5",
+  "news_calendar_covers_data": true,
+  "trades": 426,
+  "pf": 1.407,
+  "win_rate": 0.505,
+  "avg_r": 0.205,
+  "net_pct": 42.86,
+  "max_dd_pct": 7.7,
+  "yearly_pct": {
+    "2018": 0.0,
+    "2019": -3.75,
+    "2020": 7.37,
+    "2021": 7.87,
+    "2022": 11.33,
+    "2023": 5.75,
+    "2024": 3.02,
+    "2025": 11.27
+  },
+  "worst_year_pct": -3.75,
+  "sharpe": 1.123,
+  "best_month_share": 0.089,
+  "exit_reasons": {
+    "stop": 194,
+    "target": 156,
+    "session_end": 56,
+    "news": 20
+  },
+  "rejections": {
+    "spread": 25
+  },
+  "stress_slip_pf": 1.259,
+  "stress_spread_pf": 1.353,
+  "gate": {
+    "name": "backtested",
+    "pass": false,
+    "fails": [
+      "maxDD 7.7% > 6.0%"
+    ]
+  }
+}

@@ -1,4 +1,5 @@
 """R-011: repo news calendar fallback, and the backtest flattening before news like the EA."""
+import hashlib
 import shutil
 from pathlib import Path
 
@@ -29,13 +30,63 @@ def test_load_news_falls_back_to_repo_calendar(tmp_path, monkeypatch):
     assert len(news) == 251 and news[0] == ts("2019-01-04 13:30") and str(news[0].tz) == "UTC"
 
 
-def test_data_news_csv_wins_over_repo_calendar(tmp_path, monkeypatch):
+def test_data_news_csv_is_ignored(tmp_path, monkeypatch):
     monkeypatch.setattr(worker, "ROOT", tmp_path)
     (tmp_path / "research/news").mkdir(parents=True)
     shutil.copy(REPO_CALENDAR, tmp_path / "research/news/usd_high_impact.csv")
     (tmp_path / "data").mkdir()
     (tmp_path / "data/news.csv").write_text("time\n2026-01-01T12:00:00Z\n", encoding="utf-8")
-    assert worker.load_news() == [ts("2026-01-01 12:00")]
+    assert len(worker.load_news()) == 251
+    (tmp_path / "research/news/usd_high_impact.csv").unlink()
+    assert worker.load_news() == []                                  # no fallback to data/news.csv either
+
+
+# ---------------------------------------------------------------- calendar identity in summary.json (R-015)
+def test_calendar_info_identifies_the_file():
+    i = worker.news_calendar_info(worker.load_news())
+    assert i["news_calendar_path"] == "research/news/usd_high_impact.csv"
+    assert i["news_calendar_events"] == 251
+    assert i["news_calendar_last_event"].startswith("2026-10-28")
+    assert i["news_calendar_sha256"] == hashlib.sha256(REPO_CALENDAR.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
+def test_calendar_hash_ignores_line_endings_but_not_content(tmp_path, monkeypatch):
+    monkeypatch.setattr(worker, "ROOT", tmp_path)
+    f = tmp_path / "research/news/usd_high_impact.csv"
+    f.parent.mkdir(parents=True)
+    f.write_bytes(b"time,event\n2026-01-01T12:00:00Z,CPI\n")
+    lf = worker.news_calendar_info(worker.load_news())["news_calendar_sha256"]
+    f.write_bytes(b"time,event\r\n2026-01-01T12:00:00Z,CPI\r\n")
+    assert worker.news_calendar_info(worker.load_news())["news_calendar_sha256"] == lf
+    f.write_bytes(b"time,event\n2026-01-02T12:00:00Z,CPI\n")
+    assert worker.news_calendar_info(worker.load_news())["news_calendar_sha256"] != lf
+
+
+def test_calendar_info_without_a_file(tmp_path, monkeypatch):
+    monkeypatch.setattr(worker, "ROOT", tmp_path)
+    i = worker.news_calendar_info([])
+    assert i["news_calendar_events"] == 0 and i["news_calendar_last_event"] is None and i["news_calendar_sha256"] is None
+
+
+def test_covers_data_is_false_when_bars_run_past_the_last_event():
+    news = [ts("2026-11-03 13:00")]
+    assert worker.calendar_covers_data(news, flat_bars(n=4, start="2026-11-03 12:00"))    # ends 12:45
+    assert worker.calendar_covers_data(news, flat_bars(n=5, start="2026-11-03 12:00"))    # last bar on the event
+    assert not worker.calendar_covers_data(news, flat_bars(n=6, start="2026-11-03 12:00"))
+    assert not worker.calendar_covers_data([], flat_bars())                               # no calendar covers nothing
+
+
+def test_summary_carries_calendar_fields_and_trades_are_unchanged(tmp_path, monkeypatch):
+    monkeypatch.setattr(worker, "RESULTS", tmp_path)
+    monkeypatch.setattr(worker, "TRIALS", tmp_path / "trials.csv")
+    job = {"job_id": "J-TEST-015", "kind": "backtest", "strategy": "B", "hypothesis": "H-TEST",
+           "requested_by": "test", "data": {"synthetic": True, "days": 600}}
+    s = worker.run_job(job)
+    assert s["news_calendar_loaded"] and s["news_calendar_events"] == 251 and len(s["news_calendar_sha256"]) == 64
+    assert s["news_calendar_covers_data"] is True                    # synthetic research split ends 2023
+    t = pd.read_csv(tmp_path / "J-TEST-015/trades.csv")
+    # 75 trades and this P&L were recorded from main at 3f26e86, before R-015, with the same calendar file
+    assert len(t) == 75 and round(t.pnl.sum(), 6) == -457.869933
 
 
 # ---------------------------------------------------------------- flatten before news

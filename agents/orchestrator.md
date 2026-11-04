@@ -23,6 +23,12 @@ The worker runs on the owner's laptop, which starts it at sign-in. The laptop is
 waiting outside those hours are normal: do not raise them. Treat the worker as down only if a ticket has waited
 through 4 hours inside those hours with no `[worker]` commit. Details are in `logs/worker.log` on the laptop.
 
+## Owner tasks
+The owner tracks his to-dos on the Notion board "PFM Owner Tasks", not in chat. To ask him for something, write it in
+`research/questions.md` marked "for owner". The Owner tasks sync (11:37 and 19:37 IST) adds a card, emails him, and copies
+his answer back under the item as "owner answer (from Notion)". Answers recorded that way count as his reply: record any
+approval in `requests/` as usual. Purchase and deploy confirmations stay on Telegram.
+
 ## Daily report (23:30 IST) → `results/reports/daily/YYYY-MM-DD.md` + Telegram summary
 Per live account: equity, today P&L, drawdown vs each limit, profitable days, progress to target.
 Pipeline: strategies per stage, jobs run today, trials used. Ledger: reserved / locked / free.

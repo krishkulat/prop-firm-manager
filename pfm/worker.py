@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import importlib
 import json
 import shutil
@@ -32,6 +33,7 @@ from .walkforward import run_one, sweep, walkforward
 PENDING, DONE, FAILED = ROOT / "queue/pending", ROOT / "queue/done", ROOT / "queue/failed"
 RESULTS = ROOT / "results"
 TRIALS = RESULTS / "trials.csv"
+NEWS_CALENDAR = "research/news/usd_high_impact.csv"
 
 
 def log(msg: str):
@@ -49,14 +51,31 @@ def load_strategy(key: str):
     return cls(), reg
 
 
+def news_calendar_path() -> Path:
+    return ROOT / NEWS_CALENDAR
+
+
 def load_news() -> list[pd.Timestamp]:
-    # column time (UTC) of high-impact USD events; data/news.csv (git-ignored) wins over the repo calendar
-    p = ROOT / "data/news.csv"
-    if not p.exists():
-        p = ROOT / "research/news/usd_high_impact.csv"
+    # column time (UTC) of high-impact USD events; the reviewed, committed calendar is the only source
+    p = news_calendar_path()
     if not p.exists():
         return []
     return list(pd.to_datetime(pd.read_csv(p)["time"], utc=True))
+
+
+def news_calendar_info(news: list[pd.Timestamp]) -> dict:
+    """What identifies the calendar a run used. The hash ignores CRLF vs LF, so a Windows checkout matches."""
+    p = news_calendar_path()
+    raw = p.read_bytes().replace(b"\r\n", b"\n") if p.exists() else None
+    return {"news_calendar_path": NEWS_CALENDAR,
+            "news_calendar_events": len(news),
+            "news_calendar_last_event": max(news).isoformat() if news else None,
+            "news_calendar_sha256": hashlib.sha256(raw).hexdigest() if raw is not None else None}
+
+
+def calendar_covers_data(news: list[pd.Timestamp], bars: pd.DataFrame) -> bool:
+    """False when the bars run past the last event: those bars have no news filter and nothing else says so."""
+    return bool(news) and len(bars) > 0 and bars.index[-1] <= max(news)
 
 
 def log_trials(job: dict, rows: list[dict]):
@@ -117,10 +136,14 @@ def run_job(job: dict) -> dict:
     strat, reg = load_strategy(job["strategy"])
     params = {**strat.default_params, **job.get("params", {})}
     summary: dict = {"job_id": job["job_id"], "kind": kind, "strategy": job["strategy"], "params": params,
-                     "news_calendar_loaded": bool(news)}
+                     "news_calendar_loaded": bool(news), **news_calendar_info(news),
+                     "news_calendar_covers_data": None}      # null on propsim: it reads no bars
+
+    if kind in ("backtest", "holdout", "sweep", "walkforward"):
+        bars = _bars(job)
+        summary["news_calendar_covers_data"] = calendar_covers_data(news, bars)
 
     if kind in ("backtest", "holdout"):
-        bars = _bars(job)
         res, s = run_one(strat, bars, params, research_risk, slip, news)
         res.trades.to_csv(out / "trades.csv", index=False)
         res.daily.to_csv(out / "equity.csv", index=False)
@@ -142,7 +165,6 @@ def run_job(job: dict) -> dict:
         log_trials(job, [{"params": params, **s}])
 
     elif kind == "sweep":
-        bars = _bars(job)
         used = trials_for(job.get("hypothesis", ""))
         cap = biz["research"]["max_trials_per_hypothesis"] - used
         table = sweep(strat, bars, job["grid"], research_risk, slip, max_trials=cap, news=news)
@@ -154,7 +176,6 @@ def run_job(job: dict) -> dict:
                        neighbours_profitable_share=round(float((table.pf > 1.0).mean()), 3))
 
     elif kind == "walkforward":
-        bars = _bars(job)
         wf = job.get("walkforward", {})
         trades, chosen, _ = walkforward(strat, bars, job["grid"], research_risk, slip,
                                         wf.get("train_months", 24), wf.get("test_months", 6), news=news)

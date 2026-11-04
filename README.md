@@ -47,8 +47,9 @@ python -m pfm.release package --strategy A --version 1.0 --profile the5ers_hs50k
 ## Known limits
 - Backtests run on M15 bars with conservative fills (stop first if both levels touched in one bar). Confirm
   promising strategies in the MT5 Strategy Tester on real ticks before the demo stage.
-- The news filter in backtests needs `data/news.csv` (UTC times of high-impact USD events); live EAs use the
-  MT5 calendar.
+- The news filter in backtests uses only `research/news/usd_high_impact.csv` (UTC times of FOMC, NFP and CPI);
+  `data/news.csv` is no longer read. Live EAs use the MT5 calendar. `summary.json` records the calendar's path, event
+  count, last event and hash; `news_calendar_covers_data: false` means the bars run past the last event.
 - The prop simulator re-sizes trades in risk units and assumes trades don't overlap.
 - Firm rules change; `config/firms/` must be re-checked (Research agent, weekly) and before every purchase.
 

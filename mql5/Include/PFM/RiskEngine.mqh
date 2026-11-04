@@ -32,14 +32,25 @@ input int    InpStaleFeedSeconds   = 30;
 input long   InpMagic              = 1010;
 input string InpKillFlagFile       = "PFM_KILL.flag"; // in MQL5/Files (Common); monitor creates it
 input bool   InpUseNewsFilter      = true;   // calendar is unavailable in the Strategy Tester; filter is skipped there
+input bool   InpMaxLossTrailing    = true;   // firm max_loss_trailing: kill and throttle follow the EOD high-water mark
 
 #define IST_OFFSET_SEC 19800   // UTC+5:30, India has no DST
+
+//--- PFM-LIMITS-BEGIN pure arithmetic, no MT5 calls; tests/test_trailing.py compiles this block and compares it with pfm/risk.py
+double PfmMark(bool trailing,double size,double eodHwm)        { return (trailing && eodHwm>size) ? eodHwm : size; }
+double PfmDrawdownPct(double mark,double size,double eq)       { return (mark-eq)/size*100.0; }
+double PfmKillRoom(double mark,double size,double killPct,double eq,double openRisk)
+                                                               { return size*killPct/100.0-(mark-eq)-openRisk; }
+double PfmDayBase(double dayStart,double dayPeak)              { return (dayPeak>dayStart) ? dayPeak : dayStart; }
+//--- PFM-LIMITS-END
 
 class CRiskEngine
   {
 private:
    CTrade   m_trade;
    double   m_dayStartEquity;
+   double   m_dayPeakEquity;
+   double   m_eodHwm;         // highest day-roll equity so far; kept in a terminal global variable across restarts
    int      m_dayKey;
    int      m_tradesToday;
    bool     m_lockedForDay;
@@ -51,6 +62,22 @@ private:
    int      IstMinutes(){ MqlDateTime t; TimeToStruct(IstNow(),t); return t.hour*60+t.min; }
    int      IstDow()    { MqlDateTime t; TimeToStruct(IstNow(),t); return t.day_of_week; }
    int      IstDayKey() { MqlDateTime t; TimeToStruct(IstNow(),t); return t.year*1000+t.day_of_year; }
+
+   string   HwmKey() { return "PFM_HWM_"+IntegerToString(AccountInfoInteger(ACCOUNT_LOGIN)); }
+   double   Mark()   { return PfmMark(InpMaxLossTrailing,InpAccountSize,m_eodHwm); }
+
+   void     LoadHwm()
+     {
+      m_eodHwm=InpAccountSize;
+      if(GlobalVariableCheck(HwmKey())) m_eodHwm=MathMax(m_eodHwm,GlobalVariableGet(HwmKey()));
+     }
+   //--- a restart also counts as a roll: intraday equity can only raise the mark, which tightens
+   void     SaveHwm(double value)
+     {
+      m_eodHwm=MathMax(m_eodHwm,value);
+      if(GlobalVariableSet(HwmKey(),m_eodHwm)==0) PrintFormat("PFM HWM not saved: %d",GetLastError());
+      GlobalVariablesFlush();
+     }
 
    double   OpenRiskUsd()
      {
@@ -83,8 +110,10 @@ public:
       m_trade.SetExpertMagicNumber(InpMagic);
       m_trade.SetDeviationInPoints(30);
       m_dayKey=-1; m_killed=false;
+      LoadHwm();
       RollDay();
-      Print("PFM risk engine ready | size=",InpAccountSize," risk=",InpRiskPerTradePct,"% daily stop=",InpDailyStopPct,"% kill=",InpKillDDPct,"%");
+      Print("PFM risk engine ready | size=",InpAccountSize," risk=",InpRiskPerTradePct,"% daily stop=",InpDailyStopPct,"% kill=",InpKillDDPct,
+            "% trailing=",InpMaxLossTrailing," mark=",DoubleToString(Mark(),2));
      }
    CTrade*  Trade()     { return &m_trade; }
    bool     Killed()    { return m_killed; }
@@ -102,7 +131,9 @@ public:
         {
          m_dayKey=k;
          m_dayStartEquity=MathMax(AccountInfoDouble(ACCOUNT_EQUITY),AccountInfoDouble(ACCOUNT_BALANCE));
+         m_dayPeakEquity=m_dayStartEquity;
          m_tradesToday=0; m_lockedForDay=false;
+         SaveHwm(m_dayStartEquity);       // also touches the variable daily, so the terminal's 4-week expiry never hits it
         }
      }
 
@@ -120,10 +151,11 @@ public:
      {
       RollDay();
       double eq=AccountInfoDouble(ACCOUNT_EQUITY);
-      double ddPct=(InpAccountSize-eq)/InpAccountSize*100.0;
+      double ddPct=PfmDrawdownPct(Mark(),InpAccountSize,eq);
+      m_dayPeakEquity=MathMax(m_dayPeakEquity,eq);
       if(KillFlagPresent() || ddPct>=InpKillDDPct)
         { if(!m_killed) Print("PFM KILL: dd=",DoubleToString(ddPct,2),"% flag=",KillFlagPresent()); m_killed=true; FlattenAll("kill"); return false; }
-      if((m_dayStartEquity-eq)/InpAccountSize*100.0>=InpDailyStopPct)
+      if((PfmDayBase(m_dayStartEquity,m_dayPeakEquity)-eq)/InpAccountSize*100.0>=InpDailyStopPct)
         { if(!m_lockedForDay) Print("PFM daily stop"); m_lockedForDay=true; FlattenAll("daily_stop"); return false; }
       if((eq-m_dayStartEquity)/InpAccountSize*100.0>=InpDailyProfitStopPct)
         { if(!m_lockedForDay) Print("PFM daily profit stop"); m_lockedForDay=true; FlattenAll("daily_profit_stop"); return false; }
@@ -162,12 +194,12 @@ public:
       double med=SpreadMedian(), sp=(double)SymbolInfoInteger(_Symbol,SYMBOL_SPREAD);
       if(med>0 && sp>InpSpreadMaxRatio*med) { reason="spread"; return 0; }
       double eq=AccountInfoDouble(ACCOUNT_EQUITY);
-      double dd=(InpAccountSize-eq)/InpAccountSize*100.0;
+      double dd=PfmDrawdownPct(Mark(),InpAccountSize,eq);
       double riskUsd=InpAccountSize*((dd>=InpThrottleDDPct)?InpThrottleRiskPct:InpRiskPerTradePct)/100.0;
       double openRisk=OpenRiskUsd();
       if(openRisk+riskUsd>InpAccountSize*InpMaxOpenRiskPct/100.0+1e-9) { reason="max_open_risk"; return 0; }
       double dayRoom =InpAccountSize*InpDailyStopPct/100.0-(m_dayStartEquity-eq)-openRisk;
-      double killRoom=InpAccountSize*InpKillDDPct/100.0-(InpAccountSize-eq)-openRisk;
+      double killRoom=PfmKillRoom(Mark(),InpAccountSize,InpKillDDPct,eq,openRisk);
       riskUsd=MathMin(riskUsd,MathMin(dayRoom,killRoom));
       double vpu=ValuePerPriceUnit(), dist=MathAbs(entry-stop);
       if(vpu<=0 || dist<=0 || riskUsd<=0) { reason="size_zero"; return 0; }

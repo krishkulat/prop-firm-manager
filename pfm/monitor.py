@@ -19,15 +19,24 @@ from pathlib import Path
 from . import ROOT, config, notify
 
 
-def evaluate(equity: float, day_start: float, product: dict, risk: dict) -> dict:
-    """Pure function: distances to firm limits and internal limits, in % of initial balance."""
+def evaluate(equity: float, day_start: float, product: dict, risk: dict, eod_hwm: float | None = None) -> dict:
+    """Pure function: distances to firm limits and internal limits, in % of initial balance.
+
+    When max loss trails, room to the firm floor and to the kill is measured from the EOD high-water mark
+    (eod_hwm, never below initial), as the EA does. overall_dd_pct stays measured from initial balance.
+    """
     init = product["account_size"]
+    trailing = product.get("max_loss_trailing", False)
+    mark = max(init, eod_hwm or init) if trailing else init
     dd = (init - equity) / init * 100
+    dd_mark = (mark - equity) / init * 100
     day = (day_start - equity) / init * 100
     status = {"equity": round(equity, 2), "overall_dd_pct": round(dd, 3), "day_loss_pct": round(day, 3),
               "room_to_firm_daily_pct": round(product["daily_loss_pct"] - day, 3),
-              "room_to_firm_max_pct": round(product["max_loss_pct"] - dd, 3),
-              "room_to_kill_pct": round(risk["kill_dd_pct"] - dd, 3)}
+              "room_to_firm_max_pct": round(product["max_loss_pct"] - dd_mark, 3),
+              "room_to_kill_pct": round(risk["kill_dd_pct"] - dd_mark, 3)}
+    if trailing:
+        status["eod_hwm"] = round(mark, 2)
     alerts = []
     if status["room_to_firm_daily_pct"] <= 1.0:
         alerts.append(f"within {status['room_to_firm_daily_pct']}% of firm DAILY limit")
@@ -37,6 +46,14 @@ def evaluate(equity: float, day_start: float, product: dict, risk: dict) -> dict
         alerts.append("internal daily stop reached (EA should be flat)")
     status["alerts"] = alerts
     return status
+
+
+def saved_hwm(status_file: Path) -> float | None:
+    """Mark from the last status.json, so a monitor restart keeps it. Missing or unreadable → None."""
+    try:
+        return json.loads(status_file.read_text(encoding="utf-8")).get("eod_hwm")
+    except (OSError, ValueError, AttributeError):
+        return None
 
 
 def _common_files() -> Path:  # pragma: no cover - Windows only
@@ -58,6 +75,7 @@ def main():  # pragma: no cover - needs MT5
     if not mt5.initialize():
         raise SystemExit(f"MT5 init failed {mt5.last_error()}")
     day_key, day_start, last_push, last_alert = None, None, 0.0, {}
+    hwm = saved_hwm(out / "status.json")
     while True:
         info = mt5.account_info()
         now = datetime.now(timezone.utc)
@@ -66,7 +84,8 @@ def main():  # pragma: no cover - needs MT5
             notify.send(f"MONITOR {a.account}: MT5 not connected"); time.sleep(a.interval); continue
         if ist_day != day_key:
             day_key, day_start = ist_day, max(info.equity, info.balance)
-        s = evaluate(info.equity, day_start, product, risk)
+            hwm = max(hwm or 0.0, day_start)
+        s = evaluate(info.equity, day_start, product, risk, hwm)
         hb = _common_files() / "PFM_status_A.json"
         s["ea_heartbeat_age_s"] = round(now.timestamp() - hb.stat().st_mtime) if hb.exists() else None
         if s["ea_heartbeat_age_s"] is None or s["ea_heartbeat_age_s"] > 300:

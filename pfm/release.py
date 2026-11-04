@@ -36,7 +36,9 @@ def make_set(profile: str, strategy: str, step_target: float, magic: int = 1010)
     lines = [f"; PFM settings — profile {profile}, strategy {strategy} v{reg['version']}. Generated; do not edit by hand."]
     for k, name in MAP.items():
         lines.append(f"{name}={r[k]}")
-    lines += [f"InpStepTargetPct={step_target}", f"InpMagic={magic}", "InpUseNewsFilter=true"]
+    trailing = config.firm_product(reg["firm_product"]).get("max_loss_trailing", True)    # unknown → stricter form
+    lines += [f"InpStepTargetPct={step_target}", f"InpMagic={magic}", "InpUseNewsFilter=true",
+              f"InpMaxLossTrailing={'true' if trailing else 'false'}"]
     for k, name in STRAT_MAP.items():
         if k in frozen:
             lines.append(f"{name}={frozen[k]}")

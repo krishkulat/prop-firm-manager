@@ -14,6 +14,7 @@ import csv
 import hashlib
 import importlib
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -34,6 +35,9 @@ PENDING, DONE, FAILED = ROOT / "queue/pending", ROOT / "queue/done", ROOT / "que
 RESULTS = ROOT / "results"
 TRIALS = RESULTS / "trials.csv"
 NEWS_CALENDAR = "research/news/usd_high_impact.csv"
+LOCK_FILE = ROOT / "logs/worker.lock"
+GIT_TIMEOUT_S = 300
+CODE_DIRS = ("pfm/", "strategies/")
 
 
 def log(msg: str):
@@ -41,7 +45,41 @@ def log(msg: str):
 
 
 def git(*args, check=False):
-    return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, check=check)
+    return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, check=check, timeout=GIT_TIMEOUT_S)
+
+
+def acquire_lock(path: Path = LOCK_FILE):
+    """One worker per machine: two would run a ticket twice and log its trials twice. None if already held.
+
+    The OS frees the lock when the process ends, so a crash or power cut never leaves it stuck.
+    Keep the returned file open for as long as the worker runs.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    f = open(path, "a+", encoding="utf-8")
+    try:
+        if os.name == "nt":
+            import msvcrt
+            f.seek(0)
+            msvcrt.locking(f.fileno(), msvcrt.LK_NBLCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        f.close()
+        return None
+    return f
+
+
+def head() -> str:
+    return git("rev-parse", "HEAD").stdout.strip()
+
+
+def code_changed(before: str, after: str) -> bool:
+    """True if a pull brought new worker or strategy code; loaded modules would otherwise stay on the old version."""
+    if not before or not after or before == after:
+        return False
+    files = git("diff", "--name-only", before, after).stdout.splitlines()
+    return any(f.startswith(CODE_DIRS) for f in files)
 
 
 def load_strategy(key: str):
@@ -245,12 +283,20 @@ def main():
     use_git = not a.no_git
     for d in (PENDING, DONE, FAILED, RESULTS):
         d.mkdir(parents=True, exist_ok=True)
+    lock = acquire_lock()
+    if lock is None:
+        log("another worker is already running; exiting")
+        return 0
     log("worker started")
     while True:
         if use_git:
+            before = head()
             r = git("pull", "--rebase", "--autostash")
             if r.returncode != 0:
                 log(f"pull failed: {r.stderr.strip()[:200]}")
+            elif not a.once and code_changed(before, head()):
+                log("new code pulled; exiting so run_worker.bat restarts on it")
+                return 0
         try:
             from . import notify
             notify.poll_replies()

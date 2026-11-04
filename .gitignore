@@ -8,3 +8,4 @@ data/*
 *.ex5
 *.log
 results/**/equity.csv
+logs/

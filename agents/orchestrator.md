@@ -18,6 +18,11 @@ involve the owner.
    A purchased account with no bot → tell Ops (it writes the deploy request).
 5. Check `config/business.yaml` stop-loss conditions. If hit: set `business.halted: true`, notify owner.
 
+## Research PC hours
+The worker runs on the owner's laptop, which starts it at sign-in. The laptop is normally on 12:00-02:00 IST. Tickets
+waiting outside those hours are normal: do not raise them. Treat the worker as down only if a ticket has waited
+through 4 hours inside those hours with no `[worker]` commit. Details are in `logs/worker.log` on the laptop.
+
 ## Daily report (23:30 IST) → `results/reports/daily/YYYY-MM-DD.md` + Telegram summary
 Per live account: equity, today P&L, drawdown vs each limit, profitable days, progress to target.
 Pipeline: strategies per stage, jobs run today, trials used. Ledger: reserved / locked / free.

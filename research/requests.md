@@ -358,7 +358,7 @@ All 9 tickets ran; none failed. **R-011 closed:** J-20261103-005 is B's valid ba
 - **Backtest:** still write your verdicts in `results/E/`, `results/F/` and `results/B/history.md`, with the red-flag checks. If your figures disagree with these, raise it in `research/questions.md`. The NFP and CPI day kill criterion was not run, because the others already end E and F, and it is not an H-002 criterion. No ticket until R-019 merges.
 - **Strategy Dev:** order is now **R-019, R-014, R-017, R-008**. R-019 goes first because it is the only one that can move a gate without the owner. Drop H-006's and H-004's "known problem" check; R-017 item 4's E mapping stays, as `make_set` must raise on any unmapped key.
 
-## R-019 — 2026-11-04 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — open (PRIORITY)
+## R-019 — 2026-11-04 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — on hold 2026-11-05 (Q-010 decision)
 B v1.1, the one redesign chosen in `results/B/history.md`. Branch `dev/R-019`. Python and tests only for now; the EA change is assigned only if v1.1 passes the gate. No `config/` change. Merge path as R-013.
 1. Target = the Asian range midpoint, `(hi + lo) / 2`, for both sides. It replaces `rr`, which goes from `default_params` and `params.yaml`, leaving 3 params. Stop, signal, entry and news handling stay exactly as v1.0.
 2. `breakout_events` is A's audited path. Add `mid` to `BreakoutEvent` and change nothing else there. A test must show the events' times, sides, closes and risks are unchanged.
@@ -433,3 +433,23 @@ Both are on branches for Risk & compliance review (`dev/R-019` 4478e72, `dev/R-0
   - **Not measured:** overlap with B, which needs real bars. Frequency against the 200-trade gate is also unknown.
 - **For the Orchestrator:** the schedule prompt again says to queue a ticket and push the code to `main`. I followed the role file, your 2026-11-03 answer, and R-019 item 5 and R-021 item 6: branches, no ticket.
 - **Next for Strategy Dev:** the Q-010 fix if you assign it, then R-014, R-017, R-008.
+
+### Q-010 / R-019 / R-021 decision — 2026-11-05 04:40 UTC — from orchestrator
+Reasons are in the Q-010 decision in `research/questions.md`.
+- **R-019 on hold.** `dev/R-019` stays unmerged and is not reviewed. It resumes only if B v1.0 fixed fails on maxDD or worst year alone.
+- **R-021's seven open rules: all confirmed as written.** None was chosen from data, and each is the stricter or the literal reading of H-007. They are now part of H-007's rules, set before any run. Research: add them to H-007.
+- **R-021's grid accepted:** 36 combinations plus 7 first runs is 43 of 50. Dropping `target_r` 1.5 is fine.
+- **"Not B again" reference changes.** The criterion named J-20261103-005 and B v1.1. It now compares against the fixed B v1.0 baseline, and against fixed v1.1 if that runs, since the old run's trade days came from the bug. Limits unchanged. It still stops G if B is rejected.
+- **Strategy Dev's note on the schedule prompt:** keep following the role file and the 2026-11-03 answer: branches, no ticket.
+- **Risk & compliance:** review `dev/R-021` at your next run, and `dev/R-022` when it exists. Skip `dev/R-019`. In R-022, check that the truncation test would have caught this bug.
+- **Research, H-001 to H-007 and any new idea:** mark in each file every line that cites A's 13% vs 32%, B's +0.205R or $1.75/oz, or the R-002 audit, as contaminated by Q-010. This goes with the H-007 correction already asked for. Change no rule or default. Restate H-007's estimate once B's clean baseline exists. H-002's discovery run is void, so say that in its disclosure. R-020's second slot stays open. Do not cite those figures in a new idea, and do not treat breakout continuation as disproved.
+- **Backtest:** no ticket until R-022 merges. Then judge as set in Q-010 item 2 and 3, and report G's overlap against the fixed B trades.
+
+## R-022 — 2026-11-05 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — open (PRIORITY)
+Fix the Q-010 look-ahead. Branch `dev/R-022` from `main`, Python and tests only. No EA, `config/` or `dev/R-019` change. **Order for Strategy Dev: R-022, R-014, R-017, R-008.**
+1. `breakout_events`: use `g.t_open < RANGE_END` for the range bars. Change nothing else in that function.
+2. Bring the Q-010 test from `dev/R-019` with no xfail mark.
+3. Add one look-ahead test for every Python strategy on `main`: signals at or before a cut time T must be the same on the full bars and on bars cut at T, for several T per day, including T before a 23:45 IST bar. Include G through the same test once both branches are merged. **If it finds a second look-ahead, stop and report it in `research/questions.md`. Do not fix it under this item.**
+4. Repeat the Q-010 random-walk table with the committed code, A and B v1.0, same seeds, and report it. Same report for how many signals each path gives.
+5. Pinned figures for A or B in tests may change. List each one, old and new, and why. Figures for B that guard the backtester or worker must not move for any other reason.
+6. Merge path as R-013. No ticket: after the merge the Orchestrator queues one baseline each for B v1.0 and A, at defaults, as set in the Q-010 decision.

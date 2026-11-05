@@ -13,6 +13,7 @@ strategies:
       Seed strategy. v1.1 rescaled the range filter (see results/A/history.md). Real data is on the research PC.
       2026-11-01 J-20261101-001 failed backtested gate (PF 0.23, 426 trades). Held at coded pending code audit R-002; not a redesign yet.
       2026-11-01 REJECTED by orchestrator: R-002 audit found no bug; breakout systematically reverses on XAUUSD (breakout 13% wins vs random 32%). Fade goes to Research as new hypothesis H-002 (R-001), not a redesign of A.
+      2026-11-05 Orchestrator (Q-010): that reason is withdrawn, look-ahead in breakout_events made those figures. Stays rejected until one clean baseline at defaults after R-022: passes the whole backtested gate -> coded; otherwise the rejection stands on clean figures.
   B:
     name: Asian-range false-breakout fade (London open)
     module: strategies.B_london_fade.strategy
@@ -34,6 +35,7 @@ strategies:
       2026-11-02 Orchestrator (Q-006): baseline also waits on R-011 item 2a (backtest flattens before news like the EA). Entry blocking alone cannot change B's trades.
       2026-11-04 Orchestrator: J-20261103-005 clean baseline FAILED backtested gate on maxDD only (7.70% > 6.0%; trades 426, PF 1.407, worst year -3.75%). No H-002 kill criterion fired. Chose one redesign (redesigns 1 of 3):
       v1.1 target = range midpoint, the redesign H-002 named before any baseline. R-019. Any gate failure on v1.1 rejects B; no second redesign. See results/B/history.md.
+      2026-11-05 Orchestrator (Q-010): all B runs so far are contaminated by look-ahead in breakout_events and are not evidence. Next is v1.0 on fixed code after R-022, H-002's 4th trial. Any H-002 kill -> rejected, v1.1 not run. Whole gate passes -> v1.1 dropped. Only maxDD or worst year fails -> v1.1 as trial 5, any gate failure rejects B. R-019 on hold. redesigns stays 1.
   C:
     name: SGE day-session long after Western-hours drop
     module: strategies.C_sge_session_long.strategy
@@ -109,3 +111,4 @@ strategies:
     notes: >-
       2026-11-05 approved by orchestrator, assigned to Strategy Dev (R-021, Python only until the backtested gate passes). 3 params, 0 trials used. Entries 08:00-15:15 UTC, inside the current risk window, so no owner approval is needed.
       Same mechanism as B on different events. Corrected edge estimate is +0.10R to +0.21R, not up to +0.37R, so it sits on R-020's +0.15R line. Approved for coverage, not confidence. H-007's overlap stop against B stands even if B is rejected. See "H-007 decision" in research/requests.md.
+      2026-11-05 Orchestrator (Q-010): G's code is not affected, but its estimate leans on B's contaminated figures, so the case is weaker. Runs do not wait for a restated estimate. Overlap is now measured against the fixed B baseline. R-021's seven open rules confirmed.

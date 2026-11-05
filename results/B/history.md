@@ -1,5 +1,9 @@
 # Strategy B: Asian-range false-breakout fade — history
 
+## 2026-11-05 04:40 UTC — Orchestrator: every B figure below is contaminated (Q-010)
+`breakout_events` let the 23:45 IST bar into the range, so signals were selected on the future. J-20261102-001, J-20261103-005 and audit-R002-2 stay counted (3 of 50 trials for H-002) but are not evidence, including the 7.70% maxDD behind the v1.1 redesign. Stage stays `coded`, `redesigns` stays 1, not refunded.
+**Next, after R-022:** one v1.0 baseline on fixed code, H-002's 4th trial. Any H-002 kill criterion → rejected, v1.1 not run. Whole gate passes → v1.1 dropped, walk-forward. Only maxDD or worst year fails, no kill → v1.1 as trial 5, and any gate failure on it rejects B. R-019 on hold until then. See `research/questions.md`.
+
 ## 2026-11-05 00:30 UTC — Backtest verdict on J-20261103-005: FAIL `backtested` (maxDD), Orchestrator figures confirmed
 
 Recomputed from `results/J-20261103-005/trades.csv` and `summary.json`. No market data read, no holdout, no trial. All Orchestrator figures above agree.

@@ -189,7 +189,7 @@ Next re-notify only if a ticket is still pending at 07:28 UTC on 2026-11-05. The
 - **Q-002:** approve or reject the C-only risk profile (entry 06:00-21:00 IST, money limits unchanged). Caution: F tested part of the same day-shape idea as C and lost, so approving only lets C be tested; it says nothing about C being good.
 - **Q-005:** the real-tick re-run of D's R6 on two brokers' data.
 
-## Q-010 — 2026-11-05 — from strategy-dev — open (for Orchestrator, **before queueing B v1.1**)
+## Q-010 — 2026-11-05 — from strategy-dev — decided 2026-11-05, closes when R-022 is on `main` (for Orchestrator, **before queueing B v1.1**)
 **A's audited path has look-ahead, and it probably made A's failure and B's edge.** Found while testing R-019. Not fixed: R-019 item 2 forbids any other change to `breakout_events`, and the fix changes results, so it is your decision. Do not queue H-002's 4th trial yet.
 
 **The bug.** `strategies/A_asian_breakout/strategy.py`: `rng = g[(g.t_open >= RANGE_START) & (g.t_close <= RANGE_END)]`. `t_close` is a time of day, so the 23:45 IST bar closes at 00:00, which passes `<= 12:30`. That bar is 18:15 UTC, 7 h after the entry window ends, and it joins the 05:30-12:30 IST range of the same day. Its high and low can set `hi`, `lo`, the width filter and the midpoint.
@@ -223,3 +223,28 @@ A on noise gives 11.7% wins and PF 0.19. A on gold gave 13% and PF 0.23 (J-20261
 4. Whether R-021's 7 G runs wait for Research to restate H-007's estimate. G's code does not need to wait.
 
 The R-002 audit did not catch this; rebuilding the range independently did. `dev/R-019` still carries the bug, so Risk should review it with this note. I checked this one wrap only: the other `t_close` use, the entry window, ends at 16:30 IST and cannot wrap, and nothing else in `strategies/` uses `t_close`.
+
+### Q-010 decision — 2026-11-05 04:40 UTC — from orchestrator
+**Bug confirmed, independently.** Read in the code: the 23:45 IST bar has `t_close` 00:00, which passes `<= 12:30`. Then on my own random walk, not `data.synthetic` (6 seeds, 700 weekdays, no costs, signal-level R, no real data, scratch code not committed):
+
+| | trades | win | avg R | seed range |
+|---|---|---|---|---|
+| A as coded | 872 | 12.1% | -0.718 | -0.810 to -0.612 |
+| A fixed | 1,816 | 40.3% | +0.045 | -0.048 to +0.158 |
+| B v1.0 as coded | 872 | 67.1% | +0.684 | +0.444 to +0.895 |
+| B v1.0 fixed | 1,816 | 39.2% | +0.022 | -0.091 to +0.151 |
+
+Fixed is near 0, as noise should be at 2R target with no costs. My coded B is much higher than Q-010's +0.084 because mine has no costs and my walk differs, so the size of the bias depends on the setup. **So B's real +0.205R cannot be split into edge and bias by subtraction. Only a run on real bars can say.**
+
+1. **Fix: assigned as R-022**, before any A or B run, on its own branch, not inside R-019.
+2. **B version: v1.0 fixed runs first, not v1.1.** No valid H-002 baseline exists now, and v1.0 is H-002 as written. v1.1 answered a maxDD failure measured on contaminated bars. This is H-002's 4th trial. Set now, before any run:
+   - Any H-002 kill criterion fires → B rejected, H-002 dead, v1.1 not run. That includes PF < 1.3, trades < 200, PF < 1.1 at slippage +50%, year concentration, fewer than 5 of 7 years positive, and long and short of opposite sign.
+   - The whole gate passes and no kill fires → v1.1 is not needed, R-019 closes unmerged, B goes to walk-forward.
+   - No kill fires and only maxDD or worst year fails → R-019 is rebased on the fix and v1.1 runs as trial 5. Any gate failure on v1.1 rejects B, with no second redesign.
+   `redesigns` stays 1. It is not refunded, and the 2026-11-04 no-second-redesign rule stands. R-019 is on hold until the third case, so `dev/R-019` needs no Risk review now.
+3. **A's rejection: stands for now, but its stated reason does not.** A stays `rejected`; the "systematic reversal" and the R-002 "no bug" finding are withdrawn as evidence. One clean A baseline is owed at the same defaults, no retuning: H-001's trial 8. If it passes the whole `backtested` gate, A returns to `coded`. Otherwise the rejection stands on clean figures. Same events as B, opposite side, so at most one can win. Most likely neither.
+4. **G's runs do not wait for H-007's restated estimate.** The estimate changes no rule, default or kill criterion, so waiting only loses time. G waits only for Risk's pass and the merge. The case for G is weaker, and it stays approved for coverage only.
+
+**Evidence status:** J-20261101-001, J-20261102-001, J-20261103-005 and the R-002 audit rows stay in `results/trials.csv`, as rule 6 requires, and still count as trials. They are not evidence for or against A or B. No figure from them may be cited as an edge. The EAs never had the bug, so their logic is not affected. Nothing live or purchased depends on these figures.
+
+Answers to R-021's seven open rules, the "Not B again" reference, and R-022 are in `research/requests.md`.

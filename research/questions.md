@@ -29,6 +29,14 @@ Recorded by the Notion sync, word for word. The owner's card asked The5ers the f
 
 For the Orchestrator: nothing here was acted on. The card also holds an image, not opened by this sync. This answer is not an approval. Setting `max_loss_trailing: false` or removing `payout_cap_usd` loosens a firm mapping, so hard rule 4 needs an owner approval in `requests/` first. Answer 4 lists banned EA types and does not say yes or no to "own source code".
 
+### Q-001 / Q-002 item 2 update — 2026-11-05 — from risk
+Read the owner's answer above. Logged in `research/firm_rules_log.md`. **No value in `config/` changed**, only the header comment of `config/firms/the5ers.yaml`, which still said the answer was pending. Nothing here tightens a limit, so Risk has nothing to set. Q-001 stays open for the Orchestrator.
+- **Static max loss:** covers the $50K only. `max_loss_trailing: false` on `hs50k_10d` is a loosening, so it needs an owner approval in `requests/`. Risk has no objection to that approval for `hs50k_10d`. `hs5k_10` and `hs100k_10v` stay `true`: the answer does not name them. Until then propsim gates stay on the trailing result, which is the stricter one.
+- **$1,000 payout cap:** "no mention" is not "no cap". The Summer Plan report is the only evidence on the cap, and the answer does not address that plan. Risk recommends keeping `payout_cap_usd` until the Hub's terms for the exact product show no cap, checked before purchase. Removing it also needs the approval above. `hs100k_10v`'s cap was not asked about.
+- **Stop-loss exit under 60 s:** not a breach, reading the answer against question (c) as worded. The answer itself is one line and names no rule. `min_hold_seconds: 120` stays. Backtest's count of sub-60 s exits stays as reporting.
+- **"Own source code":** not answered. Risk's block on D (Q-005) stands; ways out (a) and (b) are unchanged.
+- **Release signing:** still depends on Q-009 (R-017, R-018 open). Q-003's "until The5ers confirms static" no longer matters, as items 1 to 4 are closed in code.
+
 ## Q-002 — 2026-11-02 — from strategy-dev — open (for Orchestrator / Risk & compliance / owner)
 1. **Strategy C cannot trade under the current risk profile.** H-003 enters at 01:00 UTC = 06:30 IST, but
    `config/risk/the5ers_hs50k_10d.yaml` allows entries only 13:30–21:00 IST (`entry_start_ist`), in both

@@ -453,3 +453,17 @@ Fix the Q-010 look-ahead. Branch `dev/R-022` from `main`, Python and tests only.
 4. Repeat the Q-010 random-walk table with the committed code, A and B v1.0, same seeds, and report it. Same report for how many signals each path gives.
 5. Pinned figures for A or B in tests may change. List each one, old and new, and why. Figures for B that guard the backtester or worker must not move for any other reason.
 6. Merge path as R-013. No ticket: after the merge the Orchestrator queues one baseline each for B v1.0 and A, at defaults, as set in the Q-010 decision.
+
+### R-021 review — 2026-11-05 — from risk
+**`dev/R-021` 61faf11 passes Risk review; the Orchestrator may merge it.** This clears code for `main` and the 7 runs. It is not a release review and moves no stage. `dev/R-019` skipped as ordered; `dev/R-022` does not exist yet.
+- **Merge conflict to resolve:** it no longer merges cleanly. `strategies/registry.yaml` conflicts in G's notes, because `main` added the Q-010 line after the branch point. Keep both lines. With that resolved on `main` fbe926d, `python -m pytest -q`: 159 passed. Unresolved, 6 tests fail on the YAML markers.
+- **Scope:** diff is `strategies/G_prior_day_failed_break/`, `tests/test_strategy_g.py` and the registry. Nothing in `config/`, `pfm/` or `mql5/`. No limit changed. The module imports only the standard library, numpy, pandas and `pfm`. The grid is 36 combinations, 43 of 50 trials with the 7 first runs.
+- **Independent checks, 1,600-day synthetic fixture, script not from the branch:**
+  - No look-ahead: for every third signal of all 5 benchmark settings, bars cut at the entry bar, with that bar's high, low and close changed, give the same signals up to it. 0 mismatches of 187, 187, 187, 269 and 191 signals (`random_side` on time and distance only, not side).
+  - Baseline, 187 signals: entries 13:45 to 20:45 IST, inside 13:30-21:00. Every time exit 16:30 UTC = 22:00 IST, before flat-by 22:30. At most 1 signal per UTC date, none on a weekend, stop and target on the right sides.
+  - Through `backtest.run` with the hs50k_10d profile and limits on: 43 trades, then the kill stops it at -6%. Shortest hold 900 s, none under 120 s, last exit 22:00 IST.
+  - Random walk, 12 seeds, 900 days, limits on: 11 of 12 end at the kill near -$3,000, 1 at -$844. No invented edge.
+- **Read in `strategy.py`:** the SL is on every signal, stop from the entry bar open with no widening path, one position, one trade a day, no re-entry. No grid, martingale, averaging, hedging. The seven rules confirmed by the Orchestrator match the code. A missing calendar raises.
+- **Not checked:** real market data, frequency against the 200-trade gate, overlap with B. `Signal.time` here is the entry bar's open, which is how `pfm/backtest.py` matches it.
+- **Blocks G's release, not this merge:** no EA yet, so no MetaEditor compile; a `STRAT_MAP` entry (Q-009 item 4); the check against the full MT5 high-importance list in H-007 "known problems"; Q-009.
+- **Risk's other outputs today:** no strategy at `release`, so no release review. No `results/live/`, so no account to read and no incident. KILL not set.

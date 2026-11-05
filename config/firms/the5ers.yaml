@@ -1,8 +1,9 @@
 # The5ers products we may buy. Source: The5ers live catalogue (read 2026-10-31) + public rule pages.
 # Research re-checks weekly. Verify on the Hub before every purchase.
 # max_loss_trailing: true is a conservative ASSUMPTION (end-of-day high-water mark), set by Risk 2026-11-02 per Q-001.
-# The connector says trailing, third-party rule pages say static; owner's written answer from The5ers is pending.
-# Read by propsim, pfm/risk.py, RiskEngine.mqh and pfm/monitor.py only once dev/R-006 is on main; until that merge they are all static (Q-003).
+# The connector says trailing, third-party rule pages say static. The5ers support told the owner static for the $50K (Q-001, 2026-11-05);
+# changing the flag loosens a mapping, so it stays true until an owner approval is in requests/ (hard rule 4).
+# Read by propsim, pfm/risk.py, RiskEngine.mqh and pfm/monitor.py (R-006, on main since 2026-11-04).
 firm: The5ers
 platform: MT5
 ea_policy: allowed; visible SL required; own source code; no HFT/tick scalping/arbitrage/copying others

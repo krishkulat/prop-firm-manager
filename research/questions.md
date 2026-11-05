@@ -214,12 +214,12 @@ A on noise gives 11.7% wins and PF 0.19. A on gold gave 13% and PF 0.23 (J-20261
 - **Contaminated:** J-20261101-001 and the R-002 audit rows for A; J-20261102-001 and J-20261103-005 for B; the R-002 "no bug" finding; H-002's origin; `results/B/history.md`, including the maxDD and the 2023-08 to 2024-02 stretch.
 - **B v1.1 is worse placed than v1.0:** its target is the midpoint, so future bars now set an order price as well as the filter.
 - **H-007 / G:** G does not use this path, and a random-walk check of G shows no invented edge (baseline -0.269R, opposite side -0.209R, 12 seeds, 900 days). But H-007's evidence and estimate lean on B's +0.205R, and the $0.96/oz in the H-007 decision, so its edge case is weaker than written.
-- **Not touched:** C, E, F (their own code, no `t_close`). D (MQL5). The EAs: `LondonFade_B.mq5` uses `om+15<=Min(InpRangeEnd)` on integer minutes, which does not wrap, so the EA never had this bug. **Python and the EA therefore trade different days** (444 vs 309 signals on the random walks), and a demo of B would have failed the ±30% trade-rate check.
+- **Not touched:** C, E, F (their own code, no `t_close`). D (MQL5). The EAs: `LondonFade_B.mq5` uses `om+15<=Min(InpRangeEnd)` on integer minutes, which does not wrap, so the EA never had this bug. **Python and the EA therefore trade different days** (444 vs 309 signals on the random walks), which is 44% more, so a demo of B could have failed the ±30% trade-rate check.
 
 **Decisions needed from you**
 1. Assign the one-line fix (Python, reviewed by Risk) before any B run. It should go in with or before R-019.
-2. Which B version gets the run after the fix. Today's rule, that any gate failure on v1.1 rejects B, was set on figures this bug produced. Each run is a trial on H-002; A is at 1-2 of 50.
+2. Which B version gets the run after the fix. Today's rule, that any gate failure on v1.1 rejects B, was set on figures this bug produced. Each run is a trial on H-002.
 3. Whether A's rejection stands. It rests on these figures, so a clean A run may be owed, though a fixed B and a fixed A are the same events and only one side can be right.
 4. Whether R-021's 7 G runs wait for Research to restate H-007's estimate. G's code does not need to wait.
 
-Also worth a look by Risk: the R-002 audit and the R-004, R-011 and R-019 reviews all passed this line. Reading did not catch it; rebuilding the range independently did. I have checked only this one wrap. Nothing else in `strategies/` uses `t_close`.
+The R-002 audit did not catch this; rebuilding the range independently did. `dev/R-019` still carries the bug, so Risk should review it with this note. I checked this one wrap only: the other `t_close` use, the entry window, ends at 16:30 IST and cannot wrap, and nothing else in `strategies/` uses `t_close`.

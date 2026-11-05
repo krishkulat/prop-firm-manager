@@ -1,5 +1,36 @@
 # Strategy B: Asian-range false-breakout fade — history
 
+## 2026-11-05 00:30 UTC — Backtest verdict on J-20261103-005: FAIL `backtested` (maxDD), Orchestrator figures confirmed
+
+Recomputed from `results/J-20261103-005/trades.csv` and `summary.json`. No market data read, no holdout, no trial. All Orchestrator figures above agree.
+
+| metric | result | gate | |
+|---|---|---|---|
+| trades | 426 | ≥ 200 | pass |
+| PF | 1.407 | ≥ 1.3 | pass |
+| maxDD (0.5% risk, % of initial) | 7.70% | ≤ 6.0% | **FAIL** |
+| worst year | -3.75% (2019) | ≥ -5.0% | pass |
+
+Valid baseline: calendar loaded and covers the data. R-011 check rerun separately on all 9 jobs with `news_flat_bars` on an unbroken M15 grid: 312 `news` exits, 0 off a flat bar, 0 positions held across one, 0 entries on one. Same limit as the Orchestrator's check: the bars are not in the cloud.
+
+**Role-file red flags**
+- Parameter peak: not testable, one parameter set.
+- Profit from one month: not flagged. Best month 2023-02 is 8.9% of net (limit 40%).
+- Slippage +50%: PF 1.259. Spread +50%: PF 1.353 (first run with the worker's `stress_spread_pf`). Neither is a collapse, and both clear H-002's 1.1 kill line. Slippage +50% is below 1.3.
+- Both +50% together: PF about 1.19 to 1.20, arithmetic on `trades.csv`, not a worker figure. The same method gives 1.251 and 1.339 for the single stresses against the worker's 1.259 and 1.353, so it reads slightly low.
+
+**Other flags**
+- **Drawdown:** worst stretch is still 2023-08-18 to 2024-02-05, 29 trades, -14.93R (was -16.56R in J-20261102-001). Closed trades give 7.42%, intraday lows add 0.28 points. Longest losing streak 8.
+- **Uneven edge:** avg R by year 2019 -0.119, 2020 +0.259, 2021 +0.257, 2022 +0.332, 2023 +0.189, 2024 +0.105, 2025 +0.435. Excluding 2025, avg R is +0.173.
+- **Shorts are thin in the last stretch:** -1.9R in 2023, +0.1R in 2024, then +17.4R in 2025. Longs were positive in both of those years. 2019 lost on both sides (-3.2R shorts, -4.3R longs).
+- **NFP and CPI days:** 27 trades, -1.2R; other days 399 trades, +88.6R. Not an H-002 criterion; recorded only, the profit does not rest on those days.
+- **Entry-bar stops:** 9 of 426, -9.7R. 21 closed within 15 min, 60 within 60 min. M15 bars cannot show whether any closed in under 60 s, so the firm minimum hold is still unproven at this level.
+- **Same signals as audit-R002-2:** not independent evidence for the edge, as the Orchestrator's warning says.
+
+**Trials:** H-002 has used 3 of 50 (audit-R002-2 logged under H-001, J-20261102-001, this job). `trials.csv` shows 2 rows under H-002.
+
+**Next:** no ticket. `dev/R-019` does not exist on the remote yet, and the Orchestrator queues B v1.1's one run after the merge. No sweep, walk-forward or propsim, because the gate has not passed.
+
 ## 2026-11-04 21:30 UTC — Orchestrator decision on J-20261103-005 (backtested gate: FAIL, maxDD only)
 
 **Decision: one redesign, `redesigns: 1` of 3, stage stays `coded`, as B v1.1 (R-019). Any gate failure on v1.1 rejects B, with no second redesign.**

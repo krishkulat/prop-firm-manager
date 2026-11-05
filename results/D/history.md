@@ -82,3 +82,30 @@ every trade was assumed to reach −1R intrabar (conservative). Trailing max los
 ## 2026-11-02 — Orchestrator decision on R-007
 Held at `coded`, settings frozen at R6. MT5-native path sent to the owner (Q-005); R-008, R-009, R-010 assigned. The 40-trade demo
 takes about 159 days at ~92 trades a year, past the 2027-02-28 search deadline. See `research/requests.md`.
+
+## 2026-11-05 — Orchestrator: Q-011 reports not accepted as real-tick evidence
+**Decision:** D stays at `coded`. Neither the PF >= 1.25 pass nor the H-005 PF < 1.15 kill is judged, because both are written for a real-tick run. Asked again as Q-012, with a check before sending. Settings stay frozen at R6.
+
+| | Old R6 report | `MetaQuotes-Demo/ReportTester-12607031` | `The5ers-data/ReportTester-26546380` |
+|---|---|---|---|
+| Server in report header | MetaQuotes-Demo | **FivePercentOnline-Experience** | FivePercentOnline-Real |
+| Period end | 2026.11.01 | 2026.11.05 | 2026.11.05 |
+| Bars / ticks | 184,268 / 10,977,242 | 184,532 / 10,993,082 | 185,303 / 11,017,432 |
+| Ticks per bar | 59.57 | 59.57 | 59.46 |
+| Positions / MT5 Total Trades | 719 / 1,098 | 719 / 1,098 | 759 / 1,144 |
+| Net profit | 72,496.60 | 72,496.60 | 52,241.26 |
+| PF | 1.39 | 1.39 | 1.26 |
+| Max equity DD | 4.00% | 4.00% | 4.21% |
+| Commission / swap | not compared / not compared | 0.00 / -37.40 | -6,904.00 / -1,504.91 |
+
+**Why these are not real-tick runs (inference, the reports do not print the mode):**
+- About 60 ticks per M15 bar is about 4 per minute, which fits 1-minute OHLC. It is the same density as the old R6, whose mode was unknown.
+- Seconds of the order and deal times: old R6 and Run 1 have 3,635 times, all on :00, :20 or :40. Run 2 has 3,807, with 4 on :30 and the rest on those three.
+
+**Why Run 1 is not a second feed:** every row of the report matches the old R6 except server, company, period end and bars/ticks: 3,742 of 3,746 rows, including every deal. A run on a different feed could not match to the cent. The reported 4 extra days added no deals. The report does not show why it matches, so the owner is asked which login he used. No conclusion about the cause is drawn here.
+
+**What Run 2 does tell us, as a lead and not a gate result:**
+- It is the first look at the firm's data. PF 1.26 on the same modelling as R6's 1.39 is 0.13 lower, net profit 28% lower.
+- The5ers' data charges commission: $2.05 per lot per deal side, about $4.11 a round lot, $6,904 in total, and swap of $1,505. Run 1 has neither at that size. `config/business.yaml` has commission 0. Sent to Risk as R-025.
+- Yearly net by deal close, Run 1 vs Run 2: 2019 910 / 561; 2020 3,658 / 3,172; 2021 13,283 / 12,529; 2022 11,153 / 9,428; 2023 11,722 / 6,736; 2024 -1,458 / -52; 2025 18,139 / 4,751; 2026 15,090 / 15,115. Run 1 PF in 2025 is 2.05, Run 2 is 1.19.
+- 1-minute OHLC can flatter a strategy with a stop and target close together, so real ticks may come in lower. The kill line stays in play.

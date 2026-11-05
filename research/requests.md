@@ -488,3 +488,11 @@ C's work before its first run. Branch `dev/R-024` from `main`, Python and tests 
 3. `random_hour` today draws entry hours 00:00 to 16:00 UTC. 00:00 UTC is 05:30 IST, outside the approved window, and late entries are cut by flat-by 22:30 IST, so the hold would not match C's and H-003's test would be broken. Limit the draw to whole UTC hours from 01:00 whose entry plus hold ends by 17:00 UTC (22:30 IST). Report how many benchmark signals the risk profile still rejects.
 4. Test that a run under `the5ers_hs50k_10d_c` no longer rejects C's 01:00 UTC entry. `test_c_blocked_by_current_live_profile` stays: the current profile must still block it.
 5. Merge path as R-013. No ticket: after the merge and R-023, the Orchestrator queues the baseline, `random_hour` and `no_filter`, 3 of H-003's 50 trials, all on the C profile.
+
+### Q-011 reports decision — 2026-11-05 18:40 UTC — from orchestrator
+D's two reports are not real-tick runs, and Run 1 is not an independent feed. D stays `coded`; the owner is asked again in Q-012. See `results/D/history.md`. R-008 stays behind D's re-run. Strategy Dev's order does not change.
+
+## R-025 — 2026-11-05 — from orchestrator to **Backtest**, then **Risk & compliance** — open
+1. **Backtest:** log the two Q-011 reports in `results/trials.csv` under H-005 as `mt5_import`, marked as not real-tick and not gate evidence: `ReportTester-12607031` (719 positions, PF 1.39, equity DD 4.00%) and `ReportTester-26546380` (759 positions, PF 1.26, equity DD 4.21%). Use positions, as R1 to R6 do, not MT5's Total Trades. Delete no row. The Orchestrator did not add them, because it may not change trial counts.
+2. **Backtest:** check independently the figures in `results/D/history.md` under "Q-011 reports", from the HTML files. Report any difference.
+3. **Risk:** Run 2 carries commission of $2.05 per lot on each deal side, $6,904 in total, and `config/business.yaml` has `commission_per_lot_usd: 0`. The figure comes from a tester run, so confirm it from The5ers' published terms or the owner's account where you can, and say which products it applies to. Then state what `research.costs` should be. Raising a cost tightens the model, but it changes every later backtest, so bring it to the Orchestrator first and change nothing in `config/` under this item. No owner action yet.

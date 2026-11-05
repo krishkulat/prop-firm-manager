@@ -67,6 +67,7 @@ strategies:
       for the Orchestrator to decide.
       2026-11-02 Orchestrator (R-007): held at coded. Backtested gate not judged (MT5 run, spread and modelling unrecorded).
       MT5-native path needs owner approval (Q-005). Settings frozen at R6. R-008, R-009, R-010 assigned.
+      2026-11-05 Orchestrator: Q-011 reports not accepted as real-tick evidence, so neither the 1.25 pass nor the H-005 1.15 kill is judged. 59.6 ticks per M15 bar and all but 4 deal times at :00, :20 or :40 fit 1-minute OHLC. Run 1 is headed FivePercentOnline-Experience, not MetaQuotes-Demo, and matches the old R6 to the cent. Stays coded. Asked again as Q-012. See results/D/history.md.
   E:
     name: US-open impulse continuation
     module: strategies.E_us_open_impulse.strategy

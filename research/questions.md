@@ -294,7 +294,7 @@ Owner approved. Card PFM-1 read directly: answer "Approve", on the exact C-only 
 ### Q-005 update — 2026-11-05 — from orchestrator
 The re-run was not done, and the gap was ours: D is not under `strategies/`, it is in `research/imported/RangeProfileFadeEA/`, and the card did not say so. Q-005 stays open. The ask is repeated with full steps as Q-011. **Standing rule from the owner's answer:** every owner item gives detailed steps; added to `AGENTS.md`.
 
-## Q-011 — 2026-11-05 — from orchestrator — open (for owner)
+## Q-011 — 2026-11-05 — from orchestrator — closed 2026-11-05, replaced by Q-012 (for owner)
 **Re-run strategy D on real ticks in MT5. This replaces the Q-005 card.** Agents cannot use the MT5 Strategy Tester, so this one needs you. D is not in the `strategies` folder: it has no Python version, and its files are in `research\imported\RangeProfileFadeEA\src\`.
 
 **Tester only.** Do not attach this EA to a chart on any account: v1.22 has no PFM risk engine and breaks firm rules.
@@ -338,3 +338,58 @@ The re-run was not done, and the gap was ours: D is not under `strategies/`, it 
 
 **How it is judged:** Profit Factor 1.25 or more on both feeds: D goes to the validation decision. Below 1.15: H-005 is dropped. In between: the Orchestrator decides from the reports.
 
+### Q-011 close — 2026-11-05 18:40 UTC — from orchestrator
+Card PFM-4 is Done. Reports are in `research/imported/RangeProfileFadeEA/reports/` (commit 2511277). Owner's answer, read directly from Notion: Run 1 PF 1.39, Total Trades 1098, History Quality 99%; Run 2 PF 1.26, Total Trades 1144, History Quality 98%; spread not found in the report. **Not accepted as real-tick evidence, and the gap is in the steps: they gave no way to check the run before sending it.** Reasons are in `results/D/history.md`. No H-005 verdict either way. Items not answered: the clock check (step 11), the number of settings tried (step 15). The ask is repeated as Q-012, because a repeat needs a new item ID.
+
+## Q-012 — 2026-11-05 — from orchestrator — open (for owner)
+**Run strategy D again, with real ticks switched on and a check before you send it.** Thanks for the two reports: they were useful, and they found something real (The5ers charges commission). But they are not real-tick runs:
+- MT5 reports do not print the modelling mode, so this is worked out from the numbers. Both reports have about 11 million ticks, 60 per 15-minute bar, and all but 4 of about 3,700 order and deal times fall on second :00, :20 or :40. Real ticks land on any second. This fits 1-minute OHLC.
+- Run 1 is headed `FivePercentOnline-Experience`, not MetaQuotes-Demo, and its results match the old R6 report to the cent, so it is not a second data feed. The report does not show why.
+
+**Tester only.** Do not attach this EA to a chart on any account: v1.22 has no PFM risk engine and breaks firm rules. Do not buy anything for this. Change no EA setting. Do not delete the earlier reports.
+
+**A. Get ready**
+1. Open a terminal in `Documents\prop-firm-manager` and run `git pull`.
+2. Check the drive holding MT5 has at least 20 GB free. That figure is an estimate: real-tick history is far larger than what you ran before. If you have less, write how much in My answer and stop.
+3. The EA and `.set` file you installed for Q-011 stay in place. If MT5 no longer lists `RangeProfileFadeEA`, repeat Q-011 steps 2 to 4.
+
+**B. Run 1: MetaQuotes-Demo**
+4. In MT5, open the Navigator > Accounts and double-click your MetaQuotes-Demo login. If you have none: File > Open an Account, search "MetaQuotes", choose MetaQuotes-Demo and open a demo account. It costs nothing.
+5. Check that the MT5 window title shows `MetaQuotes-Demo`. If it shows anything else, go back to step 4.
+6. Press Ctrl+R for the Strategy Tester. On the Settings tab set:
+   - Expert: `RangeProfileFadeEA`
+   - Symbol: `XAUUSD`, timeframe M15
+   - Date: Custom period, 2019.01.01 to 2026.11.01
+   - Forward: No
+   - Delays: Zero latency
+   - **Modelling: open the list and choose exactly `Every tick based on real ticks`.** Not `Every tick`, not `1 minute OHLC`, not `Open prices only`.
+   - Deposit: 100000 USD, leverage 1:100
+7. On the Inputs tab, right-click > Load and choose `RangeProfileFadeEA_v1.22_R6.set`. Check that `InpRiskPercent` is 0.5 and `InpFixedLots` is 0.
+8. Go back to the Settings tab and take a screenshot (Win+Shift+S). Save it in `research\imported\RangeProfileFadeEA\reports\` as `R6_realticks_metaquotes_settings.png`.
+9. Press Start. MT5 downloads the tick history first, so this can take many hours, far longer than last time. Leave it running.
+10. If the test ends quickly, or MT5 says real ticks are missing, write the message in My answer. In the Journal tab, note the first date of real ticks if it is shown.
+
+**C. Check before saving**
+11. Open the Backtest tab and read **Ticks**. It must be far more than the 11 million of the last run. **If it is still about 11 million, stop:** real ticks did not run. Write that in My answer, with what the Modelling box shows.
+12. Right-click the Backtest tab > Report > HTML. Save it in the same folder as `R6_realticks_metaquotes.html`.
+13. Open the saved report in a browser. The line under "Strategy Tester Report" must say `MetaQuotes-Demo`. If it does not, write what it says in My answer and stop.
+
+**D. Run 2: The5ers data**
+14. Double-click your `FivePercentOnline-Real` login in the Navigator, the one you used for Run 2 last time. If you no longer have it, skip to step 18 and write "no The5ers login" in My answer.
+15. Compare the server clock at the top of Market Watch with UTC. It should be UTC+2 today. If it is not, write the difference in My answer and skip to step 18: the EA's session times would be wrong.
+16. Repeat steps 6 to 11 on the same `XAUUSD` symbol, with the screenshot saved as `R6_realticks_the5ers_settings.png`.
+17. Save the report as `R6_realticks_the5ers.html`. Its first line must say `FivePercentOnline-Real`.
+
+**E. Send the results**
+18. In the terminal, in `Documents\prop-firm-manager`, run these one at a time:
+    `git add research/imported/RangeProfileFadeEA/reports`
+    `git commit -m "[owner] D real-tick R6 reports, second try"`
+    `git pull --rebase`
+    `git push`
+19. In My answer write, for each run: Profit Factor, Total Trades, **Ticks**, History Quality, and the first real-tick date if shown. For spread, write "from ticks".
+20. Also write three things from last time: which login you were on for the report in the `MetaQuotes-Demo` folder, what the Modelling box said for those two runs if you remember, and roughly how many settings you tried while tuning D.
+21. Move the card to Done.
+
+**If you get stuck:** write the step number and what you saw in My answer, then move the card to Done.
+
+**How it is judged, same as before:** Profit Factor 1.25 or more on both feeds: D goes to the validation decision. Below 1.15: H-005 is dropped. In between: the Orchestrator decides from the reports. If The5ers has no real ticks for the early years, the Orchestrator judges the period it does have and says so.

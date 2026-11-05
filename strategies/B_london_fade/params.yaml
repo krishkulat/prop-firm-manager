@@ -1,7 +1,6 @@
-# H-002 v1.0. Defaults = A v1.1 defaults = the audited run (audit-R002-2). Not tuned. Trials start at 1.
-default: {rr: 2.0, stop_atr: 1.2, min_range_atr: 1.5, max_range_atr: 4.0}
+# H-002 v1.1 (R-019). v1.0's rr target is gone; the rest = A v1.1 defaults = the audited run (audit-R002-2). Not tuned.
+default: {stop_atr: 1.2, min_range_atr: 1.5, max_range_atr: 4.0}
 ranges:            # from research/hypotheses/H-002; any sweep goes through a job ticket
-  rr: [1.0, 1.5, 2.0, 2.5]
   stop_atr: [0.8, 1.2, 1.6, 2.0]
   min_range_atr: [1.0, 1.5, 2.0]
   max_range_atr: [3.0, 4.0, 5.0]
@@ -14,4 +13,6 @@ fixed:
   timeframe: M15
   direction: fade            # opposite to the first close beyond the range
   stop: "tighter of range midpoint and stop_atr × H1 ATR, measured from the signal close (A's code path)"
+  target: "Asian range midpoint, (hi + lo) / 2, both sides. Entry bar open at or past it: gap_through_levels, no trade"
+  ea_version: "LondonFade_B.mq5 is still v1.0 (InpRR target). EA change is assigned only if v1.1 passes the gate (R-019)"
   ea_tp_delay: "TP is attached only after the risk engine's min hold (InpMinHoldSeconds, 120 s); SL is set at entry"

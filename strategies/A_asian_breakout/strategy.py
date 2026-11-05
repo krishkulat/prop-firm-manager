@@ -23,6 +23,7 @@ class BreakoutEvent:
     direction: int              # +1 close above range high, -1 close below range low
     close: float                # close of the breakout bar
     risk: float                 # stop distance: tighter of range midpoint and stop_atr × H1 ATR
+    mid: float                  # Asian range midpoint, (hi + lo) / 2. Not used by A; B v1.1's target (R-019)
 
 
 def breakout_events(bars: pd.DataFrame, p: dict) -> list[BreakoutEvent]:
@@ -62,7 +63,7 @@ def breakout_events(bars: pd.DataFrame, p: dict) -> list[BreakoutEvent]:
             risk = abs(c - stop)
             if risk <= 0:
                 break
-            events.append(BreakoutEvent(ts + bar_len, d, c, risk))
+            events.append(BreakoutEvent(ts + bar_len, d, c, risk, mid))
             break   # one trade per day
     return events
 

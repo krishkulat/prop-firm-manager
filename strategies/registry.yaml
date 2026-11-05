@@ -16,7 +16,7 @@ strategies:
   B:
     name: Asian-range false-breakout fade (London open)
     module: strategies.B_london_fade.strategy
-    version: "1.0"
+    version: "1.1"
     stage: coded
     hypothesis: research/hypotheses/H-002-asian-range-false-breakout-fade.md
     firm_product: the5ers/hs50k_10d
@@ -34,6 +34,7 @@ strategies:
       2026-11-02 Orchestrator (Q-006): baseline also waits on R-011 item 2a (backtest flattens before news like the EA). Entry blocking alone cannot change B's trades.
       2026-11-04 Orchestrator: J-20261103-005 clean baseline FAILED backtested gate on maxDD only (7.70% > 6.0%; trades 426, PF 1.407, worst year -3.75%). No H-002 kill criterion fired. Chose one redesign (redesigns 1 of 3):
       v1.1 target = range midpoint, the redesign H-002 named before any baseline. R-019. Any gate failure on v1.1 rejects B; no second redesign. See results/B/history.md.
+      2026-11-05 CODED v1.1 by strategy-dev (R-019, branch dev/R-019): target = Asian range midpoint, rr removed, 3 params. Stop, signal, entry and news as v1.0. Python only: LondonFade_B.mq5 is still v1.0 (InpRR). No ticket: the Orchestrator queues the one run after the merge.
   C:
     name: SGE day-session long after Western-hours drop
     module: strategies.C_sge_session_long.strategy

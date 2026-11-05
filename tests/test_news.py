@@ -76,7 +76,8 @@ def test_covers_data_is_false_when_bars_run_past_the_last_event():
     assert not worker.calendar_covers_data([], flat_bars())                               # no calendar covers nothing
 
 
-def test_summary_carries_calendar_fields_and_trades_are_unchanged(tmp_path, monkeypatch):
+def test_summary_carries_calendar_fields_and_trades_are_unchanged(tmp_path, monkeypatch, b_v10):
+    monkeypatch.setattr(worker, "load_strategy", lambda key: (b_v10, {}))       # the pin below is B v1.0's
     monkeypatch.setattr(worker, "RESULTS", tmp_path)
     monkeypatch.setattr(worker, "TRIALS", tmp_path / "trials.csv")
     job = {"job_id": "J-TEST-015", "kind": "backtest", "strategy": "B", "hypothesis": "H-TEST",
@@ -145,10 +146,9 @@ def test_events_outside_the_data_change_nothing(risk_cfg):
     pd.testing.assert_frame_equal(base.trades, r.trades)
 
 
-def test_empty_calendar_is_identical_to_before_r011(risk_cfg):
-    from strategies.B_london_fade.strategy import LondonFade
+def test_empty_calendar_is_identical_to_before_r011(risk_cfg, b_v10):
     bars = data.synthetic(days=200)
-    sigs = LondonFade().generate_signals(bars)
+    sigs = b_v10.generate_signals(bars)
     for news in (None, []):
         r = backtest.run(bars, sigs, risk_cfg, news_times_utc=news)
         # 66 trades and this P&L were recorded from main at 64752e4, before the change

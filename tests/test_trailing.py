@@ -69,10 +69,9 @@ def test_trailing_without_a_gain_equals_static(risk_cfg):
 
 
 # ---------------------------------------------------------------- backtests stay comparable (item 5)
-def test_backtest_is_unchanged_unless_the_path_is_on(risk_cfg):
-    from strategies.B_london_fade.strategy import LondonFade
+def test_backtest_is_unchanged_unless_the_path_is_on(risk_cfg, b_v10):
     bars = data.synthetic(days=900)
-    sigs = LondonFade().generate_signals(bars)
+    sigs = b_v10.generate_signals(bars)
     off = backtest.run(bars, sigs, risk_cfg).trades
     # 275 trades and this P&L were recorded before R-006, on main at 3f26e86
     assert len(off) == 275 and round(off.pnl.sum(), 2) == 4251.61

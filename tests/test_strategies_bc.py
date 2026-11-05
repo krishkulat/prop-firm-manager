@@ -1,11 +1,18 @@
 """Strategies B (H-002) and C (H-003) on the synthetic fixture."""
+import hashlib
 import math
+from pathlib import Path
 
 import pandas as pd
 import pytest
+import yaml
 
 from pfm import backtest, data
 from pfm.strategy_base import Signal
+
+ROOT = Path(__file__).resolve().parent.parent
+EVENT_PINS = [(200, 66, "e1e09f31f70b57ce531f0ef12392260e9d559b6177b7e43d46bbe59f2e1e67ed"),
+              (900, 275, "9f405ed23a8fc5138ff5a43fece6591d6f36565d8ab0d71c46c3b299f0d0675b")]
 
 
 @pytest.fixture(scope="module")
@@ -22,10 +29,65 @@ def test_b_is_exact_mirror_of_a(bars):
     for sa, sb in zip(a, b):
         assert sa.time == sb.time and sb.direction == -sa.direction
         ca = (2 * sa.stop + sa.target) / 3                       # A: stop = c − d·r, target = c + 2d·r
-        risk_a = abs(ca - sa.stop)
-        assert math.isclose(abs(sb.stop - ca), risk_a, rel_tol=1e-9)        # same stop distance
-        assert math.isclose(abs(sb.target - ca), 2.0 * risk_a, rel_tol=1e-9)
-        assert (sb.direction == 1 and sb.stop < ca < sb.target) or (sb.direction == -1 and sb.target < ca < sb.stop)
+        assert math.isclose(abs(sb.stop - ca), abs(ca - sa.stop), rel_tol=1e-9)   # same stop distance
+        assert (sb.stop - ca) * sb.direction < 0                 # stop on the far side of the break
+
+
+def test_breakout_events_unchanged_by_r019():
+    """Times, sides, closes and risks are A's audited path: hashes recorded from main at 7c2b194, before `mid` was added."""
+    from strategies.A_asian_breakout.strategy import breakout_events
+    from strategies.B_london_fade.strategy import LondonFade
+    for days, count, digest in EVENT_PINS:
+        ev = breakout_events(data.synthetic(days=days), LondonFade.default_params)
+        s = "\n".join(f"{e.signal_time.isoformat()},{e.direction},{e.close:.6f},{e.risk:.6f}" for e in ev)
+        assert len(ev) == count and hashlib.sha256(s.encode()).hexdigest() == digest
+
+
+def test_b_target_is_the_range_midpoint_for_both_sides(bars):
+    """Rebuilds the range from the bars, independently of breakout_events, including the 23:45 IST bar it wrongly holds (Q-010)."""
+    from strategies.B_london_fade.strategy import LondonFade
+    sigs = LondonFade().generate_signals(bars)
+    assert {s.direction for s in sigs} == {1, -1}
+    ist = bars.index.tz_convert("Asia/Kolkata")
+    t = pd.Series(ist.time, index=bars.index)
+    in_range = ((t >= pd.Timestamp("05:30").time()) & (t < pd.Timestamp("12:30").time())) | (t == pd.Timestamp("23:45").time())
+    for s in sigs:
+        rng = bars[(ist.date == s.time.tz_convert("Asia/Kolkata").date()) & in_range.values]
+        assert s.target == pytest.approx((rng["high"].max() + rng["low"].min()) / 2)
+        close = bars.at[s.time - pd.Timedelta(minutes=15), "close"]
+        assert (s.target - close) * s.direction > 0              # the target is back towards the range
+        assert abs(s.target - close) >= abs(close - s.stop) - 1e-9   # stop is never wider than the midpoint distance
+
+
+@pytest.mark.xfail(strict=True, reason="Q-010: t_close wraps at midnight, so the 23:45 IST bar joins the 05:30-12:30 IST range. "
+                                       "R-019 forbids changing breakout_events. Remove this mark with the fix.")
+def test_range_does_not_read_bars_after_the_entry_window(bars):
+    from strategies.A_asian_breakout.strategy import breakout_events
+    from strategies.B_london_fade.strategy import LondonFade
+    late = bars.copy()
+    last = late.index.tz_convert("Asia/Kolkata").strftime("%H:%M") == "23:45"     # 7 h after the entry window ends
+    late.loc[last, "high"] += 50
+    late.loc[last, "low"] -= 50
+    k = lambda ev: [(e.signal_time, e.direction, e.close, e.risk, e.mid) for e in ev]
+    assert k(breakout_events(late, LondonFade.default_params)) == k(breakout_events(bars, LondonFade.default_params))
+
+
+def test_b_has_no_rr_and_three_params():
+    from strategies.B_london_fade.strategy import LondonFade
+    y = yaml.safe_load((ROOT / "strategies/B_london_fade/params.yaml").read_text(encoding="utf-8"))
+    assert set(y["default"]) == set(y["ranges"]) == set(LondonFade.default_params) == {"stop_atr", "min_range_atr", "max_range_atr"}
+    assert all(LondonFade.default_params[k] == v for k, v in y["default"].items())
+
+
+@pytest.mark.parametrize("direction, stop, mid", [
+    (-1, 2005.0, 1995.0), (-1, 2005.0, 1999.0),                  # short: open at the midpoint, then past it
+    (1, 1985.0, 1995.0), (1, 1985.0, 1991.0),                    # long: the same
+])
+def test_b_entry_bar_opening_at_or_past_the_midpoint_is_rejected(risk_cfg, direction, stop, mid):
+    idx = pd.date_range("2026-11-03 08:00", periods=6, freq="15min", tz="UTC")
+    b = pd.DataFrame({"open": 1995.0, "high": 1996.0, "low": 1994.0, "close": 1995.0, "spread": 0}, index=idx)
+    r = backtest.run(b, [Signal(idx[1], direction, stop, mid)], risk_cfg, slippage_points=0)
+    assert r.trades.empty and r.rejections == {"gap_through_levels": 1}
 
 
 def test_b_runs_through_backtester(bars, risk_cfg):

@@ -109,3 +109,25 @@ takes about 159 days at ~92 trades a year, past the 2027-02-28 search deadline. 
 - The5ers' data charges commission: $2.05 per lot per deal side, about $4.11 a round lot, $6,904 in total, and swap of $1,505. Run 1 has neither at that size. `config/business.yaml` has commission 0. Sent to Risk as R-025.
 - Yearly net by deal close, Run 1 vs Run 2: 2019 910 / 561; 2020 3,658 / 3,172; 2021 13,283 / 12,529; 2022 11,153 / 9,428; 2023 11,722 / 6,736; 2024 -1,458 / -52; 2025 18,139 / 4,751; 2026 15,090 / 15,115. Run 1 PF in 2025 is 2.05, Run 2 is 1.19.
 - 1-minute OHLC can flatter a strategy with a stop and target close together, so real ticks may come in lower. The kill line stays in play.
+
+## 2026-11-05 — Backtest: R-025 items 1 and 2, Q-011 reports
+**Logged:** 2 `mt5_import` rows in `results/trials.csv` under H-005, marked not real-tick and not gate evidence (719 positions, PF 1.39, DD 4.00%; 759 positions, PF 1.26, DD 4.21%). No gate verdict: the Orchestrator ruled these runs out as evidence. H-005 now has 9 rows; its true trial count stays unknown (`import-RPF-uncounted`). No ticket: D is MT5 only and waits on Q-012.
+
+**Check from the HTML. Scope limit:** hard rule 5. Trade rows dated 2025-10-29 or later were dropped unread by the parser, using the last research-split entry date seen (2025-10-29) as a cautious boundary. So every row-level figure below stops there. Header totals are as printed and do span the whole run.
+
+**One difference, and it matters:**
+- **The commission is not "$2.05 per lot". It is 0.001% of notional per deal side.** Commission / (lots x price x 100 oz) has median 1.0001e-5 on all 1,646 research deals (min 0.9916e-5, max 1.011e-5, rounding), and each year's median is 0.9999e-5 to 1.0003e-5. Per lot per side it moves with the gold price: 2019 $1.39, 2020 $1.75, 2021 $1.80, 2022 $1.79, 2023 $1.94, 2024 $2.35, 2025 to the cut $3.31. $2.05 is only a run average, about right as an average and wrong as a rate. A flat `commission_per_lot_usd` cannot model this. Round turn is 0.002% of price, $0.04/oz at a $2,000 price and $0.06/oz at $3,000.
+
+**Confirmed, whole run from the header:**
+- Servers, companies, period ends, bars and ticks as in the table; ticks per bar 59.57, 59.57, 59.46.
+- PF, net profit, max equity DD, MT5 Total Trades. PF recomputed from gross 1.388 and 1.262. Net profit 27.9% lower on Run 2.
+
+**Confirmed, research rows only:**
+- Run 1 and old R6: all 3,129 order and deal rows identical. Consistent with the 3,742 of 3,746 figure, not a check of it.
+- Seconds of order and deal times: all on :00, :20 or :40 for old R6 and Run 1 (3,129); Run 2 3,287 on those and 4 on :30, so all 4 :30 times are before the cut.
+- Yearly net 2019-2024, both runs, match to the dollar. Swap -37.40 and -1,504.91 match.
+- Positions before the cut: 620 and 659. With the recorded 99 in the holdout window, 620 + 99 = 719.
+
+**Not checked (holdout rows):** total commission $6,904 (research rows give $6,257.33), the total positions, 2025 full-year figures, 2026 figures, the 3,742 of 3,746 count. To the cut, 2025 is 18,072 / 3,609.
+
+**Report figures not gate-relevant, for the record:** History Quality 99% old R6 and Run 1, 98% Run 2. Red flags on these runs are not judged; they are not valid evidence.

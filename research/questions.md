@@ -188,3 +188,38 @@ Next re-notify only if a ticket is still pending at 07:28 UTC on 2026-11-05. The
 **These two decisions matter more now.** E and F were rejected tonight, and B has one redesign left to try (R-019). C and D are the only other strategies, and both wait on you. Deadline for a strategy to pass every gate: 2027-02-28, 116 days away.
 - **Q-002:** approve or reject the C-only risk profile (entry 06:00-21:00 IST, money limits unchanged). Caution: F tested part of the same day-shape idea as C and lost, so approving only lets C be tested; it says nothing about C being good.
 - **Q-005:** the real-tick re-run of D's R6 on two brokers' data.
+
+## Q-010 — 2026-11-05 — from strategy-dev — open (for Orchestrator, **before queueing B v1.1**)
+**A's audited path has look-ahead, and it probably made A's failure and B's edge.** Found while testing R-019. Not fixed: R-019 item 2 forbids any other change to `breakout_events`, and the fix changes results, so it is your decision. Do not queue H-002's 4th trial yet.
+
+**The bug.** `strategies/A_asian_breakout/strategy.py`: `rng = g[(g.t_open >= RANGE_START) & (g.t_close <= RANGE_END)]`. `t_close` is a time of day, so the 23:45 IST bar closes at 00:00, which passes `<= 12:30`. That bar is 18:15 UTC, 7 h after the entry window ends, and it joins the 05:30-12:30 IST range of the same day. Its high and low can set `hi`, `lo`, the width filter and the midpoint.
+
+**Why it matters.** A day that keeps running past the break has a high 23:45 IST bar, which lifts `hi` above the break, so the signal disappears. The strategy sees only breaks that price did not extend by the evening, which is a selection on the future. Breakouts then look terrible and fades look good.
+
+**Proof, no real data read.** On `data.synthetic(days=200)`, raising only the high of the 18:15 UTC bar on 2023-03-06 by 50 removes that day's 10:15 UTC signal. `tests/test_strategies_bc.py` on `dev/R-019` holds a strict xfail that fails today because of this, and must lose its mark with the fix.
+
+**Size, on random walks that have no edge** (12 seeds, 1,000 days each, no news, costs as research). "Fixed" uses `g.t_open < RANGE_END` in a scratch copy, not committed:
+
+| | trades | win | PF | avg R | avg R range across seeds |
+|---|---|---|---|---|---|
+| A as coded | 309 | 11.7% | 0.19 | -0.771 | -0.843 to -0.707 |
+| B v1.0 as coded | 309 | 44.9% | 1.15 | +0.084 | -0.114 to +0.242 |
+| B v1.0 fixed | 444 | 29.9% | 0.60 | -0.306 | -0.405 to -0.160 |
+| B v1.1 as coded | 309 | 53.3% | 1.16 | +0.076 | -0.056 to +0.246 |
+| B v1.1 fixed | 444 | 41.5% | 0.58 | -0.266 | -0.328 to -0.178 |
+
+A on noise gives 11.7% wins and PF 0.19. A on gold gave 13% and PF 0.23 (J-20261101-001, R-002). So the "systematic reversal" that rejected A and produced H-002 can be explained by this bug alone. A random walk is not gold: B's real PF 1.407 is above what noise gave here, so some real effect may remain. Only a run on real bars can say; I cannot run one in the cloud.
+
+**What it touches**
+- **Contaminated:** J-20261101-001 and the R-002 audit rows for A; J-20261102-001 and J-20261103-005 for B; the R-002 "no bug" finding; H-002's origin; `results/B/history.md`, including the maxDD and the 2023-08 to 2024-02 stretch.
+- **B v1.1 is worse placed than v1.0:** its target is the midpoint, so future bars now set an order price as well as the filter.
+- **H-007 / G:** G does not use this path, and a random-walk check of G shows no invented edge (baseline -0.269R, opposite side -0.209R, 12 seeds, 900 days). But H-007's evidence and estimate lean on B's +0.205R, and the $0.96/oz in the H-007 decision, so its edge case is weaker than written.
+- **Not touched:** C, E, F (their own code, no `t_close`). D (MQL5). The EAs: `LondonFade_B.mq5` uses `om+15<=Min(InpRangeEnd)` on integer minutes, which does not wrap, so the EA never had this bug. **Python and the EA therefore trade different days** (444 vs 309 signals on the random walks), and a demo of B would have failed the ±30% trade-rate check.
+
+**Decisions needed from you**
+1. Assign the one-line fix (Python, reviewed by Risk) before any B run. It should go in with or before R-019.
+2. Which B version gets the run after the fix. Today's rule, that any gate failure on v1.1 rejects B, was set on figures this bug produced. Each run is a trial on H-002; A is at 1-2 of 50.
+3. Whether A's rejection stands. It rests on these figures, so a clean A run may be owed, though a fixed B and a fixed A are the same events and only one side can be right.
+4. Whether R-021's 7 G runs wait for Research to restate H-007's estimate. G's code does not need to wait.
+
+Also worth a look by Risk: the R-002 audit and the R-004, R-011 and R-019 reviews all passed this line. Reading did not catch it; rebuilding the range independently did. I have checked only this one wrap. Nothing else in `strategies/` uses `t_close`.

@@ -406,3 +406,30 @@ Code H-007 as strategy G on branch `dev/R-021`. **Python and tests only; no EA u
 4. Research-only switch outside the 3 params: `benchmark: none | random_side | opposite_side | no_reclaim | shifted_level`, with `benchmark_seed` for `random_side`. `shifted_level` moves levels outward by 0.25 × prior-day range, and liveness and break are judged on the moved level. `no_reclaim` enters at the next bar open after the first break, with the same stop and target.
 5. Count the skips from the "break's extreme beyond the stop" rule and the entry-bar stops on the synthetic fixture, and report them.
 6. Unit test on the synthetic fixture, including that the worker loads G from the registry; set `stage: coded` on the branch; answer here. Merge path as R-013. No ticket: the Orchestrator queues the 7 runs after the merge.
+
+### R-019 / R-021 answer — 2026-11-05 — from strategy-dev
+Both are on branches for Risk & compliance review (`dev/R-019` 4478e72, `dev/R-021` 61faf11), each from `main` at 7c2b194. Nothing is on `main` except this answer and Q-010. No file in `config/` changed, no limit value changed, no ticket queued. A trial merge of both auto-merges: `python -m pytest -q` 166 passed, 1 xfailed (the Q-010 mark).
+
+**Read Q-010 before merging R-019 or queueing B.** `breakout_events` has look-ahead. R-019 is coded as ordered and the bug is left in, as item 2 requires.
+
+- **R-019 (`dev/R-019` 4478e72).** Items 1, 2 and 4 are done: target = `(hi + lo) / 2`, `rr` gone, 3 params, version "1.1", `stage` stays `coded`.
+  - **Item 2 test:** times, sides, closes and risks are hash-pinned from 7c2b194 on the 200- and 900-day fixtures (66 and 275 events); the hashes match before and after.
+  - **Item 3 count:** `gap_through_levels` is **0** of 195, 275 and 486 signals on the 600-, 900- and 1,600-day fixtures. This says nothing about real data: each fixture bar opens at the prior close, so it has no gaps. The rejection itself is tested on hand-built bars, both sides, at and past the midpoint.
+  - **Pinned figures:** the B figures in `test_news.py` and `test_trailing.py` guard the backtester and worker, not B. They now run on a test-only v1.0 class in `conftest.py`, with every number unchanged.
+  - **EA:** `LondonFade_B.mq5` stays v1.0, as assigned. `make_set` now writes no `InpRR` for B, so a .set would run the EA default, v1.0's 2R target. No effect until the EA change.
+- **R-021 (`dev/R-021` 61faf11).** `strategies/G_prior_day_failed_break/`, no EA, registry `stage: coded` on the branch. 3 params at H-007's defaults; 36 combinations, so 43 of 50 trials with the 7 first runs. To fit 43 the grid drops `target_r` 1.5: `stop_atr` 1.0, 1.25, 1.5, 2.0 and `target_r` 1.0, 2.0, 2.5.
+  - **Item 5 counts,** 900-day fixture, baseline: 93 signals, 93 trades; 3 skips from "extreme beyond the stop"; 0 same-bar conflicts; 4 entry-bar stops. By benchmark, skips / entry-bar stops: `random_side` 3 / 4, `opposite_side` 3 / 6, `no_reclaim` 1 / 4 (140 trades), `shifted_level` 8 / 3 (88 trades).
+  - **Random-walk check,** added because of Q-010: 12 seeds, 900 days. Baseline -0.269R, PF 0.60; `opposite_side` -0.209R, PF 0.68. No invented edge.
+  - **Stop:** from the entry bar open, known at entry, as in F. Nothing else is read from that bar. The look-ahead test runs for all 5 benchmark settings.
+  - **Calendar:** the strategy reads NFP and CPI from `research/news/usd_high_impact.csv` itself (186 rows), because `generate_signals` gets no news. A missing file raises.
+  - **Rules H-007 left open. Please confirm or correct these before the 7 runs:**
+    1. A level gets one chance. The first bar beyond it decides, so a poke under the 0.10 ATR margin, a break outside 08:00-15:00 UTC or a break inside the NFP/CPI hour all kill it for the day. This is the strict reading of "live".
+    2. The break window includes the 15:00 UTC bar. That bar can only enter at 15:15, so only if it reclaims on the break bar.
+    3. "60 minutes after" includes bars opening exactly at the release and exactly 60 minutes later.
+    4. After a stop-rule skip, the other level may still give the day's trade. A skipped signal is not valid, so it does not use up the day.
+    5. Both levels giving the same entry bar means no trade, as the order is unknown.
+    6. "Break's extreme" runs from the break bar through the reclaim bar.
+    7. Bars after the Friday close belong to no day but count for liveness. Short holiday days count as days, so a thin day gives narrow levels.
+  - **Not measured:** overlap with B, which needs real bars. Frequency against the 200-trade gate is also unknown.
+- **For the Orchestrator:** the schedule prompt again says to queue a ticket and push the code to `main`. I followed the role file, your 2026-11-03 answer, and R-019 item 5 and R-021 item 6: branches, no ticket.
+- **Next for Strategy Dev:** the Q-010 fix if you assign it, then R-014, R-017, R-008.

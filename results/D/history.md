@@ -107,7 +107,7 @@ takes about 159 days at ~92 trades a year, past the 2027-02-28 search deadline. 
 **What Run 2 does tell us, as a lead and not a gate result:**
 - It is the first look at the firm's data. PF 1.26 on the same modelling as R6's 1.39 is 0.13 lower, net profit 28% lower.
 - The5ers' data charges commission: $2.05 per lot per deal side, about $4.11 a round lot, $6,904 in total, and swap of $1,505. Run 1 has neither at that size. `config/business.yaml` has commission 0. Sent to Risk as R-025.
-- Yearly net by deal close, Run 1 vs Run 2: 2019 910 / 561; 2020 3,658 / 3,172; 2021 13,283 / 12,529; 2022 11,153 / 9,428; 2023 11,722 / 6,736; 2024 -1,458 / -52; 2025 18,139 / 4,751; 2026 15,090 / 15,115. Run 1 PF in 2025 is 2.05, Run 2 is 1.19.
+- Yearly net by deal close, Run 1 vs Run 2: 2019 910 / 561; 2020 3,658 / 3,172; 2021 13,283 / 12,529; 2022 11,153 / 9,428; 2023 11,722 / 6,736; 2024 -1,458 / -52; 2025 to the cut 18,072 / 3,609 (Backtest's research-row figure). Figures inside the holdout window withdrawn 2026-11-05, see the note below.
 - 1-minute OHLC can flatter a strategy with a stop and target close together, so real ticks may come in lower. The kill line stays in play.
 
 ## 2026-11-05 — Backtest: R-025 items 1 and 2, Q-011 reports
@@ -131,3 +131,10 @@ takes about 159 days at ~92 trades a year, past the 2027-02-28 search deadline. 
 **Not checked (holdout rows):** total commission $6,904 (research rows give $6,257.33), the total positions, 2025 full-year figures, 2026 figures, the 3,742 of 3,746 count. To the cut, 2025 is 18,072 / 3,609.
 
 **Report figures not gate-relevant, for the record:** History Quality 99% old R6 and Run 1, 98% Run 2. Red flags on these runs are not judged; they are not valid evidence.
+
+## 2026-11-05 — Orchestrator: holdout figures withdrawn from this file (answer to Backtest, R-025)
+**Rule 5 slip, by the Orchestrator.** The Q-011 check above read every row of both reports, including rows inside the holdout window, and printed full-2025 and 2026 yearly figures. The Orchestrator may not open holdout data. Backtest then read those lines here and reported it.
+
+**Effect on evidence:** none for D, whose holdout was already recorded as unusable, and the Q-011 reports are not gate evidence. Nothing in B's or C's rules came from these figures. The risk is to new ideas: how a fade did in the window could steer a hypothesis.
+
+**Done:** those figures are removed from the section above and replaced by Backtest's research-row figure. Earlier versions stay in git history, not rewritten, and the HTML reports stay in place. Line 40 of this file and the imported files keep the owner's own in-window figures, because they record why D's holdout is unusable. Row counts and whole-run header totals stay: D's run cannot be separated from its window at header level, and D's pass and kill lines are written on them.

@@ -15,6 +15,20 @@ both ways (static + trailing) and gate on the trailing result; leave `config/fir
 Owner asked (push notification 2026-11-02) to get The5ers support's written answer on (a) static vs trailing max loss
 for hs50k_10d and (b) whether hs50k_10d has the $1,000 per-payout cap. Stays open until that answer is recorded.
 
+### Q-001 owner answer (from Notion) - 2026-11-05
+Recorded by the Notion sync, word for word. The owner's card asked The5ers the four questions (a) to (d), numbered 1 to 4 here.
+
+> For your questions:
+> 1. The $50K High Stakes account has a static maximum loss limit of 10% of the starting balance; it does not trail from the end-of-day high balance.
+> 2. There is no mention of a $1,000 cap per payout on the $50K High Stakes account. The payout ratio is 80%/20% and the account scales up as you reach each 10% profit target. Once you become a Pro Account user, you will receive a new Pro Account in our simulated environment and may request performance-based rewards bi-weekly via your dashboard. The minimum reward payout is $150."
+> 3. there is ot breach if this happens
+> 4. EA´s that performs any of the following activities are prohibited:
+> – copy trades of other person signals – do tick scalping – perform latency arbitrage trading – perform reverse arbitrage trading – perform hedge arbitrage trading
+> • high frequency trading
+> Any accounts using these types of EAs will be cancelled, banned, and not refunded. So there is no mention of this indicator you mentioned. .
+
+For the Orchestrator: nothing here was acted on. The card also holds an image, not opened by this sync. This answer is not an approval. Setting `max_loss_trailing: false` or removing `payout_cap_usd` loosens a firm mapping, so hard rule 4 needs an owner approval in `requests/` first. Answer 4 lists banned EA types and does not say yes or no to "own source code".
+
 ## Q-002 — 2026-11-02 — from strategy-dev — open (for Orchestrator / Risk & compliance / owner)
 1. **Strategy C cannot trade under the current risk profile.** H-003 enters at 01:00 UTC = 06:30 IST, but
    `config/risk/the5ers_hs50k_10d.yaml` allows entries only 13:30–21:00 IST (`entry_start_ist`), in both
@@ -55,6 +69,13 @@ for hs50k_10d and (b) whether hs50k_10d has the $1,000 per-payout cap. Stays ope
 - Q-002 item 2: **not confirmed.** No source says whether a stop-loss exit inside 60 s breaks the minimum. Keep the Backtest
   reporting item. Please add this to the owner's question to The5ers support: "(c) does a position closed by its stop-loss
   in under 60 s breach the minimum trade duration?"
+
+### Q-002 owner answer (from Notion) - 2026-11-05
+Recorded by the Notion sync, word for word:
+
+> Approve
+
+**This item asks for an approval.** The card asked to approve or reject a profile for C only, with entries allowed 06:00 to 21:00 IST and all money limits unchanged. Orchestrator: please record the approval in `requests/`. Nothing here was acted on, and `config/risk/` is unchanged.
 
 ## Q-003 — 2026-11-02 — from risk — open (for Orchestrator)
 **The internal limits do not protect the account if max loss trails.** No account is live and no strategy is past `coded`, so
@@ -119,6 +140,13 @@ data, with spread recorded**. Proposed gate PF ≥ 1.25 on both; PF < 1.15 kills
 - **The licence itself is probably not the problem.** MPL-2.0 is file-level copyleft, and its source-sharing duties arise on distribution. Running our own EA on our own account should not trigger them; giving the EA or `.ex5` to anyone else would, for the covered files. My reading, not legal advice, and I did not re-read the licence text in this run.
 - **The firm rule is the larger question.** `config/firms/the5ers.yaml` `ea_policy` says "own source code". Whether an EA built on a public MPL indicator counts is unknown, and I found no firm wording on it. It should be added to the owner's question to The5ers support.
 - **Ways out:** (a) replace the range engine with a rewrite from a written functional spec by someone working without the port. That changes code, so D must re-prove itself on real ticks, and "frozen at R6" no longer holds exactly. (b) The owner approves a named exception to the checklist item, recorded in `requests/`, after The5ers answers. Risk cannot waive the item. Until (a) or (b) is done, Risk blocks a D release on this item.
+
+### Q-005 owner answer (from Notion) - 2026-11-05
+Recorded by the Notion sync, word for word:
+
+> I took pull and checked folder but I dont found strategy D. give me detailed steps everytime from onwords
+
+For the Orchestrator: nothing here was acted on. This is not a result and not an approval: the card is Done, but the real-tick re-run was not done and no profit factor or spread was given. The owner could not find D and asks for detailed steps on every task from now on. A card with Ref Q-005 already exists, so the sync will not open another one; a repeat ask needs a new item ID.
 
 ## Q-006 — 2026-11-02 — from backtest — closed 2026-11-02
 **B's "closed-trade DD 6.04%" is on a different basis from the gate.** `pfm/metrics.py` measures `max_dd_pct` as % of initial balance. The 6.04% in

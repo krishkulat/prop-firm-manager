@@ -1,0 +1,14 @@
+id: O-001
+kind: owner_approval
+status: approved
+scope: strategy C only
+item: Q-002
+approved: new risk profile the5ers_hs50k_10d_c = the5ers_hs50k_10d with entry window 06:00-21:00 IST
+unchanged: every money limit, flat_by_ist, and all other values of the5ers_hs50k_10d
+not_approved: any change to the5ers_hs50k_10d itself; use by any strategy other than C (D's window is a separate decision, Q-005 item 6)
+owner_answer: Approve
+answered_in: Notion PFM Owner Tasks, card PFM-1, Ref Q-002, status Done
+copied_to_repo_by: Notion sync, commit fbe926d, research/questions.md
+checked_by: orchestrator read the card itself on 2026-11-05; the My answer field reads "Approve"
+recorded: 2026-11-05
+next: Risk creates config/risk/the5ers_hs50k_10d_c.yaml (R-023)

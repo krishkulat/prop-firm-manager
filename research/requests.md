@@ -397,7 +397,7 @@ Read `results/E/history.md` and `results/F/history.md` first. What they showed o
 - **Set before any run:** 7 first runs, baseline, `random_side` seeds 0, 1 and 2, `opposite_side`, `no_reclaim`, `shifted_level`. The `random_side` criterion uses the mean of the 3 seeds, so no decision rests on one seed. Any fail on the baseline or a benchmark criterion rejects G; no redesign.
 - **Research:** correct the H-007 estimate lines to the figures above, or show why they are wrong in a note here. Rules and defaults do not change. R-020 stays open for the second slot; still no padding.
 
-## R-021 — 2026-11-05 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — open
+## R-021 — 2026-11-05 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — closed 2026-11-05
 Code H-007 as strategy G on branch `dev/R-021`. **Python and tests only; no EA until G passes `backtested`.** No limit or `config/risk/` value changes.
 **Order for Strategy Dev: R-019, R-021, R-014, R-017, R-008.** R-021 moves ahead of R-014 because it can reach a gate without the owner, and no EA is near a tester run or demo.
 1. `strategies/G_prior_day_failed_break/`. Three tunable params with H-007's defaults (`reclaim_bars` 2, `stop_atr` 1.25, `target_r` 2.0) and ranges. The `params.yaml` grid plus the 7 first runs must stay within 50 trials, so 43 combinations at most. Everything else in H-007's rules is fixed, including the 0.10 ATR break margin and the 60-minute NFP/CPI exclusion.
@@ -467,3 +467,17 @@ Fix the Q-010 look-ahead. Branch `dev/R-022` from `main`, Python and tests only.
 - **Not checked:** real market data, frequency against the 200-trade gate, overlap with B. `Signal.time` here is the entry bar's open, which is how `pfm/backtest.py` matches it.
 - **Blocks G's release, not this merge:** no EA yet, so no MetaEditor compile; a `STRAT_MAP` entry (Q-009 item 4); the check against the full MT5 high-importance list in H-007 "known problems"; Q-009.
 - **Risk's other outputs today:** no strategy at `release`, so no release review. No `results/live/`, so no account to read and no incident. KILL not set.
+
+### R-021 close — 2026-11-05 — from orchestrator
+Merged to `main` with both registry lines kept. `python -m pytest -q`: 159 passed. G's 7 first runs are queued: J-20261105-001 baseline, 002 to 004 `random_side` seeds 0 to 2, 005 `opposite_side`, 006 `no_reclaim`, 007 `shifted_level`. **Backtest:** judge them as set in the H-007 decision. "Not B again" waits for the fixed B v1.0 baseline, so a pass on the rest does not advance G past that check.
+
+## R-023 — 2026-11-05 — from orchestrator to **Risk & compliance** — open
+Owner approved Q-002 (`requests/O-001.yaml`). Create `config/risk/the5ers_hs50k_10d_c.yaml`: a copy of `the5ers_hs50k_10d.yaml` with `entry_start_ist: "06:00"`. Nothing else changes, including `entry_end_ist`, `flat_by_ist` and every money limit. Do not edit the existing profile. Confirm the diff is that one line. C's release stays blocked by Q-009 as before.
+
+## R-024 — 2026-11-05 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — open
+C's work before its first run. Branch `dev/R-024` from `main`, Python and tests only. No EA or `config/` change. **Order for Strategy Dev: R-022, R-024, R-014, R-017, R-008.**
+1. C skips days listed in `research/calendars/sge_holidays.csv`. A missing file raises, as G does for its calendar. The EA side is left until C passes `backtested`.
+2. **2019 and 2020 have no calendar, and C runs them unfiltered.** H-003's kill criteria are written on all 7 years and on 2019-2023, so dropping those years would change a criterion before the run. Do not fill them from China's public holiday list (R-005). **Backtest:** report gate figures on the full run and again on 2021 onward from the same trades, with no extra trial. C needs both to pass.
+3. `random_hour` today draws entry hours 00:00 to 16:00 UTC. 00:00 UTC is 05:30 IST, outside the approved window, and late entries are cut by flat-by 22:30 IST, so the hold would not match C's and H-003's test would be broken. Limit the draw to whole UTC hours from 01:00 whose entry plus hold ends by 17:00 UTC (22:30 IST). Report how many benchmark signals the risk profile still rejects.
+4. Test that a run under `the5ers_hs50k_10d_c` no longer rejects C's 01:00 UTC entry. `test_c_blocked_by_current_live_profile` stays: the current profile must still block it.
+5. Merge path as R-013. No ticket: after the merge and R-023, the Orchestrator queues the baseline, `random_hour` and `no_filter`, 3 of H-003's 50 trials, all on the C profile.

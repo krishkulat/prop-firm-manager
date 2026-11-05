@@ -49,6 +49,7 @@ strategies:
       2026-11-02 CODED by strategy-dev (R-004): strategies/C_sge_session_long/ + mql5/Experts/SgeLong_C.mq5, with
       research-only benchmark switches (none | no_filter | random_hour). NO backtest queued - blocked by Q-002 (the
       risk profile entry window 13:30-21:00 IST rejects every 06:30 IST entry; a run now would log 0 trades as a trial).
+      2026-11-05 Orchestrator: owner approved the C-only profile (requests/O-001.yaml). Runs wait for R-023 (profile, Risk) and R-024 (SGE calendar and benchmark hours, Strategy Dev). The approval lets C be tested and says nothing about C being good.
   D:
     name: Range Profile deviation fade (imported RangeProfileFadeEA v1.22)
     module: null
@@ -113,3 +114,4 @@ strategies:
       Same mechanism as B on different events. Corrected edge estimate is +0.10R to +0.21R, not up to +0.37R, so it sits on R-020's +0.15R line. Approved for coverage, not confidence. H-007's overlap stop against B stands even if B is rejected. See "H-007 decision" in research/requests.md.
       2026-11-05 Orchestrator (Q-010): G's code is not affected, but its estimate leans on B's contaminated figures, so the case is weaker. Runs do not wait for a restated estimate. Overlap is now measured against the fixed B baseline. R-021's seven open rules confirmed.
       2026-11-05 CODED by strategy-dev (R-021, branch dev/R-021): strategies/G_prior_day_failed_break/, Python only, no EA. Stop is measured from the entry bar open, which is known at entry. Benchmarks random_side | opposite_side | no_reclaim | shifted_level are research only. 36-combination grid + 7 first runs = 43 of 50 trials. No ticket: the Orchestrator queues the 7 runs after the merge.
+      2026-11-05 Orchestrator: merged to main after Risk pass (stage coded). Queued J-20261105-001 to 007, baseline and 6 benchmarks, 7 of 50 trials. MT5 runs and release blocked by no EA, Q-009 and H-007's known problems.

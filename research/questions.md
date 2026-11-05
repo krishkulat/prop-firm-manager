@@ -284,3 +284,57 @@ Fixed is near 0, as noise should be at 2R target with no costs. My coded B is mu
 **Evidence status:** J-20261101-001, J-20261102-001, J-20261103-005 and the R-002 audit rows stay in `results/trials.csv`, as rule 6 requires, and still count as trials. They are not evidence for or against A or B. No figure from them may be cited as an edge. The EAs never had the bug, so their logic is not affected. Nothing live or purchased depends on these figures.
 
 Answers to R-021's seven open rules, the "Not B again" reference, and R-022 are in `research/requests.md`.
+
+### Q-001 update — 2026-11-05 — from orchestrator
+Risk's reading accepted. The support answer is not an owner approval, so `config/firms/the5ers.yaml` stays as it is, propsim gates stay on the trailing result, and `payout_cap_usd` stays. No strategy is near propsim, so the owner is not asked now. The Orchestrator asks for the approval on `hs50k_10d` when a strategy reaches propsim. Q-001 stays open for that. Question (d), "own source code", was not answered; it only matters if D survives Q-011.
+
+### Q-002 close — 2026-11-05 — from orchestrator
+Owner approved. Card PFM-1 read directly: answer "Approve", on the exact C-only proposal. Recorded in `requests/O-001.yaml`. `config/risk/` is not changed by this run: Risk creates the profile (R-023). Strategy Dev does the calendar and benchmark work, and how 2019-2020 are handled is decided there (R-024). Item 2 was answered by The5ers and logged by Risk.
+
+### Q-005 update — 2026-11-05 — from orchestrator
+The re-run was not done, and the gap was ours: D is not under `strategies/`, it is in `research/imported/RangeProfileFadeEA/`, and the card did not say so. Q-005 stays open. The ask is repeated with full steps as Q-011. **Standing rule from the owner's answer:** every owner item gives detailed steps; added to `AGENTS.md`.
+
+## Q-011 — 2026-11-05 — from orchestrator — open (for owner)
+**Re-run strategy D on real ticks in MT5. This replaces the Q-005 card.** Agents cannot use the MT5 Strategy Tester, so this one needs you. D is not in the `strategies` folder: it has no Python version, and its files are in `research\imported\RangeProfileFadeEA\src\`.
+
+**Tester only.** Do not attach this EA to a chart on any account: v1.22 has no PFM risk engine and breaks firm rules.
+
+**A. Get the files**
+1. Open a terminal in `Documents\prop-firm-manager` and run `git pull`.
+2. Open `research\imported\RangeProfileFadeEA\src\` in that folder. You need `RangeProfileFadeEA.mq5` and `RangeProfileFadeEA_v1.22_R6.set`.
+
+**B. Install in MT5, logged in to MetaQuotes-Demo**
+3. In MT5: File > Open Data Folder. Copy `RangeProfileFadeEA.mq5` into `MQL5\Experts\`, and the `.set` file into `MQL5\Profiles\Tester\`.
+4. In the Navigator, right-click Expert Advisors > Refresh. Right-click `RangeProfileFadeEA` > Modify, then press F7 in MetaEditor. It must end with 0 errors. If not, write the error in My answer and stop.
+
+**C. Run 1: MetaQuotes-Demo**
+5. Press Ctrl+R for the Strategy Tester. On the Settings tab set:
+   - Expert: `RangeProfileFadeEA`
+   - Symbol: `XAUUSD`, timeframe M15
+   - Date: Custom period, 2019.01.01 to 2026.11.01
+   - Forward: No
+   - Delays: Zero latency
+   - Modelling: **Every tick based on real ticks**
+   - Deposit: 100000 USD, leverage 1:100
+6. On the Inputs tab, right-click > Load and choose the `.set` file. Check that `InpRiskPercent` is 0.5 and `InpFixedLots` is 0. Change nothing else.
+7. Press Start. MT5 downloads the tick history first, so this can take a long time. Leave it running.
+8. When it finishes, open the Backtest tab. Write down **Profit Factor**, **Total Trades** and **History Quality**.
+9. Right-click the Backtest tab > Report > HTML. Save it in `research\imported\RangeProfileFadeEA\reports\` as `R6_realticks_metaquotes.html`.
+
+**D. Run 2: The5ers data**
+10. Log in to MT5 with a The5ers MT5 login. If you have none, skip to step 13 and write "no The5ers login" in My answer. Do not buy anything for this.
+11. Compare the server clock at the top of Market Watch with UTC. D's time handling assumes UTC+2 in winter and UTC+3 in US summer time, so it should be UTC+2 today. If it is not, write the difference in My answer and stop this run: the EA's session times would be wrong.
+12. Repeat steps 3 to 9 on The5ers' gold symbol (write its exact name), saving as `R6_realticks_the5ers.html`. If its history starts after 2019, write the first date shown.
+
+**E. Send the results**
+13. In the terminal, in `Documents\prop-firm-manager`, run these one at a time:
+    `git add research/imported/RangeProfileFadeEA/reports`
+    `git commit -m "[owner] D real-tick R6 reports"`
+    `git pull --rebase`
+    `git push`
+14. In My answer write, for each run: Profit Factor, Total Trades, History Quality and spread. Real-tick runs take spread from the ticks, so write "from ticks" unless the tester shows a Spread setting, in which case write its value.
+15. If you remember roughly how many settings you tried while tuning D, add that too.
+16. Move the card to Done.
+
+**How it is judged:** Profit Factor 1.25 or more on both feeds: D goes to the validation decision. Below 1.15: H-005 is dropped. In between: the Orchestrator decides from the reports.
+

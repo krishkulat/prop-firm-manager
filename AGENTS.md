@@ -31,6 +31,7 @@ deterministic MT5 bots, while keeping the probability of losing the reserve as l
 - **Job queue.** Heavy compute is a YAML ticket in `queue/pending/`. The worker on the research machine
   runs it and moves it to `queue/done/` (or `queue/failed/`) with results in `results/<job_id>/`.
   Ticket format: see `queue/README.md`.
+- **Owner steps.** Every item for the owner gives detailed numbered steps: exact file paths, exact settings, what to do if a step fails, and what to write back. Owner's standing request, 2026-11-05 (Q-005).
 - **Strategy registry.** `strategies/registry.yaml` holds every strategy's stage. Only the Orchestrator
   changes `stage`, and only when the gate evidence is in `results/`.
 - **Owner requests** go in `requests/` as YAML and are sent to Telegram by `pfm.notify`. The owner

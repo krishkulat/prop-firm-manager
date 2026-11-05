@@ -1,0 +1,12 @@
+job_id: J-20261105-004
+kind: backtest
+strategy: G
+hypothesis: H-007
+requested_by: orchestrator
+data: {symbol: XAUUSD, timeframe: M15}
+params: {reclaim_bars: 2, stop_atr: 1.25, target_r: 2.0, benchmark: random_side, benchmark_seed: 2}
+risk_profile: the5ers_hs50k_10d
+notes: >-
+  R-021: seed 2. Kill test uses the mean of seeds 0, 1, 2.
+  One of 7 first runs of H-007 (7 of 50 trials). No sweep. Needs news_calendar_loaded true; if false the run does not count
+  as a baseline. Real data only - research PC.

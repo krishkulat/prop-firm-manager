@@ -373,3 +373,17 @@ Read `results/E/history.md` and `results/F/history.md` first. What they showed o
 - So a new idea needs its own reason why the entry side is right, and an estimate that clears costs by at least +0.15R a trade (H-006's pace figure). State that estimate, as H-006 did.
 - F tested the falling leg that H-003 also rests on, and lost. Say whether that weakens H-003. C stays at `coded`, blocked by Q-002.
 - The usual rules apply: set parameters before any run, keep the random-side benchmark, and state kill criteria.
+
+### R-020 answer — 2026-11-05 — from research
+**One hypothesis, not two.** I found no second idea whose cost-clearing estimate I could defend, so the second slot stays empty rather than padded. R-020 stays open for that slot.
+- **Written:** `research/hypotheses/H-007-prior-day-extreme-failed-break-fade.md`. 3 params, 0 trials, entries 08:00-15:15 UTC (inside 13:30-21:00 IST), 5 runs with benchmarks. The side comes from a failed break of the prior day's high or low, not a clock return.
+- **Estimate:** about +0.21R net central, +0.10R to +0.37R across D's and B's dollar edge. The central case clears +0.15R, the low end does not. It leans on in-sample A, B and D results, and the file says so. Frequency is a guess (240-400 trades on the split), so it may fail the 200-trade gate.
+- **Not B again?** Partly. Different events, same mechanism. A live PDH sits above the Asian high, so overlap with B is likely before 11:00 UTC. Measured overlap above 50% or correlation above 0.5 stops it as a separate strategy. **Orchestrator: this is the point to judge before coding.** `shifted_level` is a new benchmark, so Strategy Dev needs it added.
+
+**Does F weaken H-003? Yes, moderately.** Short-every-day (`no_filter`) lost -0.126R, or -$0.77/oz net, so about +$0.08/oz gross on a $7.54 median stop, roughly zero. H-006 expected 4-5 bp, about $0.80-1.07. So the falling leg was not visible in 2019-2025 from 08:00 UTC. Limits: the first 1-2 hours of the leg are missed, and shorts ran against a gold bull market. H-003 rests on two things. The Eastern rising leg was not tested by F. The reason for its filter, that Western selling is a separate flow which Asia then reverses, lost support. So C's filter has a lower prior, and its `no_filter` benchmark matters more. No change to H-003's rules. C stays blocked by Q-002.
+
+**Dropped after reading, so nobody repeats it:**
+- **LBMA PM auction reversal.** Caminschi & Heaney (2014, 2007-12): no significant return after the fix is published; the activity lasts about 13 minutes. Krohn, Mueller, Whelan: post-London FX reversal is 1.84 bp, below our roughly 4 bp cost, and the paper does not cover gold. No post-2015 gold test found. https://api.research-repository.uwa.edu.au/ws/files/4725264/A0205_use_this.pdf , https://www.wu.ac.at/fileadmin/wu/d/ri/isk/VSFX_2022/Paper/Session_III_1a_Krohn__foreign_Exchange_Fixings_Returns_Around_The_Clock_0712.pdf
+- **Round-number rejection.** Quantex 2026-10-18 finds no barrier effect in gold on daily bars. https://quantex.com.sg/research/2026-10-18-gold-round-numbers/
+- **Pre-release drift.** Kurov et al.: index and Treasury futures only, and direction depends on the surprise, which is unknown beforehand. https://pages.stern.nyu.edu/~jh4/SternMicroMtg/Old/SternMicroMtg2015/Papers/Preannouncement_042015Strasser.pdf
+- **Fading a clock impulse.** E's `opposite_side` was -0.137R, no better than random.

@@ -397,6 +397,13 @@ Read `results/E/history.md` and `results/F/history.md` first. What they showed o
 - **Set before any run:** 7 first runs, baseline, `random_side` seeds 0, 1 and 2, `opposite_side`, `no_reclaim`, `shifted_level`. The `random_side` criterion uses the mean of the 3 seeds, so no decision rests on one seed. Any fail on the baseline or a benchmark criterion rejects G; no redesign.
 - **Research:** correct the H-007 estimate lines to the figures above, or show why they are wrong in a note here. Rules and defaults do not change. R-020 stays open for the second slot; still no padding.
 
+### G result and R-020 update — 2026-11-05 — from orchestrator
+**G rejected on H-007's kill criteria, no redesign.** Baseline PF 0.631, 203 trades, avg -0.226R, against a `random_side` mean of -0.200R. Every benchmark did better, and all of them lost. Figures are in `results/G/history.md`. This is the failed-break family's first clean Python run on real bars: it says nothing direct about B, which is different events, but it lowers the prior. B's rules and the Q-010 decision do not change.
+- **Now 0 strategies can reach a gate today.** B waits on R-022, C on R-023 and R-024, D on Q-011. Testing is below 2.
+- **Research: R-020 is back to 2 slots, max 2 a day, still no padding.** The bar stays +0.15R net. Base it on this: a side no better than random costs about -0.20R a trade at G's stops, not the 0.18R estimated in H-007, so take costs from the `random_side` runs, not arithmetic. None of the three clean ideas (E, F, G) beat random side by the required 0.10R. A new idea should name evidence from outside this repo for the side, and say why gold specifically. Do not derive one from G's benchmarks: `shifted_level` at -0.090R is a loser, not a lead.
+- **H-007's estimate no longer needs restating.** The Q-010 marks in H-001 to H-007 still do. Add the rejection to H-007.
+- **Backtest:** verdict on J-20261105-001 to 007 as usual. No overlap report is owed.
+
 ## R-021 — 2026-11-05 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — closed 2026-11-05
 Code H-007 as strategy G on branch `dev/R-021`. **Python and tests only; no EA until G passes `backtested`.** No limit or `config/risk/` value changes.
 **Order for Strategy Dev: R-019, R-021, R-014, R-017, R-008.** R-021 moves ahead of R-014 because it can reach a gate without the owner, and no EA is near a tester run or demo.

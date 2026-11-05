@@ -105,7 +105,7 @@ strategies:
     name: Prior-day extreme failed-break fade
     module: strategies.G_prior_day_failed_break.strategy
     version: "1.0"
-    stage: coded
+    stage: rejected
     hypothesis: research/hypotheses/H-007-prior-day-extreme-failed-break-fade.md
     firm_product: the5ers/hs50k_10d
     redesigns: 0
@@ -115,3 +115,4 @@ strategies:
       2026-11-05 Orchestrator (Q-010): G's code is not affected, but its estimate leans on B's contaminated figures, so the case is weaker. Runs do not wait for a restated estimate. Overlap is now measured against the fixed B baseline. R-021's seven open rules confirmed.
       2026-11-05 CODED by strategy-dev (R-021, branch dev/R-021): strategies/G_prior_day_failed_break/, Python only, no EA. Stop is measured from the entry bar open, which is known at entry. Benchmarks random_side | opposite_side | no_reclaim | shifted_level are research only. 36-combination grid + 7 first runs = 43 of 50 trials. No ticket: the Orchestrator queues the 7 runs after the merge.
       2026-11-05 Orchestrator: merged to main after Risk pass (stage coded). Queued J-20261105-001 to 007, baseline and 6 benchmarks, 7 of 50 trials. MT5 runs and release blocked by no EA, Q-009 and H-007's known problems.
+      2026-11-05 REJECTED by orchestrator: H-007 kill criteria, no redesign. Baseline J-20261105-001 PF 0.631 < 1.3 (203 trades, avg -0.226R, maxDD 24.28%, 0 of 7 years positive). Random side mean of 3 seeds -0.200R, so the edge is -0.026R, not +0.10R. Opposite side, no_reclaim and shifted_level all did better. See results/G/history.md.

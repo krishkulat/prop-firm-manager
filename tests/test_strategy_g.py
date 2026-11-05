@@ -285,7 +285,7 @@ def test_runs_through_the_backtester_with_the_calendar(bars, risk_cfg):
 def test_worker_loads_it_from_the_registry_and_runs_a_job(tmp_path, monkeypatch):
     strat, reg = worker.load_strategy("G")
     assert isinstance(strat, PriorDayFailedBreak) and reg["module"] == "strategies.G_prior_day_failed_break.strategy"
-    assert reg["stage"] == "coded" and reg["hypothesis"].endswith("H-007-prior-day-extreme-failed-break-fade.md")
+    assert reg["hypothesis"].endswith("H-007-prior-day-extreme-failed-break-fade.md")
     monkeypatch.setattr(worker, "RESULTS", tmp_path)
     monkeypatch.setattr(worker, "TRIALS", tmp_path / "trials.csv")
     job = {"job_id": "J-TEST-G", "kind": "backtest", "strategy": "G", "hypothesis": "H-TEST", "requested_by": "test",

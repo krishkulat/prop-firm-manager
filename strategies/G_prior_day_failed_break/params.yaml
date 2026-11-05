@@ -1,0 +1,23 @@
+# H-007 v1.0. 3 tunable parameters, defaults from the hypothesis, 0 trials used.
+default: {reclaim_bars: 2, stop_atr: 1.25, target_r: 2.0}
+ranges:                        # 36 combinations; with the 7 first runs that is 43 of the 50-trial cap
+  reclaim_bars: [1, 2, 4]
+  stop_atr: [1.0, 1.25, 1.5, 2.0]
+  target_r: [1.0, 2.0, 2.5]
+fixed:
+  day: "17:00 to 17:00 America/New_York, by bar open"
+  levels: "high and low of the last completed Monday-Friday day"
+  liveness: "first bar beyond a level since that day ended decides, Asia included; the level has one chance"
+  break_window_utc: ["08:00", "15:00"]   # bar open, both ends in
+  break_margin_atr: 0.10
+  news_exclusion: "no break on a bar opening within 60 min after an NFP or CPI release (research/news/usd_high_impact.csv)"
+  last_entry_utc: "15:15"
+  exit_utc: "16:30"            # 22:00 IST, before flat-by 22:30 IST
+  stop: "stop_atr × ATR(14, H1) from the entry bar open, placed with the order; skip if the break's extreme is at or beyond it"
+  timeframe: M15
+# Benchmark switches for the H-007 kill criteria - NOT tunable, research only:
+benchmark:
+  benchmark: [none, random_side, opposite_side, no_reclaim, shifted_level]   # default none
+  benchmark_seed: 0                                                          # random_side only: first runs use 0, 1, 2
+# Known gap (H-007 "known problems"): the calendar holds FOMC, NFP and CPI only. The EA, when one exists, flattens for
+# every USD high-importance event in MT5. Check against the full MT5 list before demo.

@@ -104,7 +104,7 @@ strategies:
     name: Prior-day extreme failed-break fade
     module: strategies.G_prior_day_failed_break.strategy
     version: "1.0"
-    stage: idea
+    stage: coded
     hypothesis: research/hypotheses/H-007-prior-day-extreme-failed-break-fade.md
     firm_product: the5ers/hs50k_10d
     redesigns: 0
@@ -112,3 +112,4 @@ strategies:
       2026-11-05 approved by orchestrator, assigned to Strategy Dev (R-021, Python only until the backtested gate passes). 3 params, 0 trials used. Entries 08:00-15:15 UTC, inside the current risk window, so no owner approval is needed.
       Same mechanism as B on different events. Corrected edge estimate is +0.10R to +0.21R, not up to +0.37R, so it sits on R-020's +0.15R line. Approved for coverage, not confidence. H-007's overlap stop against B stands even if B is rejected. See "H-007 decision" in research/requests.md.
       2026-11-05 Orchestrator (Q-010): G's code is not affected, but its estimate leans on B's contaminated figures, so the case is weaker. Runs do not wait for a restated estimate. Overlap is now measured against the fixed B baseline. R-021's seven open rules confirmed.
+      2026-11-05 CODED by strategy-dev (R-021, branch dev/R-021): strategies/G_prior_day_failed_break/, Python only, no EA. Stop is measured from the entry bar open, which is known at entry. Benchmarks random_side | opposite_side | no_reclaim | shifted_level are research only. 36-combination grid + 7 first runs = 43 of 50 trials. No ticket: the Orchestrator queues the 7 runs after the merge.

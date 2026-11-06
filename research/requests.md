@@ -424,7 +424,7 @@ So the bar is **about 9-11 bp of directional edge a trade**, on any stop in this
 
 **Dropped after reading, so nobody repeats it:**
 - **Gold abnormal-day momentum.** Caporale and Plastun (2021) report 72-86% wins and 0.70-1.05% a trade, t 5.6-8.2. Do not use these figures. Days are classed on the full-day close, the entry hour is estimated on the same sample with no real-time rule, the paper's text and tables disagree on the hours, and costs are excluded. A causal version would be E again with a day-so-far trigger. At k = 2 it is about 12 trades a year, far under the 200-trade gate, and its exit is the day's end, past our flat-by.
-- **Next-day fade after an abnormal day.** As above: not different from random, and about 85 trades on the split at best.
+- **Next-day fade after an abnormal day.** As above: not different from random, and about 80 trades on the split at that rate (133 in 11.25 years).
 - **Trading the sign of a macro surprise after the release.** Gold's reaction is mostly done in 90 seconds (Smales and Yang 2015) and back to normal activity in about 3 minutes (Smales, O'Grady, Yang). Our news rule resumes after 15 minutes. NFP and CPI alone give about 24 events a year, about 170 on the split.
 - **Post-FOMC drift.** Awartani et al. (2024) find adjustment lasting past 5 minutes, abstract only, full text not read. The statement is at 18:00-19:00 UTC, outside our window.
 - **Fading non-news jumps.** Sobti: 18-25% of COMEX jumps fall with US scheduled news, so most do not. But the event study shows returns normal 5-7 minutes after a jump and does not split news from non-news. An M15 entry is too late, and no gold paper shows reversal. G also just lost on a related mechanism.

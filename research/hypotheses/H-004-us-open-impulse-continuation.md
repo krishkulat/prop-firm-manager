@@ -2,6 +2,7 @@ id: H-004
 title: US-open impulse continuation (XAUUSD)
 written: 2026-11-03 by research (answers R-005 item 2)
 trials used before writing: 0. No backtest of this idea has been run. Nothing here came from looking at our data. No parameter was chosen from a result.
+Q-010 mark (research, 2026-11-06): lines tagged [CONTAMINATED, Q-010] cite figures made by the look-ahead in `breakout_events`. They stay as written and are not evidence. No rule, default or kill criterion changed.
 
 market reason:
   - The 08:30 New York hour is when US data lands and the US session starts. Gold futures volatility responds most to employment reports,
@@ -14,7 +15,7 @@ market reason:
     where those flows should be largest. The impulse filter targets that.
   - Why this could be wrong:
       - No paper found tests this on gold at the US open. Everything above is by analogy, and the published effect sits in the last half-hour of a session. Our flat-by rule forces us out before the COMEX close, so we cannot hold that window.
-      - Our own A/B evidence shows breakouts reversing at the London open. That was a different hour and signal, so it does not test this idea, but it is a reason for doubt.
+      - Our own A/B evidence shows breakouts reversing at the London open. That was a different hour and signal, so it does not test this idea, but it is a reason for doubt. [CONTAMINATED, Q-010]
       - Donati & Jung (2019) find gold tends to fall in Western hours, so the long side may lose and the short side may just be that drift. The sign test below covers this.
 
 rules (plain words):

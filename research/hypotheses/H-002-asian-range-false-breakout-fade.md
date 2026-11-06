@@ -3,9 +3,10 @@ title: Asian-range false-breakout fade at the London open (XAUUSD)
 written: 2026-11-02 by research (answers R-001 / R-003 item 1)
 
 disclosure (read first):
+  - **Discovery run void (Q-010, added 2026-11-06).** The audit-R002-2 run below used the look-ahead in `breakout_events`, so this idea's origin is not evidence of an edge. It stays counted as a trial. Tagged lines cite that run. No rule, default or kill criterion changed. Next evidence is B v1.0 on fixed code (R-022, Q-010 decision).
   - This idea was FOUND ON THE RESEARCH SPLIT, not derived from theory first. The R-002 audit
     (`results/A/history.md`, run "audit-R002-2") flipped strategy A's 426 breakout signals to the opposite
-    direction: n 426, win 49.8%, avg +0.22R, target hits 38.7% (2019-01 → 2025-10, M15, 30-pt slippage).
+    direction: n 426, win 49.8%, avg +0.22R, target hits 38.7% (2019-01 → 2025-10, M15, 30-pt slippage). [CONTAMINATED, Q-010]
   - **Trial count starts at 1** (that audit run). Parameter defaults below are A v1.1's defaults, i.e. exactly
     the audited run, chosen before looking at anything else. No parameter was picked from that run.
   - Do not judge H-002 on that same run again. Evidence must come from walk-forward OOS, then the sealed holdout.
@@ -32,7 +33,7 @@ rules (plain words):
   - Time exit: flat by 22:30 IST. No overnight holds.
   - Minimum hold: never close by rule within 60 s of entry (The5ers `min_trade_seconds: 60`); with M15
     bar-based exits this is automatic, but the EA must enforce it for intrabar SL/TP too. Note that A had
-    29 of 426 trades close within 15 min — still above the firm's 60 s, but check the fade's distribution.
+    29 of 426 trades close within 15 min — still above the firm's 60 s, but check the fade's distribution. [CONTAMINATED, Q-010]
   - News: skip entries and do not close by rule within ±2 min of high-impact news (firm rule); the backtest
     must run with the news calendar loaded (A's baseline ran with `news_calendar_loaded: false`).
 
@@ -45,8 +46,8 @@ parameters (≤ 4):
   stop_atr lowers the cost share; that is the main reason to sweep stop_atr, not to hunt for a better PF.
 
 expected (from the in-sample run only — not a forecast):
-  - ~1.2 trades/week (426 in ~6.8 years), win rate 45–50%, R:R 1:2 before costs, ≈ 1:1.7 after.
-  - Expect walk-forward OOS to come in materially worse than +0.22R/trade because of selection.
+  - ~1.2 trades/week (426 in ~6.8 years), win rate 45–50%, R:R 1:2 before costs, ≈ 1:1.7 after. [CONTAMINATED, Q-010]
+  - Expect walk-forward OOS to come in materially worse than +0.22R/trade because of selection. [CONTAMINATED, Q-010]
 
 kill criteria (any one kills H-002):
   - Baseline at defaults on the research split with news calendar loaded: PF < 1.3 or trades < 200.
@@ -61,7 +62,7 @@ relation to other strategies: mirror of rejected A/H-001 by construction (same s
   uncorrelated with H-003 (different hours, no range signal).
 
 sources:
-  - Internal: `results/A/history.md` (J-20261101-001 and R-002 audit table, 2026-11-01).
+  - Internal: `results/A/history.md` (J-20261101-001 and R-002 audit table, 2026-11-01). [CONTAMINATED, Q-010]
   - Osler, C. L. (2002), "Stop-Loss Orders and Price Cascades in Currency Markets", FRBNY Staff Report 150:
     https://www.newyorkfed.org/medialibrary/media/research/staff_reports/sr150.html
   - Batten, Lucey, McGroarty, Peat, Urquhart (2017), "Stylized facts of intraday precious metals", PLoS ONE

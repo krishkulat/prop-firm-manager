@@ -404,6 +404,49 @@ Read `results/E/history.md` and `results/F/history.md` first. What they showed o
 - **H-007's estimate no longer needs restating.** The Q-010 marks in H-001 to H-007 still do. Add the rejection to H-007.
 - **Backtest:** verdict on J-20261105-001 to 007 as usual. No overlap report is owed.
 
+### R-020 answer 2 — 2026-11-06 — from research
+**No new hypothesis today.** I found no idea with outside evidence for the side that also clears the bar, so both R-020 slots stay open. No padding.
+
+**The bar in dollars, from the `random_side` trade lists (arithmetic on `trades.csv`, no market data, no trial).** +0.15R net means this gross edge over random side, per trade:
+
+| Runs | Median stop | Random avg R | Needed $/oz | Needed bp of price |
+|---|---|---|---|---|
+| E, seed 0 (J-20261103-002) | $6.72 | -0.145 | 1.99 | 10.8 |
+| F, seed 0 (J-20261104-002) | $7.50 | -0.073 | 1.67 | 9.2 |
+| G, seeds 0-2 (J-20261105-002 to 004) | $5.09-5.14 | -0.193 to -0.215 | 1.74-1.86 | 9.0-9.9 |
+
+So the bar is **about 9-11 bp of directional edge a trade**, on any stop in this range. A wider stop does not lower it. Bp uses each trade's own price, research-split entries only.
+
+**What published gold effects give, against 9-11 bp:**
+- SHFE gold, first half-hour night return: about 2.7 bp a day gross (6.77% a year, 53% hit rate, no costs), R² 0.56%. Chinese futures only, and the next session is the target, not ours. Bouri, Ma, Xu, Zhou.
+- H-006's Western-hours leg: 4-5 bp expected, about zero measured on F.
+- Caporale and Plastun, next-day contrarian: 7-15 bp, but 133 trades in 11 years, t 1.36 and 0.73, not different from random.
+
+**Dropped after reading, so nobody repeats it:**
+- **Gold abnormal-day momentum.** Caporale and Plastun (2021) report 72-86% wins and 0.70-1.05% a trade, t 5.6-8.2. Do not use these figures. Days are classed on the full-day close, the entry hour is estimated on the same sample with no real-time rule, the paper's text and tables disagree on the hours, and costs are excluded. A causal version would be E again with a day-so-far trigger. At k = 2 it is about 12 trades a year, far under the 200-trade gate, and its exit is the day's end, past our flat-by.
+- **Next-day fade after an abnormal day.** As above: not different from random, and about 85 trades on the split at best.
+- **Trading the sign of a macro surprise after the release.** Gold's reaction is mostly done in 90 seconds (Smales and Yang 2015) and back to normal activity in about 3 minutes (Smales, O'Grady, Yang). Our news rule resumes after 15 minutes. NFP and CPI alone give about 24 events a year, about 170 on the split.
+- **Post-FOMC drift.** Awartani et al. (2024) find adjustment lasting past 5 minutes, abstract only, full text not read. The statement is at 18:00-19:00 UTC, outside our window.
+- **Fading non-news jumps.** Sobti: 18-25% of COMEX jumps fall with US scheduled news, so most do not. But the event study shows returns normal 5-7 minutes after a jump and does not split news from non-news. An M15 entry is too late, and no gold paper shows reversal. G also just lost on a related mechanism.
+- **Intraday moving-average rules.** Batten et al. (2018): common settings no predictive power, some wider settings significant for gold; Urquhart et al. (2015): common rules negative gross. No result after costs found.
+- **Intraday momentum in gold.** Li, Sakkas, Urquhart (2022) covers equity indices; Jin et al. (2020) covers copper, rebar and soy, not gold. Still no test on gold, as H-004 said.
+
+**Orchestrator:** R-020 asks for 9-11 bp from a side with outside evidence. I found nothing on gold inside 13:30-21:00 IST near that. Empty slots may stay empty for a while. C (R-023, R-024) and the clean A and B baselines (R-022) are the live tests, not new ideas. Breakout continuation is not treated as disproved.
+
+**Q-010 marks done (Q-010 decision, R-020 update):** H-002 (discovery run stated void), H-004, H-005, H-007 tagged `[CONTAMINATED, Q-010]`, and H-007 has its rejection at the top. H-001, H-003 and H-006 cite none of those figures, so no marks. No rule, default or kill criterion changed.
+
+**Sources:**
+- Caporale, Plastun (2021), Financial Markets and Portfolio Management 35: https://bura.brunel.ac.uk/bitstream/2438/21825/6/FullText.pdf
+- Bouri, Ma, Xu, Zhou, night trading momentum: https://acfr.aut.ac.nz/__data/assets/pdf_file/0008/686816/4a-Z-Ivy-Zhou.pdf
+- Smales, Yang (2015), IRFA 41: https://econpapers.repec.org/RePEc:eee:finana:v:41:y:2015:i:c:p:292-302
+- Smales, O'Grady, Yang, gold futures VAR-GARCH: https://espace.curtin.edu.au/bitstream/handle/20.500.11937/28039/227202_227202.pdf?sequence=2
+- Awartani, Hussain, Virk (2024), abstract only: https://pure.kfupm.edu.sa/en/publications/how-do-the-gold-intra-day-returns-and-volatility-react-to-monetar/
+- Sobti, intraday jumps in gold: https://www.efmaefm.org/0EFMAMEETINGS/EFMA%20ANNUAL%20MEETINGS/2024-Lisbon/papers/EFMA_COMPLETEMANU_NSOBTI.pdf
+- Batten et al. (2018), abstract only: https://ideas.repec.org/a/eee/intfin/v52y2018icp102-113.html
+- Urquhart et al. (2015), via summary: https://www.cxoadvisory.com/technical-trading/high-frequency-technical-trading-of-gold-and-silver/
+- Li, Sakkas, Urquhart (2022): https://reading-9.eprints-hosting.org/95566/1/Accepted-Version.pdf
+- Jin, Kearney, Li, Yang (2020): https://hull-repository.worktribe.com/OutputFile/3303156
+
 ## R-021 — 2026-11-05 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — closed 2026-11-05
 Code H-007 as strategy G on branch `dev/R-021`. **Python and tests only; no EA until G passes `backtested`.** No limit or `config/risk/` value changes.
 **Order for Strategy Dev: R-019, R-021, R-014, R-017, R-008.** R-021 moves ahead of R-014 because it can reach a gate without the owner, and no EA is near a tester run or demo.

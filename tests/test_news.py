@@ -79,6 +79,9 @@ def test_covers_data_is_false_when_bars_run_past_the_last_event():
 def test_summary_carries_calendar_fields_and_trades_are_unchanged(tmp_path, monkeypatch):
     monkeypatch.setattr(worker, "RESULTS", tmp_path)
     monkeypatch.setattr(worker, "TRIALS", tmp_path / "trials.csv")
+    from tests.legacy_pre_r022 import LondonFadePreR022   # frozen input: these pins guard the worker, not B (R-022)
+    real = worker.load_strategy
+    monkeypatch.setattr(worker, "load_strategy", lambda key: (LondonFadePreR022(), real(key)[1]) if key == "B" else real(key))
     job = {"job_id": "J-TEST-015", "kind": "backtest", "strategy": "B", "hypothesis": "H-TEST",
            "requested_by": "test", "data": {"synthetic": True, "days": 600}}
     s = worker.run_job(job)
@@ -146,9 +149,9 @@ def test_events_outside_the_data_change_nothing(risk_cfg):
 
 
 def test_empty_calendar_is_identical_to_before_r011(risk_cfg):
-    from strategies.B_london_fade.strategy import LondonFade
+    from tests.legacy_pre_r022 import LondonFadePreR022
     bars = data.synthetic(days=200)
-    sigs = LondonFade().generate_signals(bars)
+    sigs = LondonFadePreR022().generate_signals(bars)     # frozen input: these pins guard the backtester, not B (R-022)
     for news in (None, []):
         r = backtest.run(bars, sigs, risk_cfg, news_times_utc=news)
         # 66 trades and this P&L were recorded from main at 64752e4, before the change

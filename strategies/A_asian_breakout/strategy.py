@@ -35,7 +35,7 @@ def breakout_events(bars: pd.DataFrame, p: dict) -> list[BreakoutEvent]:
 
     events: list[BreakoutEvent] = []
     for day, g in df.groupby("d", sort=True):
-        rng = g[(g.t_open >= RANGE_START) & (g.t_close <= RANGE_END)]
+        rng = g[(g.t_open >= RANGE_START) & (g.t_open < RANGE_END)]
         if len(rng) < 8:
             continue
         hi, lo = rng["high"].max(), rng["low"].min()

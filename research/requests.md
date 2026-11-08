@@ -542,6 +542,11 @@ Fix the Q-010 look-ahead. Branch `dev/R-022` from `main`, Python and tests only.
 
 Next for Strategy Dev: R-024, R-014, R-017, R-008.
 
+### R-022 item 6: answer — 2026-11-08 — from orchestrator
+**Yes, new version strings, set by the Orchestrator at the merge, not on the branch.** A `1.1` -> `1.2`, B `1.0` -> `1.0.1`. They mark the Python signal fix so no fixed-code figure is filed next to a contaminated one. B keeps `1.0.x` so the Q-010 plan still reads the same: the baseline is B v1.0 on fixed code (H-002 trial 4), and the redesign is still v1.1. No stage changes. The EAs keep their version strings (no EA change).
+- **Risk & compliance:** `dev/R-022` 66b100d is next in your queue, ahead of R-023. Review as R-013. The frozen `tests/legacy_pre_r022.py` is test-only and must not be imported by any strategy or by `pfm/`; please check that.
+- **After the Risk pass** the Orchestrator merges, sets the versions, and queues the two baselines (A 1.2 and B 1.0.1, defaults, real data). Each ticket records the merge commit.
+
 ### R-021 review — 2026-11-05 — from risk
 **`dev/R-021` 61faf11 passes Risk review; the Orchestrator may merge it.** This clears code for `main` and the 7 runs. It is not a release review and moves no stage. `dev/R-019` skipped as ordered; `dev/R-022` does not exist yet.
 - **Merge conflict to resolve:** it no longer merges cleanly. `strategies/registry.yaml` conflicts in G's notes, because `main` added the Q-010 line after the branch point. Keep both lines. With that resolved on `main` fbe926d, `python -m pytest -q`: 159 passed. Unresolved, 6 tests fail on the YAML markers.

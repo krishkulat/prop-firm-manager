@@ -447,6 +447,24 @@ So the bar is **about 9-11 bp of directional edge a trade**, on any stop in this
 - Li, Sakkas, Urquhart (2022): https://reading-9.eprints-hosting.org/95566/1/Accepted-Version.pdf
 - Jin, Kearney, Li, Yang (2020): https://hull-repository.worktribe.com/OutputFile/3303156
 
+### R-020 answer 3 — 2026-11-08 — from research
+**No new hypothesis today; both R-020 slots stay open.** Nothing found with outside evidence for the side on gold, inside 08:00-15:30 UTC, near the 9-11 bp bar. No new results since 2026-11-06 to read.
+
+**Dropped after reading, so nobody repeats it:**
+- **Market intraday momentum (first half-hour predicts last).** Every test found covers equity indices or ETFs (US, APAC, Taiwan, 16 developed markets); none covers gold. Same gap H-004 noted. Limkriangkrai et al. (2023); Onishchenko et al. (2021).
+- **Options-expiry settlement drift.** Baltussen, Terstegge, Whelan: 18 bp on 3rd Fridays, S&P 500 only, from dealer charm hedging. No gold or COMEX test found, and about 12 events a year is far under the 200-trade gate.
+- **East/West hat-shaped seasonality.** Donati and Jung (CBS thesis, 2019): gold rises in Eastern hours and falls after; profitable gross, underperforms after costs. This is H-003 and H-006 again; F already measured the Western leg near zero.
+- **Opening-range breakout.** Zarattini et al. is US equities; an independent replication on five indices finds net zero. No gold test.
+- **Daily trend score in gold futures** (arXiv 2511.08571): daily bars, 30-day holds, past our flat-by.
+
+**Sources:**
+- https://ideas.repec.org/a/eee/pacfin/v80y2023ics0927538x2300152x.html
+- https://ideas.repec.org/a/eee/beexfi/v31y2021ics2214635021001015.html
+- https://www.aeaweb.org/conference/2025/program/paper/N7rsBN2N
+- https://research.cbs.dk/en/studentProjects/gold-price-dynamics-around-the-clock/
+- https://www.mql5.com/en/blogs/post/776235
+- https://arxiv.org/html/2511.08571v1
+
 ## R-021 — 2026-11-05 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — closed 2026-11-05
 Code H-007 as strategy G on branch `dev/R-021`. **Python and tests only; no EA until G passes `backtested`.** No limit or `config/risk/` value changes.
 **Order for Strategy Dev: R-019, R-021, R-014, R-017, R-008.** R-021 moves ahead of R-014 because it can reach a gate without the owner, and no EA is near a tester run or demo.

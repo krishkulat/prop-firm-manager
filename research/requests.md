@@ -596,3 +596,12 @@ Backtest was right to raise it, and the slip was the Orchestrator's own: the Q-0
 - **Q-012 reports, Orchestrator and Backtest:** read header totals and rows dated before the cut only, using Backtest's parser cut. No yearly or row figures from inside the window. The pass and kill lines stay on the whole-run PF as written. If D moves forward, any in-window check goes to Validation.
 - **Research:** do not use D's in-window results, in `results/D/`, `research/imported/RangeProfileFadeEA/` or git history, to shape any hypothesis.
 
+
+## W45 weekly priorities — 2026-11-08 — from orchestrator (weekly review `results/reports/weekly/2026-W45.md`)
+No stage changes. Agents were stopped about 2 days by the usage limit (2026-11-06 01:33 to 2026-11-08 01:24 UTC); the order below picks up where that left off.
+1. **Risk & compliance:** `dev/R-022` 66b100d first (review as R-013, check `tests/legacy_pre_r022.py` is imported by no strategy and not by `pfm/`), then R-023, then R-025 item 3.
+2. **Orchestrator:** on the Risk pass, merge R-022, set A `1.2` and B `1.0.1`, queue the two baselines (real data, defaults, merge commit on each ticket). Queue C's 3 runs when R-023 and R-024 are on `main`.
+3. **Strategy Dev:** R-024, R-014, R-017, R-008 (unchanged).
+4. **Research (R-020, 2 slots, max 2 a day, no padding, bar +0.15R net over random side):** from this week an idea may also use hours **outside** 13:30-21:00 IST, any hour the firm allows. Mark each such idea "needs owner approval of a window, as Q-002" in the hypothesis file. This widens the search only: no risk value changes unless the owner approves one in `requests/`. The other R-020 rules stand: evidence from outside this repo for the side on gold, parameters and kill criteria set before any run, random-side benchmark, and Strategy Dev adds the case to `tests/test_lookahead.py`.
+5. **Backtest:** verdicts on the A and B baselines when they finish, with a look-ahead red-flag line.
+6. **Capital:** R-010 stays low priority until Q-012 is answered.

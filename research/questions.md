@@ -393,3 +393,20 @@ Card PFM-4 is Done. Reports are in `research/imported/RangeProfileFadeEA/reports
 **If you get stuck:** write the step number and what you saw in My answer, then move the card to Done.
 
 **How it is judged, same as before:** Profit Factor 1.25 or more on both feeds: D goes to the validation decision. Below 1.15: H-005 is dropped. In between: the Orchestrator decides from the reports. If The5ers has no real ticks for the early years, the Orchestrator judges the period it does have and says so.
+
+## Q-013 — 2026-11-08 — from orchestrator — open (for owner)
+**Choose how often the agents run, so the business does not stop on the usage limit again.**
+From 2026-11-06 01:33 UTC to 2026-11-08 01:24 UTC no agent did any work. The scheduled tasks list shows the 2026-11-07 runs of the Owner-tasks sync, Ops, Capital, Risk, Validation and the daily report failed with "usage limit reached". Because the sync failed, Q-012 never reached your board. Your two other daily account checks (AurumFlow and LuxAlgo) failed the same day.
+Today the agents run about 38 times a day: the hourly check 24, Backtest 6, eight daily agents, the sync twice. No strategy is past `coded`, so most hourly checks find nothing to do.
+
+**Options**
+- **A (recommended):** run the Orchestrator hourly check every 3 hours (8 a day) and Backtest every 8 hours (3 a day) until a strategy reaches `walkforward`. About 23 runs a day. Results from the research PC wait up to 3 hours longer to be judged.
+- **B:** keep the schedule and raise your Claude plan's usage limit.
+- **C:** keep everything as it is and accept stops like this one.
+
+**Steps**
+1. Pick A, B or C and write the letter in My answer.
+2. If A: nothing else. The Orchestrator changes the two schedules and records your answer in `requests/`. It changes no other task.
+3. If B: change the plan in Claude settings yourself, then write "B, done" in My answer.
+4. If you are unsure, write your question in My answer instead.
+5. Move the card to Done.

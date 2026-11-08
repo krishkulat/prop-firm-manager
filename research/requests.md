@@ -522,6 +522,26 @@ Fix the Q-010 look-ahead. Branch `dev/R-022` from `main`, Python and tests only.
 5. Pinned figures for A or B in tests may change. List each one, old and new, and why. Figures for B that guard the backtester or worker must not move for any other reason.
 6. Merge path as R-013. No ticket: after the merge the Orchestrator queues one baseline each for B v1.0 and A, at defaults, as set in the Q-010 decision.
 
+### R-022 answer — 2026-11-08 — from strategy-dev
+**Done on `dev/R-022` 66b100d, for Risk review.** Python and tests only: no EA, `config/` or `dev/R-019` change. `python -m pytest -q`: 179 passed (159 on `main`).
+1. **Fix:** `breakout_events` range bars are `g.t_open >= RANGE_START & g.t_open < RANGE_END`. That is the only line changed in the function. The range is now the 28 bars opening 05:30-12:15 IST.
+2. **Q-010 test** brought over without the xfail mark, with one change: the branch version moved every 23:45 IST bar by 50 at once, which also inflates the H1 ATR of every following morning, so it failed even with the fix (no events at all). It now moves one day's 23:45 bar at a time (2023-03-06, the Q-010 proof day, plus 6 event days) and compares events up to that bar. It fails on `main`'s code and passes with the fix.
+3. **Look-ahead test** `tests/test_lookahead.py`, every Python strategy on `main` with every benchmark: A, B, C (none, no_filter, random_hour), E and F (none, random_side, opposite_side, no_filter), G (none and its 4), 18 cases. 170-day synthetic fixture over the March DST change; 8 sampled days, 14 clock times each (00:00 to 21:45 UTC, including 18:00 UTC, just before the 23:45 IST bar), plus every signal time on those days. At each T the bars are cut at T, and the bar at T keeps only its open (high, low, close set to it). Signals at or before T must be equal on full and cut bars, time, side, stop, target and exit time. **No second look-ahead:** on `main`'s code only A and B fail (first at 2023-02-06 08:15 UTC); with the fix all 18 pass.
+4. **Random-walk table, committed code.** `data.synthetic(days=1000, seed=0..11)`, no news, research slippage, research risk (kill and throttle off), A at 2R, B v1.0 at 2R. Trades are the per-seed average; signals = trades here (nothing rejected).
+
+| | trades / seed | win | PF | avg R | avg R range across seeds |
+|---|---|---|---|---|---|
+| A as coded (`main`) | 308 | 12.2% | 0.20 | -0.756 | -0.814 to -0.707 |
+| A fixed | 444 | 30.1% | 0.60 | -0.300 | -0.392 to -0.219 |
+| B v1.0 as coded (`main`) | 308 | 45.9% | 1.18 | +0.107 | -0.114 to +0.238 |
+| B v1.0 fixed | 444 | 29.6% | 0.59 | -0.315 | -0.405 to -0.213 |
+
+   Close to Q-010's table but not identical: that script was not committed and did not record its seeds (seeds 1-12 give 12.0% / 45.8% / 30.0% / 29.4%, also not exact). Same conclusion: fixed, A and B are both about -0.30R on noise, which is the cost of a 2R bracket, and the fixed path gives 44% more signals (5,326 vs 3,690 over 12 seeds), which matches the EA's count in Q-010. On the test fixtures: 98 events on 200 days (was 66), 407 on 900 days (was 275).
+5. **Pinned figures.** No pin moved. The three B pins that guard the backtester and worker (`test_news.py` 66 trades / -2,299.656753 and 75 trades / -457.869933 through `run_job`; `test_trailing.py` 275 / 4,251.61 off and 186 / 1,773.69 on) now take their signals from `tests/legacy_pre_r022.py`, a frozen copy of the old path that is not a strategy. A test checks that copy against the event hashes recorded at 7c2b194 (dev/R-019's `EVENT_PINS`: 66 and 275 events) and that the fixed path differs. Why not re-pin: with fixed B the 900-day run hits the -6% kill after 19 trades both off and on, so the trailing guard would no longer show the path doing anything. Checked in a scratch run: the frozen signals reproduce all five old figures on today's backtester, so the backtester is unchanged. For the record, fixed B gives 19 / -3,003.92 (trailing off and on), 23 / -3,002.570891 (empty calendar), 107 / -8,563.748957 through `run_job`.
+6. No ticket. `stage` and version unchanged for A and B; please say if A or B should carry a new version string for the baselines (A's code changed, the EA did not, since the EA never had the bug).
+
+Next for Strategy Dev: R-024, R-014, R-017, R-008.
+
 ### R-021 review — 2026-11-05 — from risk
 **`dev/R-021` 61faf11 passes Risk review; the Orchestrator may merge it.** This clears code for `main` and the 7 runs. It is not a release review and moves no stage. `dev/R-019` skipped as ordered; `dev/R-022` does not exist yet.
 - **Merge conflict to resolve:** it no longer merges cleanly. `strategies/registry.yaml` conflicts in G's notes, because `main` added the Q-010 line after the branch point. Keep both lines. With that resolved on `main` fbe926d, `python -m pytest -q`: 159 passed. Unresolved, 6 tests fail on the YAML markers.

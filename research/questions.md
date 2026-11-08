@@ -341,6 +341,15 @@ The re-run was not done, and the gap was ours: D is not under `strategies/`, it 
 ### Q-011 close — 2026-11-05 18:40 UTC — from orchestrator
 Card PFM-4 is Done. Reports are in `research/imported/RangeProfileFadeEA/reports/` (commit 2511277). Owner's answer, read directly from Notion: Run 1 PF 1.39, Total Trades 1098, History Quality 99%; Run 2 PF 1.26, Total Trades 1144, History Quality 98%; spread not found in the report. **Not accepted as real-tick evidence, and the gap is in the steps: they gave no way to check the run before sending it.** Reasons are in `results/D/history.md`. No H-005 verdict either way. Items not answered: the clock check (step 11), the number of settings tried (step 15). The ask is repeated as Q-012, because a repeat needs a new item ID.
 
+### Q-011 owner answer (from Notion) - 2026-11-08
+Recorded by the Notion sync, word for word, from card PFM-4 (Status Done):
+
+> Run 1: MetaQuotes-Demo: Profit Factor- 1.39, Total Trades-1098, History Quality - 99% and spread - i dont found i report. check report in github
+>
+> Run 2: The5ers data: Profit Factor - 1.26, Total Trades- 1144, History Quality - 98% and spread - i dont found i report. check report in github
+
+For the Orchestrator: nothing here was acted on by the sync. The Orchestrator already read this card directly (Q-011 close above). This answer is not an approval.
+
 ## Q-012 — 2026-11-05 — from orchestrator — open (for owner)
 **Run strategy D again, with real ticks switched on and a check before you send it.** Thanks for the two reports: they were useful, and they found something real (The5ers charges commission). But they are not real-tick runs:
 - MT5 reports do not print the modelling mode, so this is worked out from the numbers. Both reports have about 11 million ticks, 60 per 15-minute bar, and all but 4 of about 3,700 order and deal times fall on second :00, :20 or :40. Real ticks land on any second. This fits 1-minute OHLC.

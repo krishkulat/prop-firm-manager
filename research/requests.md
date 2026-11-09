@@ -524,7 +524,7 @@ Reasons are in the Q-010 decision in `research/questions.md`.
 - **Research, H-001 to H-007 and any new idea:** mark in each file every line that cites A's 13% vs 32%, B's +0.205R or $1.75/oz, or the R-002 audit, as contaminated by Q-010. This goes with the H-007 correction already asked for. Change no rule or default. Restate H-007's estimate once B's clean baseline exists. H-002's discovery run is void, so say that in its disclosure. R-020's second slot stays open. Do not cite those figures in a new idea, and do not treat breakout continuation as disproved.
 - **Backtest:** no ticket until R-022 merges. Then judge as set in Q-010 item 2 and 3, and report G's overlap against the fixed B trades.
 
-## R-022 — 2026-11-05 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — open (PRIORITY)
+## R-022 — 2026-11-05 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — done, merged 2026-11-09
 Fix the Q-010 look-ahead. Branch `dev/R-022` from `main`, Python and tests only. No EA, `config/` or `dev/R-019` change. **Order for Strategy Dev: R-022, R-014, R-017, R-008.**
 1. `breakout_events`: use `g.t_open < RANGE_END` for the range bars. Change nothing else in that function.
 2. Bring the Q-010 test from `dev/R-019` with no xfail mark.
@@ -578,7 +578,7 @@ Merged to `main` with both registry lines kept. `python -m pytest -q`: 159 passe
 ## R-023 — 2026-11-05 — from orchestrator to **Risk & compliance** — done 2026-11-09 (risk)
 Owner approved Q-002 (`requests/O-001.yaml`). Create `config/risk/the5ers_hs50k_10d_c.yaml`: a copy of `the5ers_hs50k_10d.yaml` with `entry_start_ist: "06:00"`. Nothing else changes, including `entry_end_ist`, `flat_by_ist` and every money limit. Do not edit the existing profile. Confirm the diff is that one line. C's release stays blocked by Q-009 as before.
 
-## R-024 — 2026-11-05 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — open
+## R-024 — 2026-11-05 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — done, merged 2026-11-09
 C's work before its first run. Branch `dev/R-024` from `main`, Python and tests only. No EA or `config/` change. **Order for Strategy Dev: R-022, R-024, R-014, R-017, R-008.**
 1. C skips days listed in `research/calendars/sge_holidays.csv`. A missing file raises, as G does for its calendar. The EA side is left until C passes `backtested`.
 2. **2019 and 2020 have no calendar, and C runs them unfiltered.** H-003's kill criteria are written on all 7 years and on 2019-2023, so dropping those years would change a criterion before the run. Do not fill them from China's public holiday list (R-005). **Backtest:** report gate figures on the full run and again on 2021 onward from the same trades, with no extra trial. C needs both to pass.
@@ -662,3 +662,10 @@ Created `config/risk/the5ers_hs50k_10d_c.yaml` per `requests/O-001.yaml`. **Pars
 
 ### R-025 item 3 — not done this run — from risk
 Not started; next run. No `config/` change under that item, as ordered.
+
+### R-022 and R-024 merged — 2026-11-09 07:45 UTC — from orchestrator
+- **Merged:** `dev/R-022` 66b100d as 81f5a77, then `dev/R-024` 3ee4807 as 5f43fae (both hashes as Risk reviewed). `tests/test_strategies_bc.py` conflict resolved by keeping both blocks, as Risk said. `python -m pytest -q` on `main`: **185 passed**, the same count Risk got, so `tests/test_lookahead.py`'s C cases pass on the merged code (answers Strategy Dev's after-merge check; nothing more needed).
+- **Versions:** A `1.1` -> `1.2`, B `1.0` -> `1.0.1`, C stays `1.0`. No stage change.
+- **Queued (real data, research PC):** J-20261109-001 A v1.2 baseline; J-20261109-002 B v1.0.1 baseline (H-002 trial 4); J-20261109-003 C baseline, 004 C `random_hour` seed 0, 005 C `no_filter` (3 of H-003's 50 trials, profile `the5ers_hs50k_10d_c`).
+- **Backtest:** verdicts as W45 item 5 (A and B with a look-ahead red-flag line; B judged on the Q-010 plan in the registry). For C: `size_zero` count per run, and gate figures on the full run and on 2021 onward from the same trades (R-024 item 2); H-003 kill criteria as written.
+- **Strategy Dev:** order unchanged, R-014, R-017, R-008. **Risk:** R-025 item 3 next.

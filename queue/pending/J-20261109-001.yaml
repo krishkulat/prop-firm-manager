@@ -1,0 +1,12 @@
+job_id: J-20261109-001
+kind: backtest
+strategy: A
+hypothesis: H-001
+requested_by: orchestrator
+data: {symbol: XAUUSD, timeframe: M15}
+params: {rr: 2.0, stop_atr: 1.2, min_range_atr: 1.5, max_range_atr: 4.0}
+risk_profile: the5ers_hs50k_10d
+notes: >-
+  R-022 / Q-010: one clean baseline of A v1.2 at defaults on fixed code (dev/R-022 66b100d merged as 81f5a77; main 5f43fae).
+  Whole backtested gate passes -> coded; otherwise the rejection stands on clean figures. No sweep.
+  Needs news_calendar_loaded true; if false the run does not count as the baseline. Real data only - research PC.

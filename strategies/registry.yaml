@@ -4,7 +4,7 @@ strategies:
   A:
     name: Asian-range breakout
     module: strategies.A_asian_breakout.strategy
-    version: "1.1"
+    version: "1.2"
     stage: rejected
     hypothesis: research/hypotheses/H-001-asian-range-breakout.md
     firm_product: the5ers/hs50k_10d
@@ -14,10 +14,11 @@ strategies:
       2026-11-01 J-20261101-001 failed backtested gate (PF 0.23, 426 trades). Held at coded pending code audit R-002; not a redesign yet.
       2026-11-01 REJECTED by orchestrator: R-002 audit found no bug; breakout systematically reverses on XAUUSD (breakout 13% wins vs random 32%). Fade goes to Research as new hypothesis H-002 (R-001), not a redesign of A.
       2026-11-05 Orchestrator (Q-010): that reason is withdrawn, look-ahead in breakout_events made those figures. Stays rejected until one clean baseline at defaults after R-022: passes the whole backtested gate -> coded; otherwise the rejection stands on clean figures.
+      2026-11-09 Orchestrator: dev/R-022 merged after Risk pass (81f5a77, main 5f43fae). Version 1.1 -> 1.2 (Python signal fix; EA unchanged). Clean baseline queued J-20261109-001. Stage stays rejected until it is judged.
   B:
     name: Asian-range false-breakout fade (London open)
     module: strategies.B_london_fade.strategy
-    version: "1.0"
+    version: "1.0.1"
     stage: coded
     hypothesis: research/hypotheses/H-002-asian-range-false-breakout-fade.md
     firm_product: the5ers/hs50k_10d
@@ -36,6 +37,7 @@ strategies:
       2026-11-04 Orchestrator: J-20261103-005 clean baseline FAILED backtested gate on maxDD only (7.70% > 6.0%; trades 426, PF 1.407, worst year -3.75%). No H-002 kill criterion fired. Chose one redesign (redesigns 1 of 3):
       v1.1 target = range midpoint, the redesign H-002 named before any baseline. R-019. Any gate failure on v1.1 rejects B; no second redesign. See results/B/history.md.
       2026-11-05 Orchestrator (Q-010): all B runs so far are contaminated by look-ahead in breakout_events and are not evidence. Next is v1.0 on fixed code after R-022, H-002's 4th trial. Any H-002 kill -> rejected, v1.1 not run. Whole gate passes -> v1.1 dropped. Only maxDD or worst year fails -> v1.1 as trial 5, any gate failure rejects B. R-019 on hold. redesigns stays 1.
+      2026-11-09 Orchestrator: dev/R-022 merged after Risk pass (81f5a77, main 5f43fae). Version 1.0 -> 1.0.1 (Python signal fix; still the Q-010 "B v1.0 on fixed code"). Baseline queued J-20261109-002, H-002 trial 4. Stage stays coded.
   C:
     name: SGE day-session long after Western-hours drop
     module: strategies.C_sge_session_long.strategy
@@ -51,6 +53,7 @@ strategies:
       risk profile entry window 13:30-21:00 IST rejects every 06:30 IST entry; a run now would log 0 trades as a trial).
       2026-11-05 Orchestrator: owner approved the C-only profile (requests/O-001.yaml). Runs wait for R-023 (profile, Risk) and R-024 (SGE calendar and benchmark hours, Strategy Dev). The approval lets C be tested and says nothing about C being good.
       2026-11-09 strategy-dev: R-024 on dev/R-024 for Risk review (SGE holiday skip, random_hour 01:00 UTC to flat-by). Python and tests only; stage and version unchanged.
+      2026-11-09 Orchestrator: dev/R-024 merged after Risk pass (main 5f43fae); C profile config/risk/the5ers_hs50k_10d_c.yaml on main (R-023). Version stays 1.0. Queued J-20261109-003 baseline, 004 random_hour seed 0, 005 no_filter: 3 of H-003's 50 trials, C profile.
   D:
     name: Range Profile deviation fade (imported RangeProfileFadeEA v1.22)
     module: null

@@ -1,0 +1,12 @@
+job_id: J-20261109-004
+kind: backtest
+strategy: C
+hypothesis: H-003
+requested_by: orchestrator
+data: {symbol: XAUUSD, timeframe: M15}
+params: {west_drop_atr: 0.5, stop_atr: 2.0, exit_utc: "07:30", benchmark: random_hour, benchmark_seed: 0}
+risk_profile: the5ers_hs50k_10d_c
+notes: >-
+  R-024 item 5: C v1.0 random_hour benchmark, seed 0 (kill: baseline avg R must beat it by >= 0.10R). One of C's 3 first runs (J-20261109-003 to 005), 3 of H-003's 50 trials. Code main 5f43fae (dev/R-024 3ee4807 merged).
+  C profile (R-023, requests/O-001.yaml). Backtest: report the size_zero rejection count, and gate figures on the full run and on 2021 onward
+  from the same trades (no extra trial); C needs both. Needs news_calendar_loaded true and research/calendars/sge_holidays.csv. Real data only - research PC.

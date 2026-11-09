@@ -1,0 +1,12 @@
+job_id: J-20261109-002
+kind: backtest
+strategy: B
+hypothesis: H-002
+requested_by: orchestrator
+data: {symbol: XAUUSD, timeframe: M15}
+params: {rr: 2.0, stop_atr: 1.2, min_range_atr: 1.5, max_range_atr: 4.0}
+risk_profile: the5ers_hs50k_10d
+notes: >-
+  R-022 / Q-010: baseline of B v1.0 on fixed code, registry version 1.0.1 (dev/R-022 66b100d merged as 81f5a77; main 5f43fae). H-002 trial 4 of 50.
+  Any H-002 kill -> rejected, v1.1 not run. Whole gate passes -> v1.1 dropped. Only maxDD or worst year fails -> v1.1 as trial 5.
+  No sweep. Needs news_calendar_loaded true; if false the run does not count as the baseline. Real data only - research PC.

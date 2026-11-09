@@ -431,3 +431,19 @@ Today the agents run about 38 times a day: the hourly check 24, Backtest 6, eigh
 - **Owner not asked now.** No strategy is past `coded`, so the consistency rule cannot change a decision yet. Same handling as Q-001: when a strategy reaches propsim, the Orchestrator sends the owner one support question with Q-001's open items and this one: "Is a consistency rule applied to the $100K High Stakes 10% V and the $50K High Stakes 10% D, in evaluation or funded? What is the exact rule?" Q-014 stays open for that.
 - **Risk, low priority, after R-022 review and R-023:** when propsim next changes, have it report each simulated pass's best-day share of total profit, and the pass rate with a 50% best-day cap applied. Until the support answer, the propsim gate is judged on the stricter of the two pass rates. Tightening only; no config or firm-mapping change, so no owner approval is needed.
 - The news-window profit deduction (finding 2) is already covered: every EA flattens and blocks entries around high-importance news (R-011). Risk to confirm the window covers 2 minutes before and after when it reviews the next EA.
+
+## Q-015 — 2026-11-09 — from orchestrator — open (for owner)
+**The research PC worker looks down.** `J-20261109-001` to `005` (A v1.2 and B v1.0.1 clean baselines, C's 3 runs) have been in
+`queue/pending/` since 07:32 UTC (13:02 IST). At 12:26 UTC (17:56 IST) they had waited 4 h 54 min inside the laptop's normal
+hours (12:00-02:00 IST), and the last `[worker]` commit is still J-20261105-007 (06:41 UTC on 2026-11-05). None has reached
+`done/` or `failed/`. Cause unknown from the cloud: laptop off or asleep, worker not started at sign-in, `git pull` failing, or a
+job still running. Until these run, no strategy can reach a gate.
+
+**Steps**
+1. On the laptop, open `logs\worker.log` in the repo folder and look at the last 20 lines. Note the time of the last line and any error.
+2. Open a terminal in the repo folder and run `git status` then `git pull`. If `git pull` fails, copy the error into My answer and stop here.
+3. Run `scripts\run_worker.bat`. Leave the window open. Within 2 minutes it should print that it picked up `J-20261109-001`.
+4. If it fails to start, copy the error into My answer. If `data\` has no XAUUSD M15 file, say so.
+5. Write in My answer: "worker running" (or the error), and the time from step 1. Move the card to Done.
+
+Closes when the tickets start leaving `queue/pending/`. Hourly runs re-notify only if a ticket is still pending at 07:32 UTC on 2026-11-10.

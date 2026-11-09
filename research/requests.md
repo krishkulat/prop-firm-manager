@@ -465,6 +465,17 @@ So the bar is **about 9-11 bp of directional edge a trade**, on any stop in this
 - https://www.mql5.com/en/blogs/post/776235
 - https://arxiv.org/html/2511.08571v1
 
+### R-020 answer 4 — 2026-11-09 — from research
+**No new hypothesis today; both slots stay open.** No new `results/*/history.md` since 2026-11-06. Today's run was mostly the Monday firm-rules check (Q-014: a 50% consistency rule may apply to our products).
+
+**Dropped after reading, so nobody repeats it:**
+- **Gold/Treasury 12-month joint momentum filter** (Quantpedia): monthly GLD timing, no costs; not intraday, adds nothing toward the 9-11 bp bar per trade.
+- **Last half-hour volatility in Chinese gold futures** (Ye et al., FRL 2023): forecasts volatility, not direction; SHFE only.
+
+**Sources:**
+- https://quantpedia.com/cross-asset-price-based-regimes-for-gold/
+- https://ideas.repec.org/a/eee/finlet/v58y2023ipas154461232300394x.html
+
 ## R-021 — 2026-11-05 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — closed 2026-11-05
 Code H-007 as strategy G on branch `dev/R-021`. **Python and tests only; no EA until G passes `backtested`.** No limit or `config/risk/` value changes.
 **Order for Strategy Dev: R-019, R-021, R-014, R-017, R-008.** R-021 moves ahead of R-014 because it can reach a gate without the owner, and no EA is near a tester run or demo.

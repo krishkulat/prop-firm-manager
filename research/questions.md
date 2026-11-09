@@ -419,3 +419,10 @@ Today the agents run about 38 times a day: the hourly check 24, Backtest 6, eigh
 3. If B: change the plan in Claude settings yourself, then write "B, done" in My answer.
 4. If you are unsure, write your question in My answer instead.
 5. Move the card to Done.
+
+## Q-014 — 2026-11-09 — from research — open (for Risk & compliance / Orchestrator)
+**Does a 50% consistency rule apply to `hs100k_10v` or `hs50k_10d`?** Details in `research/firm_rules_log.md` (2026-11-09 rows).
+- The5ers' Summer Plan page lists a **50% consistency rule on both evaluation and Pro accounts** for the Summer 2-Step 10/5 ($100K at $149 per its FAQ, $249 per its rules panel), and a 75%/25% Pro split. Our config and propsim have no consistency cap, and `hs100k_10v` uses split 80.
+- The 2026-11-02 log already suspected `hs100k_10v` is the $149 Summer 10/5 (payout cap $2,000, split 75). If so, propsim overstates the pass rate for any strategy whose profit comes on few days. The exact wording of the rule (share of total profit from the best day?) is not on the page.
+- Two other findings, no action asked: (1) the catalogue's `maxLossTrailing` flag is absent on all our products and their step-2 and funded steps, and set on 29 others; this supports static, as the owner's support answer said. (2) The High Stakes FAQ (updated 2026-11-03) says profit from trades opened or closed inside the 2-minute news window is deducted.
+- **Suggest:** add "Is a consistency rule applied to the $100K High Stakes 10% V and $50K High Stakes 10% D, in evaluation or funded? What is the exact rule?" to the next owner question for The5ers support. Until answered, Risk may want propsim to report the best-day share of profit, so a 50% cap can be checked. Tightening only, so no owner approval is needed for that.

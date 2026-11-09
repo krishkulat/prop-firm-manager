@@ -1,4 +1,5 @@
 """Strategies B (H-002) and C (H-003) on the synthetic fixture."""
+import hashlib
 import math
 
 import pandas as pd
@@ -26,6 +27,28 @@ def test_b_is_exact_mirror_of_a(bars):
         assert math.isclose(abs(sb.stop - ca), risk_a, rel_tol=1e-9)        # same stop distance
         assert math.isclose(abs(sb.target - ca), 2.0 * risk_a, rel_tol=1e-9)
         assert (sb.direction == 1 and sb.stop < ca < sb.target) or (sb.direction == -1 and sb.target < ca < sb.stop)
+
+
+def test_range_does_not_read_bars_after_the_entry_window(bars):
+    """Q-010, from dev/R-019 without its xfail mark: the 23:45 IST bar closes at 00:00 and must not join the range.
+    Changed from the branch: one day's 23:45 bar at a time, and only events up to that day compared. Moving every
+    23:45 bar by 50 also moves the H1 ATR of the following mornings, which those days may read."""
+    from strategies.A_asian_breakout.strategy import breakout_events
+    from strategies.B_london_fade.strategy import LondonFade
+    p = LondonFade.default_params
+    k = lambda ev, end: [(e.signal_time, e.direction, e.close, e.risk) for e in ev if e.signal_time < end]
+    base = breakout_events(bars, p)
+    ist = bars.index.tz_convert("Asia/Kolkata")
+    days = [pd.Timestamp("2023-03-06").date()] + [e.signal_time.tz_convert("Asia/Kolkata").date() for e in base[::12]]
+    for day in days:                                         # 2023-03-06 is the day Q-010 used as proof
+        late = bars.copy()
+        last = (ist.date == day) & (ist.strftime("%H:%M") == "23:45")            # 7 h after the entry window ends
+        assert last.sum() == 1
+        late.loc[last, "high"] += 50
+        late.loc[last, "low"] -= 50
+        end = late.index[last][0]
+        assert k(base, end) and k(breakout_events(late, p), end) == k(base, end)
+    assert any(e.signal_time.tz_convert("Asia/Kolkata").date() == days[0] for e in base)
 
 
 def test_b_runs_through_backtester(bars, risk_cfg):
@@ -103,3 +126,19 @@ def test_time_exit_in_backtester(risk_cfg):
     sig = Signal(idx[1], 1, 1990.0, float("inf"), exit_time=idx[6])
     t = backtest.run(b, [sig], risk_cfg, slippage_points=0).trades.iloc[0]
     assert t.reason == "time_exit" and t.exit_time == idx[6] and t.entry_time == idx[1]
+
+
+def test_frozen_pre_r022_source_is_the_old_path_and_b_is_not():
+    """tests/legacy_pre_r022.py must equal breakout_events as it was before R-022. The hashes were recorded from main
+    at 7c2b194 (dev/R-019 EVENT_PINS). B's fixed path must give different events on the same bars."""
+    from strategies.A_asian_breakout.strategy import breakout_events
+    from strategies.B_london_fade.strategy import LondonFade
+    from tests.legacy_pre_r022 import breakout_events_pre_r022
+    pins = [(200, 66, "e1e09f31f70b57ce531f0ef12392260e9d559b6177b7e43d46bbe59f2e1e67ed"),
+            (900, 275, "9f405ed23a8fc5138ff5a43fece6591d6f36565d8ab0d71c46c3b299f0d0675b")]
+    fmt = lambda ev: "\n".join(f"{e.signal_time.isoformat()},{e.direction},{e.close:.6f},{e.risk:.6f}" for e in ev)
+    for days, count, digest in pins:
+        b = data.synthetic(days=days)
+        old = breakout_events_pre_r022(b, LondonFade.default_params)
+        assert len(old) == count and hashlib.sha256(fmt(old).encode()).hexdigest() == digest
+        assert fmt(breakout_events(b, LondonFade.default_params)) != fmt(old)

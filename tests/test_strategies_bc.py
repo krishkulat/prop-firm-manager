@@ -142,3 +142,72 @@ def test_frozen_pre_r022_source_is_the_old_path_and_b_is_not():
         old = breakout_events_pre_r022(b, LondonFade.default_params)
         assert len(old) == count and hashlib.sha256(fmt(old).encode()).hexdigest() == digest
         assert fmt(breakout_events(b, LondonFade.default_params)) != fmt(old)
+
+
+# ---------------------------------------------------------------- C: R-024 (SGE calendar, random_hour window, C profile)
+def c_profile(risk_cfg):
+    """the5ers_hs50k_10d_c as R-023 defines it: the live profile with entry_start_ist 06:00, nothing else changed.
+    If the file is on this branch, it must be exactly that."""
+    from pfm import config
+    cfg = {**risk_cfg, "entry_start_ist": "06:00"}
+    try:
+        on_disk = config.risk_profile("the5ers_hs50k_10d_c")
+    except FileNotFoundError:
+        return cfg
+    assert on_disk == cfg
+    return on_disk
+
+
+def test_c_skips_sge_holidays(bars, tmp_path, monkeypatch):
+    import strategies.C_sge_session_long.strategy as c
+    hol = c.sge_holidays(c.CALENDAR)
+    days = {d.date() for d in bars.index.normalize().unique() if d.dayofweek < 5}
+    in_range = days & hol
+    assert len(in_range) >= 8                                    # Spring Festival, Qingming, Labour Day, Dragon Boat 2023
+    for p in ({}, {"benchmark": "no_filter"}, {"benchmark": "random_hour", "benchmark_seed": 3}):
+        assert not {s.time.date() for s in c.SgeSessionLong().generate_signals(bars, p)} & hol
+    nofilt = {s.time.date() for s in c.SgeSessionLong().generate_signals(bars, {"benchmark": "no_filter"})}
+    empty = tmp_path / "empty.csv"
+    empty.write_text("date,reason\n")
+    monkeypatch.setattr(c, "CALENDAR", empty)
+    unfiltered = {s.time.date() for s in c.SgeSessionLong().generate_signals(bars, {"benchmark": "no_filter"})}
+    assert nofilt == unfiltered - hol                            # the calendar removes exactly the listed days
+    assert len(unfiltered & hol) >= 8
+
+
+def test_c_missing_calendar_raises(bars, tmp_path, monkeypatch):
+    import strategies.C_sge_session_long.strategy as c
+    monkeypatch.setattr(c, "CALENDAR", tmp_path / "nope.csv")
+    with pytest.raises(FileNotFoundError):
+        c.SgeSessionLong().generate_signals(bars)
+
+
+def test_c_calendar_has_no_2019_2020():
+    """R-024 item 2: 2019-2020 are not filled from a general holiday list."""
+    import strategies.C_sge_session_long.strategy as c
+    assert min(c.sge_holidays(c.CALENDAR)).year == 2021
+
+
+@pytest.mark.parametrize("exit_utc, last_hour", [("07:30", 10), ("09:00", 9)])
+def test_c_random_hour_window(bars, exit_utc, last_hour):
+    from strategies.C_sge_session_long.strategy import SgeSessionLong
+    hours = set()
+    for seed in range(3):
+        for s in SgeSessionLong().generate_signals(bars, {"benchmark": "random_hour", "benchmark_seed": seed,
+                                                          "exit_utc": exit_utc}):
+            assert s.time.minute == 0 and 1 <= s.time.hour <= last_hour
+            assert s.exit_time <= s.time.normalize() + pd.Timedelta(hours=17)      # 22:30 IST flat-by
+            hours.add(s.time.hour)
+    assert hours == set(range(1, last_hour + 1))
+
+
+def test_c_profile_accepts_0100_entry(bars, risk_cfg):
+    from strategies.C_sge_session_long.strategy import SgeSessionLong
+    cfg = c_profile(risk_cfg)
+    r = backtest.run(bars, SgeSessionLong().generate_signals(bars), cfg)
+    assert len(r.trades) > 0 and "outside_hours" not in r.rejections
+    assert (pd.to_datetime(r.trades.entry_time).dt.strftime("%H:%M") == "01:00").all()
+    for seed in range(3):                                        # random_hour: no entry outside the window either
+        rnd = backtest.run(bars, SgeSessionLong().generate_signals(bars, {"benchmark": "random_hour",
+                                                                         "benchmark_seed": seed}), cfg)
+        assert "outside_hours" not in rnd.rejections and len(rnd.trades) > 0

@@ -14,5 +14,7 @@ fixed:
 benchmark:
   benchmark: [none, no_filter, random_hour]   # default none
   benchmark_seed: 0                           # random_hour only; fixed seed for reproducibility
-# Known gaps (see research/questions.md Q-002): live risk profile entry window 13:30–21:00 IST blocks the
-# 06:30 IST entry; no SGE holiday calendar in the repo yet (days are not skipped for SGE holidays).
+  # random_hour draws whole UTC hours from 01:00 whose entry + hold ends by 17:00 UTC (22:30 IST): 01-10 at 07:30 exit, 01-09 at 09:00 (R-024)
+# SGE holidays: research/calendars/sge_holidays.csv is skipped (R-024); a missing file raises. Covers 2021 on only,
+# so 2019-2020 run unfiltered. Risk profile: runs need the5ers_hs50k_10d_c (R-023, entries from 06:00 IST);
+# the live profile's 13:30-21:00 IST window still blocks every C entry (Q-002).

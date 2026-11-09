@@ -50,6 +50,7 @@ strategies:
       research-only benchmark switches (none | no_filter | random_hour). NO backtest queued - blocked by Q-002 (the
       risk profile entry window 13:30-21:00 IST rejects every 06:30 IST entry; a run now would log 0 trades as a trial).
       2026-11-05 Orchestrator: owner approved the C-only profile (requests/O-001.yaml). Runs wait for R-023 (profile, Risk) and R-024 (SGE calendar and benchmark hours, Strategy Dev). The approval lets C be tested and says nothing about C being good.
+      2026-11-09 strategy-dev: R-024 on dev/R-024 for Risk review (SGE holiday skip, random_hour 01:00 UTC to flat-by). Python and tests only; stage and version unchanged.
   D:
     name: Range Profile deviation fade (imported RangeProfileFadeEA v1.22)
     module: null

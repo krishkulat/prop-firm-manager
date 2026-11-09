@@ -6,26 +6,43 @@ Rules (all times UTC; China has no DST):
   "Close at T" = close of the last M15 bar whose close time is <= T and > T − 30 min (else the day is skipped).
 - If W <= −west_drop_atr: long at the open of the 01:00 bar (signal = close of the 00:45 bar).
 - Stop = signal close − stop_atr × H1 ATR(14) (completed H1 bars only). No target. Time exit at exit_utc.
-- Long only, one trade per day, Mon–Fri.
+- Long only, one trade per day, Mon–Fri. No entry on an SGE holiday (R-024): days listed in
+  research/calendars/sge_holidays.csv are skipped for every benchmark. A missing file raises. The calendar covers
+  2021 onward only; 2019-2020 run unfiltered (see research/calendars/README.md).
 
 Benchmarks for the H-003 kill criteria (not tunable parameters):
 - benchmark: none        the strategy
 - benchmark: no_filter   long every weekday at 01:00, same stop and exit (W condition dropped)
-- benchmark: random_hour same days as the strategy, entry at a random whole UTC hour with the same hold length
-                         and stop rule (seeded by benchmark_seed, so a run is reproducible)
+- benchmark: random_hour same days as the strategy, entry at a random whole UTC hour from 01:00 whose entry plus
+                         hold ends by 17:00 UTC (= flat-by 22:30 IST), same hold length and stop rule (seeded by
+                         benchmark_seed, so a run is reproducible). R-024: 01:00 UTC is the earliest hour inside
+                         the C risk profile's window (entries from 06:00 IST = 00:30 UTC).
 """
 from __future__ import annotations
 
 from datetime import time
+from functools import lru_cache
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 from pfm.strategy_base import Signal, Strategy, h1_atr_on
 
+ROOT = Path(__file__).resolve().parents[2]
+CALENDAR = ROOT / "research/calendars/sge_holidays.csv"
 ENTRY_UTC = time(1, 0)
+RANDOM_FIRST_HOUR_UTC = 1                 # random_hour: earliest whole entry hour (R-024 item 3)
+RANDOM_LAST_EXIT_UTC = pd.Timedelta(hours=17)   # entry + hold must end by 17:00 UTC = 22:30 IST flat-by
 WEST_START_UTC, WEST_END_UTC = time(13, 30), time(21, 0)
 BENCHMARKS = ("none", "no_filter", "random_hour")
+
+
+@lru_cache(maxsize=4)
+def sge_holidays(path: str | Path = CALENDAR) -> frozenset:
+    """Beijing dates with no SGE day session. A missing file raises: no silent run without the filter."""
+    cal = pd.read_csv(path)
+    return frozenset(pd.to_datetime(cal["date"]).dt.date)
 
 
 def _hm(x) -> time:
@@ -74,8 +91,11 @@ class SgeSessionLong(Strategy):
                 continue
             west[d] = (c_end - c_start) / a
 
+        holidays = sge_holidays(CALENDAR)
         rng = np.random.default_rng(int(p["benchmark_seed"]))
-        last_entry_hour = 23 - int(np.ceil(hold / pd.Timedelta(hours=1)))
+        last_entry_hour = int((RANDOM_LAST_EXIT_UTC - hold) // pd.Timedelta(hours=1))
+        if bench == "random_hour" and last_entry_hour < RANDOM_FIRST_HOUR_UTC:
+            raise ValueError("hold too long for a random_hour entry from 01:00 UTC ending by 17:00 UTC")
         out: list[Signal] = []
         prev_trading_day = None
         for d in days:
@@ -84,11 +104,13 @@ class SgeSessionLong(Strategy):
                 prev_trading_day = d
             if d.dayofweek >= 5:
                 continue
+            if d.date() in holidays:                       # 01:00 UTC = 09:00 Beijing, same calendar date
+                continue
             if bench != "no_filter" and (w is None or w > -p["west_drop_atr"]):
                 continue
             entry_ts = d + pd.Timedelta(hours=ENTRY_UTC.hour, minutes=ENTRY_UTC.minute)
             if bench == "random_hour":
-                entry_ts = d + pd.Timedelta(hours=int(rng.integers(0, last_entry_hour + 1)))
+                entry_ts = d + pd.Timedelta(hours=int(rng.integers(RANDOM_FIRST_HOUR_UTC, last_entry_hour + 1)))
             sig_ts = entry_ts                                  # = close time of the bar before the entry bar
             if entry_ts not in bars.index:
                 continue

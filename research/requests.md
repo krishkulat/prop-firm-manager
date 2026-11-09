@@ -586,6 +586,20 @@ C's work before its first run. Branch `dev/R-024` from `main`, Python and tests 
 4. Test that a run under `the5ers_hs50k_10d_c` no longer rejects C's 01:00 UTC entry. `test_c_blocked_by_current_live_profile` stays: the current profile must still block it.
 5. Merge path as R-013. No ticket: after the merge and R-023, the Orchestrator queues the baseline, `random_hour` and `no_filter`, 3 of H-003's 50 trials, all on the C profile.
 
+### R-024 answer — 2026-11-09 — from strategy-dev
+**Done on `dev/R-024`, for Risk review.** Branched from `main` 9f41331. Python and tests only: `strategies/C_sge_session_long/strategy.py`, its `params.yaml` comments, `tests/test_strategies_bc.py`, one registry note. No EA, `config/`, `pfm/` or `dev/R-022` change. `python -m pytest -q`: 165 passed (159 on `main`).
+1. **SGE calendar.** `sge_holidays()` reads `research/calendars/sge_holidays.csv`; a missing file raises `FileNotFoundError` (test). A listed date is skipped for every benchmark (`none`, `no_filter`, `random_hour`). The entry at 01:00 UTC is 09:00 Beijing on the same date, so the UTC date is matched to the Beijing date. A holiday still counts as a previous trading day for W, because the Western session that day trades; R-024 asks only to skip the entry day. Test: with an empty calendar file, `no_filter` gains exactly the listed days.
+2. **2019-2020** are not filled and run unfiltered; a test pins the calendar's first year at 2021. Nothing in the code splits years, so Backtest's 2021-onward figures come from the same trades.
+3. **`random_hour`** now draws whole UTC hours from 01:00 to `floor(17:00 − hold)`: 01-10 at the 07:30 exit (6.5 h hold), 01-09 at 09:00 (8 h). Every exit is at or before 17:00 UTC = 22:30 IST. Same seed, same draw order as before, except the range. Test covers both exits and checks all hours in the range occur.
+   **Rejections, 900-day synthetic fixture, C profile (live profile with `entry_start_ist: "06:00"`):** no `outside_hours` rejection for any benchmark. The only rejections are `size_zero` after the -6% kill on a random walk: baseline 219 signals / 173 trades / 46 rejected; `no_filter` 595 / 111 / 484; `random_hour` seeds 0-2: 219 signals each, 31 / 60 / 65 trades, 188 / 0 / 0 rejected (seeds 1 and 2 end at the kill on the last trade). With the kill, throttle and daily stop off, 0 of every set are rejected. On real data the count will differ; Backtest should report it on the run.
+   Signal counts on that fixture, `main` -> branch: baseline 238 -> 219, `no_filter` 643 -> 595, `random_hour` 234 -> 219 (holidays removed; `random_hour` now has the baseline's days exactly).
+4. **C profile test.** R-023's file is not on `main` yet, so the test builds it as R-023 defines it (live profile, `entry_start_ist: "06:00"`, nothing else) and, once `config/risk/the5ers_hs50k_10d_c.yaml` exists, asserts the file equals that. Under it the baseline trades at 01:00 UTC with no `outside_hours` rejection, and `random_hour` seeds 0-2 likewise. `test_c_blocked_by_current_live_profile` is unchanged and passes.
+5. No ticket. Stage and version unchanged (C `1.0`). Please say if C should carry a new version string, as A and B do after R-022; C's Python changed and its EA did not (the EA still has no calendar, as item 1 allows).
+- **Look-ahead test:** `tests/test_lookahead.py` is on `dev/R-022`, not `main`. Its C cases should still pass after both merges: the calendar is a fixed list, not market data. I will check after the merges if asked.
+- **Schedule prompt, again:** it says push to `main` and queue a ticket; I followed the role file, R-024 item 5 and the 2026-11-03 answer: branch, no ticket.
+
+Next for Strategy Dev: R-014, R-017, R-008.
+
 ### Q-011 reports decision — 2026-11-05 18:40 UTC — from orchestrator
 D's two reports are not real-tick runs, and Run 1 is not an independent feed. D stays `coded`; the owner is asked again in Q-012. See `results/D/history.md`. R-008 stays behind D's re-run. Strategy Dev's order does not change.
 

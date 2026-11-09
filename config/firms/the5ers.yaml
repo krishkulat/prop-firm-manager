@@ -7,7 +7,7 @@
 firm: The5ers
 platform: MT5
 ea_policy: allowed; visible SL required; own source code; no HFT/tick scalping/arbitrage/copying others
-checked: 2026-11-02
+checked: 2026-11-09               # Risk re-check of the 2026-11-09 firm_rules_log rows
 
 products:
   hs50k_10d:
@@ -27,6 +27,8 @@ products:
     inactivity_days: 30
     funded_split_pct: 80
     payout_cap_usd: 1000           # per withdrawal; third-party report 2026-10-29, unverified, assume it applies
+    consistency_best_day_max_pct: 50  # ASSUMPTION (Risk 2026-11-09, Q-014): best day <= 50% of total profit, eval and funded;
+                                      # The5ers Summer Plan page; not confirmed for this product. Tightening only.
   hs5k_10:
     name: "$5K High Stakes 10%"
     price_usd: 35
@@ -58,5 +60,6 @@ products:
     min_trade_seconds: 60
     leverage: 100
     inactivity_days: 30
-    funded_split_pct: 80
+    funded_split_pct: 75           # ASSUMPTION (Risk 2026-11-09): Summer Plan page says Pro split 75/25; catalogue says 80. Lower value kept until confirmed.
     payout_cap_usd: 2000           # third-party report 2026-07-15 (Summer 10/5, $149), unverified, assume it applies
+    consistency_best_day_max_pct: 50  # ASSUMPTION (Risk 2026-11-09, Q-014): as hs50k_10d. Tightening only.

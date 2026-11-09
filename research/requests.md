@@ -575,7 +575,7 @@ Next for Strategy Dev: R-024, R-014, R-017, R-008.
 ### R-021 close — 2026-11-05 — from orchestrator
 Merged to `main` with both registry lines kept. `python -m pytest -q`: 159 passed. G's 7 first runs are queued: J-20261105-001 baseline, 002 to 004 `random_side` seeds 0 to 2, 005 `opposite_side`, 006 `no_reclaim`, 007 `shifted_level`. **Backtest:** judge them as set in the H-007 decision. "Not B again" waits for the fixed B v1.0 baseline, so a pass on the rest does not advance G past that check.
 
-## R-023 — 2026-11-05 — from orchestrator to **Risk & compliance** — open
+## R-023 — 2026-11-05 — from orchestrator to **Risk & compliance** — done 2026-11-09 (risk)
 Owner approved Q-002 (`requests/O-001.yaml`). Create `config/risk/the5ers_hs50k_10d_c.yaml`: a copy of `the5ers_hs50k_10d.yaml` with `entry_start_ist: "06:00"`. Nothing else changes, including `entry_end_ist`, `flat_by_ist` and every money limit. Do not edit the existing profile. Confirm the diff is that one line. C's release stays blocked by Q-009 as before.
 
 ## R-024 — 2026-11-05 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — open
@@ -639,3 +639,26 @@ No stage changes. Agents were stopped about 2 days by the usage limit (2026-11-0
 - **Risk & compliance, queue order:** `dev/R-022` 66b100d first, then R-023, then `dev/R-024` 3ee4807 (review as R-013; check the C-profile test still matches the R-023 file once it exists), then R-025 item 3.
 - **After both R-023 and R-024 are on `main`:** the Orchestrator queues C's 3 runs (baseline, `random_hour`, `no_filter`; 3 of H-003's 50 trials, C profile, real data). Backtest reports the `size_zero` rejection count on each run, as item 3 asks.
 - No stage change. Look-ahead check of C's cases after the R-022 merge: yes, Strategy Dev, once both are merged.
+
+### R-022 review — 2026-11-09 06:40 UTC — from risk
+**`dev/R-022` 66b100d passes Risk review; the Orchestrator may merge it.** Code review only: not a release review, no stage moves.
+- **Scope:** diff is one line in `strategies/A_asian_breakout/strategy.py` (`g.t_close <= RANGE_END` -> `g.t_open < RANGE_END`) plus 5 test files. Nothing in `config/`, `pfm/` or `mql5/`. No limit changed. Merges cleanly into `main` 3b36f05.
+- **`tests/legacy_pre_r022.py`:** imported only by `tests/test_news.py`, `tests/test_trailing.py` and `tests/test_strategies_bc.py` (`git grep` on the branch). No strategy and nothing in `pfm/` imports it.
+- **Tests:** `python -m pytest -q` on the branch: 179 passed.
+- **Independent look-ahead check** (script not from the branch; 300-day synthetic, start 2021-06-01, seed 7): at every third signal T, all bars after T scaled by random factors 0.97-1.03 and the bar at T given new high/low/close around its open. Signals up to T, same time/side/stop/exit: **branch 0 mismatches of 46 for A and 0 of 46 for B. Same script on `main`: 31 of 33 (A) and 32 of 33 (B) mismatch**, so the check sees the Q-010 bug and the fix removes it.
+- **Read on that fixture (branch):** 137 signals each for A and B, entries 13:45-16:30 IST (inside 13:30-21:00), at most 1 per IST day, every signal has a finite stop.
+- **Not checked:** real data; the random-walk table in item 4 (not re-run).
+
+### R-023 done — 2026-11-09 — from risk
+Created `config/risk/the5ers_hs50k_10d_c.yaml` per `requests/O-001.yaml`. **Parsed diff against `the5ers_hs50k_10d.yaml` is one key: `entry_start_ist` "13:30" -> "06:00".** The only other text change is the header comment (strategy C only, O-001, R-023). `the5ers_hs50k_10d.yaml` not edited. `entry_end_ist`, `flat_by_ist` and every money limit identical. For C only; C's release stays blocked by Q-009.
+
+### R-024 review — 2026-11-09 06:40 UTC — from risk
+**`dev/R-024` 3ee4807 passes Risk review; the Orchestrator may merge it after R-022.** Code review only.
+- **Scope:** `strategies/C_sge_session_long/strategy.py`, its `params.yaml`, `tests/test_strategies_bc.py`, one registry note, this file. Nothing in `config/`, `pfm/` or `mql5/`. Merges cleanly into `main`.
+- **Read in `strategy.py`:** missing calendar raises (no silent unfiltered run); holiday days skipped for all benchmarks; `random_hour` draws whole UTC hours 01 to `floor(17:00 - hold)`, so every exit is by 17:00 UTC = 22:30 IST flat-by, and it raises if no hour fits. Stop and time exit unchanged. Long only, one trade a day.
+- **Tests:** branch alone 165 passed. **With the R-023 file copied in, the C-profile test asserts the file and still passes.**
+- **R-022 + R-024 together:** `tests/test_strategies_bc.py` conflicts (both branches append tests at the end of the file). Keep both blocks. With that, plus the R-023 file and today's `config/firms/the5ers.yaml`: **185 passed**, including the C look-ahead cases.
+- **Not checked:** real data; the EA has no SGE calendar (allowed by item 1, noted for the demo check).
+
+### R-025 item 3 — not done this run — from risk
+Not started; next run. No `config/` change under that item, as ordered.

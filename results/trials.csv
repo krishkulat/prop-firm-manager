@@ -34,3 +34,4 @@ time_utc,job_id,kind,strategy,hypothesis,params,trades,pf,max_dd_pct,sharpe
 2026-11-05T20:27:00+00:00,import-RPF-Q011-26546380,mt5_import,D,H-005,"{""report"": ""research/imported/RangeProfileFadeEA/reports/The5ers-data/ReportTester-26546380.html"", ""source"": ""owner Q-011"", ""server"": ""FivePercentOnline-Real"", ""note"": ""NOT real-tick, NOT gate evidence (R-025). Same settings as R6""}",759,1.26,4.21,
 2026-11-10T04:46:19+00:00,J-20261109-001,backtest,A,H-001,"{""rr"": 2.0, ""stop_atr"": 1.2, ""min_range_atr"": 1.5, ""max_range_atr"": 4.0}",989,0.719,98.57,-1.698
 2026-11-10T04:49:01+00:00,J-20261109-002,backtest,B,H-002,"{""rr"": 2.0, ""stop_atr"": 1.2, ""min_range_atr"": 1.5, ""max_range_atr"": 4.0}",989,0.679,114.51,-1.988
+2026-11-10T04:51:49+00:00,J-20261109-003,backtest,C,H-003,"{""west_drop_atr"": 0.5, ""stop_atr"": 2.0, ""exit_utc"": ""07:30"", ""benchmark"": ""none"", ""benchmark_seed"": 0}",554,0.754,21.71,-0.907

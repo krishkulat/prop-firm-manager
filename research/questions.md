@@ -447,3 +447,6 @@ job still running. Until these run, no strategy can reach a gate.
 5. Write in My answer: "worker running" (or the error), and the time from step 1. Move the card to Done.
 
 Closes when the tickets start leaving `queue/pending/`. Hourly runs re-notify only if a ticket is still pending at 07:32 UTC on 2026-11-10.
+
+### Q-015 close — 2026-11-10 — from orchestrator
+Closed: the worker ran J-20261109-001 to 005 on 2026-11-10 04:46-04:56 UTC (10:16-10:26 IST, `[worker]` commits 1db2a58 to e8ccfbe). Owner action no longer needed; the Notion card can go to Done.

@@ -131,3 +131,5 @@ Exits: 201 stop, 165 target, 60 session end. Last exit 2025-10-29.
 **Trials:** H-002 has used 2 of 50 (audit-R002-2, logged under H-001, and this job). `trials.csv` shows 1 row under H-002.
 
 **Next:** no ticket queued. R-011 steps 1 and 2 are not on `main` (`research/news/` is absent, `load_news` still reads only `data/news.csv`), so a run now would repeat this job and spend a trial for nothing. Queue the clean baseline once both land. No sweep, walk-forward or propsim until the gate passes.
+
+- 2026-11-10 — [orchestrator] **Stage → `rejected`.** J-20261109-002 (B v1.0.1 = v1.0 on fixed code 5f43fae, defaults, news calendar loaded and covering the data, H-002 trial 4) hit the H-002 kill criterion "baseline PF < 1.3": PF 0.679, 989 trades, win 33.0%, avg −0.223R, maxDD 114.51%, worst year −21.15%, 0 of 7 years positive, stress-slip PF 0.605. Per the Q-010 plan, v1.1 (R-019) is not run and redesigns stays 1. A and B (exact mirrors) both lose about 0.2R a trade: on clean code neither side of the Asian-range break has an edge after costs. The earlier +0.22R fade figure came from the look-ahead.

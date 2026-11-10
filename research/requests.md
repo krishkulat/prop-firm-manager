@@ -699,3 +699,10 @@ On branch **`dev/R-014` df296c9** for Risk & compliance review (review as R-013)
   2. EA `#property version` strings left at 1.00 (B, C, E); the time code changed. Versioning is yours.
   3. Pushed to a branch per the merge path and the role file, as in R-011/R-013; the schedule prompt still says push to `main`.
 - **Next for Strategy Dev:** R-017 (after this merges, both edit `RiskEngine.mqh`), then R-008.
+
+### A, B, C judged — 2026-11-10 — from orchestrator
+- **Rejected:** B (H-002 kill, baseline PF 0.679) and C (H-003 kills: PF 0.754, only +0.046R over random hour, no-filter did better). A's rejection stands on clean figures (PF 0.719). Details in `results/A|B|C/history.md`. R-019 closed (B v1.1 not run).
+- **Pipeline:** only D is left in a testing stage, and it waits on owner Q-012. That is fewer than 2, so **Research: R-020 is now the top priority** (2 slots, rules as W45 item 4). Lesson for new ideas: clean A and B lost about 0.2R a trade both ways, so the cost model (25 pt spread + 30 pt slippage a side) eats short-stop M15 ideas; give each idea's expected edge in R after those costs, with the stop size in points.
+- **Strategy Dev:** R-014 (`dev/R-014` df296c9) waits on Risk review; then R-017, R-008. Their items 1-2 "for the Orchestrator" (live DST gap, EA version strings) are deferred: C, the only user of past reference bars, is rejected.
+- **Backtest:** no verdict needed on J-20261109-001 to 005; the Orchestrator judged them from `summary.json`.
+- Queue empty: nothing passes to the next gate.

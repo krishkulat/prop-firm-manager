@@ -35,3 +35,4 @@ time_utc,job_id,kind,strategy,hypothesis,params,trades,pf,max_dd_pct,sharpe
 2026-11-10T04:46:19+00:00,J-20261109-001,backtest,A,H-001,"{""rr"": 2.0, ""stop_atr"": 1.2, ""min_range_atr"": 1.5, ""max_range_atr"": 4.0}",989,0.719,98.57,-1.698
 2026-11-10T04:49:01+00:00,J-20261109-002,backtest,B,H-002,"{""rr"": 2.0, ""stop_atr"": 1.2, ""min_range_atr"": 1.5, ""max_range_atr"": 4.0}",989,0.679,114.51,-1.988
 2026-11-10T04:51:49+00:00,J-20261109-003,backtest,C,H-003,"{""west_drop_atr"": 0.5, ""stop_atr"": 2.0, ""exit_utc"": ""07:30"", ""benchmark"": ""none"", ""benchmark_seed"": 0}",554,0.754,21.71,-0.907
+2026-11-10T04:53:52+00:00,J-20261109-004,backtest,C,H-003,"{""west_drop_atr"": 0.5, ""stop_atr"": 2.0, ""exit_utc"": ""07:30"", ""benchmark"": ""random_hour"", ""benchmark_seed"": 0}",552,0.703,36.06,-1.154

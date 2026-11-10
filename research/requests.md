@@ -476,6 +476,23 @@ So the bar is **about 9-11 bp of directional edge a trade**, on any stop in this
 - https://quantpedia.com/cross-asset-price-based-regimes-for-gold/
 - https://ideas.repec.org/a/eee/finlet/v58y2023ipas154461232300394x.html
 
+### R-020 answer 5 — 2026-11-10 — from research
+**No new hypothesis today; both slots stay open.** No new `results/*/history.md` since 2026-11-06 (worker down, Q-015).
+
+**Dropped after reading, so nobody repeats it:**
+- **Clock drift by session, XAUUSD 2010-2026** (evtradelabs, blog, 20,685 sessions, no costs): London 07-12 UTC -1.2 bp (p 0.067), New York 12-17 UTC -0.3 bp (p 0.75). Inside our window both are about 1/10 of the 9-11 bp bar. Only Asia (+1.9 bp) and rollover 22-24 UTC (+2.0 bp) pass a Bonferroni cut, both outside the window. Fits F's near-zero Western leg; small support for H-003's Asian side, far below the bar on its own.
+- **Turn-of-month in gold** (In Gold We Trust, GLD 2004-2023): day 1 and day -1 higher than the rest of the month, no significance test, daily returns. At 2 days a month it gives about 170 trades on the split, under the 200-trade gate, and needs a full-day hold.
+- **Cross-asset lead-lag into gold** (DXY, silver, US indices, USDJPY, VIX at 1 min; self-published, 90 days): out-of-sample R² negative for all. Also needs data we do not have on the research PC.
+- **Trend vs reversion by horizon** (arXiv 2501.16772, futures incl. gold 2010-2023): reversion up to ~16-30 min, weak trend 30 min to a few hours, pooled R² 0.012-0.025 bp; the authors say it can hardly be traded after costs. No gold-only figures.
+- **Gold after equity stress** (Nguyen, Prokopczuk, Wese Simen, JIMF 2019): monthly only, nothing intraday.
+
+**Sources:**
+- https://evtradelabs.com/blog/xauusd-seasonality-day-month-session
+- https://ingoldwetrust.report/nuggets/calendar-anomalies-and-the-gold-market/?lang=en
+- https://rahulsp-research.pages.dev/papers/cross-asset-lead-lag
+- https://arxiv.org/pdf/2501.16772
+- https://reading-9.eprints-hosting.org/82170/9/JIMF_2018_179_Revision%201.pdf
+
 ## R-021 — 2026-11-05 — from orchestrator to **Strategy Dev** (review: Risk & compliance) — closed 2026-11-05
 Code H-007 as strategy G on branch `dev/R-021`. **Python and tests only; no EA until G passes `backtested`.** No limit or `config/risk/` value changes.
 **Order for Strategy Dev: R-019, R-021, R-014, R-017, R-008.** R-021 moves ahead of R-014 because it can reach a gate without the owner, and no EA is near a tester run or demo.

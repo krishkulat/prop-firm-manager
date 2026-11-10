@@ -43,6 +43,7 @@ string TpKey(ulong ticket){ return "PFM_B_TP_"+(string)ticket; }   // pending ta
 
 int OnInit()
   {
+   if(!PfmTimeBaseInit()) return INIT_PARAMETERS_INCORRECT;          // tester needs the broker offset inputs (R-014)
    if(_Period!=PERIOD_M15) { Print("Attach to an M15 chart"); return INIT_PARAMETERS_INCORRECT; }
    hATR=iATR(_Symbol,PERIOD_H1,14);
    if(hATR==INVALID_HANDLE) return INIT_FAILED;
@@ -57,7 +58,7 @@ void WriteStatus()
    int h=FileOpen(InpStatusFile,FILE_WRITE|FILE_TXT|FILE_COMMON|FILE_ANSI);
    if(h==INVALID_HANDLE) return;
    FileWriteString(h,StringFormat("{\"ea\":\"LondonFade_B\",\"version\":\"1.00\",\"time_gmt\":\"%s\",\"equity\":%.2f,\"balance\":%.2f,\"positions\":%d,\"killed\":%s}",
-      TimeToString(TimeGMT(),TIME_DATE|TIME_SECONDS),AccountInfoDouble(ACCOUNT_EQUITY),AccountInfoDouble(ACCOUNT_BALANCE),
+      TimeToString(PfmGmtNow(),TIME_DATE|TIME_SECONDS),AccountInfoDouble(ACCOUNT_EQUITY),AccountInfoDouble(ACCOUNT_BALANCE),
       PositionsTotal(),Risk.Killed()?"true":"false"));
    FileClose(h);
   }
@@ -97,7 +98,7 @@ void OnTick()
    lastBar=bar;
 
    datetime closeTimeServer=bar;     // bar index 1 = just closed; its close time = bar(0) open time
-   datetime closeGmt=closeTimeServer-(TimeTradeServer()-TimeGMT());
+   datetime closeGmt=PfmSrvToGmt(closeTimeServer);   // shared offset, rounded to 15 min (TimeBase.mqh, R-014)
    int cm=IstMin(closeGmt), day=IstDay(closeGmt);
    if(day==lastSignalDay) return;
    if(cm<=Min(InpTradeStart) || cm>Min(InpTradeEnd)) return;
@@ -107,7 +108,7 @@ void OnTick()
    for(int i=1;i<=60;i++)
      {
       datetime t=iTime(_Symbol,PERIOD_M15,i);
-      datetime g=t-(TimeTradeServer()-TimeGMT());
+      datetime g=PfmSrvToGmt(t);
       if(IstDay(g)!=day) break;
       int om=IstMin(g);
       if(om>=Min(InpRangeStart) && om+15<=Min(InpRangeEnd))

@@ -35,13 +35,13 @@ int         lastSignalDay=-1;
 datetime    lastBar=0;
 
 int Min(string s){ string p[]; StringSplit(s,':',p); return (int)StringToInteger(p[0])*60+(int)StringToInteger(p[1]); }
-long SrvOffset(){ return (long)(TimeTradeServer()-TimeGMT()); }
 int GmtMin(datetime gmt){ MqlDateTime t; TimeToStruct(gmt,t); return t.hour*60+t.min; }
 int GmtDay(datetime gmt){ return (int)(gmt/86400); }
 int GmtDow(datetime gmt){ MqlDateTime t; TimeToStruct(gmt,t); return t.day_of_week; }
 
 int OnInit()
   {
+   if(!PfmTimeBaseInit()) return INIT_PARAMETERS_INCORRECT;          // tester needs the broker offset inputs (R-014)
    if(_Period!=PERIOD_M15) { Print("Attach to an M15 chart"); return INIT_PARAMETERS_INCORRECT; }
    if(Min(InpExitUTC)<=ENTRY_MIN_UTC) { Print("InpExitUTC must be after 01:00"); return INIT_PARAMETERS_INCORRECT; }
    hATR=iATR(_Symbol,PERIOD_H1,14);
@@ -57,7 +57,7 @@ void WriteStatus()
    int h=FileOpen(InpStatusFile,FILE_WRITE|FILE_TXT|FILE_COMMON|FILE_ANSI);
    if(h==INVALID_HANDLE) return;
    FileWriteString(h,StringFormat("{\"ea\":\"SgeLong_C\",\"version\":\"1.00\",\"time_gmt\":\"%s\",\"equity\":%.2f,\"balance\":%.2f,\"positions\":%d,\"killed\":%s}",
-      TimeToString(TimeGMT(),TIME_DATE|TIME_SECONDS),AccountInfoDouble(ACCOUNT_EQUITY),AccountInfoDouble(ACCOUNT_BALANCE),
+      TimeToString(PfmGmtNow(),TIME_DATE|TIME_SECONDS),AccountInfoDouble(ACCOUNT_EQUITY),AccountInfoDouble(ACCOUNT_BALANCE),
       PositionsTotal(),Risk.Killed()?"true":"false"));
    FileClose(h);
   }
@@ -76,14 +76,14 @@ double AtrAtM15Open(datetime m15OpenServer)
 //--- time exit: close at/after InpExitUTC of the entry's UTC day, never inside the minimum hold
 void CloseAtExitTime()
   {
-   datetime nowGmt=TimeGMT();
+   datetime nowGmt=PfmGmtNow();
    for(int i=PositionsTotal()-1;i>=0;i--)
      {
       ulong tk=PositionGetTicket(i);
       if(!PositionSelectByTicket(tk) || PositionGetInteger(POSITION_MAGIC)!=InpMagic) continue;
       if(PositionGetString(POSITION_SYMBOL)!=_Symbol) continue;
       datetime openSrv=(datetime)PositionGetInteger(POSITION_TIME);
-      datetime openGmt=openSrv-(datetime)SrvOffset();
+      datetime openGmt=PfmSrvToGmt(openSrv);
       datetime exitGmt=(datetime)(GmtDay(openGmt)*86400+Min(InpExitUTC)*60);
       if(nowGmt<exitGmt) continue;
       if(TimeCurrent()-openSrv<InpMinHoldSeconds) continue;
@@ -94,13 +94,12 @@ void CloseAtExitTime()
 //--- Western-hours return of the most recent trading day before `todayGmt`, in ATR units. false if unavailable.
 bool WestReturn(int today,double &w)
   {
-   long off=SrvOffset();
    double cEnd=0,cStart=0,aEnd=0; int dEnd=-1;
    for(int i=1;i<=500;i++)
      {
       datetime oSrv=iTime(_Symbol,PERIOD_M15,i);
       if(oSrv==0) break;
-      datetime cGmt=oSrv+15*60-(datetime)off;          // close time of bar i in GMT
+      datetime cGmt=PfmSrvToGmt(oSrv+15*60);           // close time of bar i in GMT
       int d=GmtDay(cGmt), m=GmtMin(cGmt);
       if(d>=today) continue;
       if(dEnd<0)
@@ -130,7 +129,7 @@ void OnTick()
    if(bar==lastBar) return;          // act once per new M15 bar
    lastBar=bar;
 
-   datetime closeGmt=bar-(datetime)SrvOffset();     // close time of bar 1 = open of bar 0
+   datetime closeGmt=PfmSrvToGmt(bar);              // close time of bar 1 = open of bar 0
    int day=GmtDay(closeGmt), dow=GmtDow(closeGmt);
    if(day==lastSignalDay || dow==0 || dow==6) return;
    if(GmtMin(closeGmt)!=ENTRY_MIN_UTC) return;        // only the 01:00 UTC bar open

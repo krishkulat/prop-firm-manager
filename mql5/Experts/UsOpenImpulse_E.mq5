@@ -36,8 +36,7 @@ int         lastSignalDay=-1;
 datetime    lastBar=0;
 
 int Min(string s){ string p[]; StringSplit(s,':',p); return (int)StringToInteger(p[0])*60+(int)StringToInteger(p[1]); }
-//--- rounded to 15 min: a one-second clock difference must not move the bar off 09:30 ET and lose the day's entry
-long SrvOffset(){ return (long)MathRound((double)(TimeTradeServer()-TimeGMT())/900.0)*900; }
+//--- server offset and GMT come from PFM/TimeBase.mqh (rounded to 15 min; tester offset from inputs, R-014)
 
 //--- PFM-DST-BEGIN (tests/test_strategy_e.py compiles this block and checks it against the tz database)
 //--- UTC instant of 00:00 on the first Sunday on or after <year>-<month>-<dayFrom>
@@ -69,6 +68,7 @@ int NyDow(datetime gmt){ MqlDateTime t; TimeToStruct(NyLocal(gmt),t); return t.d
 
 int OnInit()
   {
+   if(!PfmTimeBaseInit()) return INIT_PARAMETERS_INCORRECT;          // tester needs the broker offset inputs (R-014)
    if(_Period!=PERIOD_M15) { Print("Attach to an M15 chart"); return INIT_PARAMETERS_INCORRECT; }
    if(Min(InpExitET)<=ENTRY_MIN_ET) { Print("InpExitET must be after 09:30"); return INIT_PARAMETERS_INCORRECT; }
    hATR=iATR(_Symbol,PERIOD_H1,14);
@@ -84,7 +84,7 @@ void WriteStatus()
    int h=FileOpen(InpStatusFile,FILE_WRITE|FILE_TXT|FILE_COMMON|FILE_ANSI);
    if(h==INVALID_HANDLE) return;
    FileWriteString(h,StringFormat("{\"ea\":\"UsOpenImpulse_E\",\"version\":\"1.00\",\"time_gmt\":\"%s\",\"equity\":%.2f,\"balance\":%.2f,\"positions\":%d,\"killed\":%s}",
-      TimeToString(TimeGMT(),TIME_DATE|TIME_SECONDS),AccountInfoDouble(ACCOUNT_EQUITY),AccountInfoDouble(ACCOUNT_BALANCE),
+      TimeToString(PfmGmtNow(),TIME_DATE|TIME_SECONDS),AccountInfoDouble(ACCOUNT_EQUITY),AccountInfoDouble(ACCOUNT_BALANCE),
       PositionsTotal(),Risk.Killed()?"true":"false"));
    FileClose(h);
   }
@@ -104,14 +104,14 @@ double AtrAtM15Open(datetime m15OpenServer)
 //--- DST changes at 02:00, so the entry's offset is valid for the exit time of the same day.
 void CloseAtExitTime()
   {
-   datetime nowGmt=TimeGMT();
+   datetime nowGmt=PfmGmtNow();
    for(int i=PositionsTotal()-1;i>=0;i--)
      {
       ulong tk=PositionGetTicket(i);
       if(!PositionSelectByTicket(tk) || PositionGetInteger(POSITION_MAGIC)!=InpMagic) continue;
       if(PositionGetString(POSITION_SYMBOL)!=_Symbol) continue;
       datetime openSrv=(datetime)PositionGetInteger(POSITION_TIME);
-      datetime openGmt=openSrv-(datetime)SrvOffset();
+      datetime openGmt=PfmSrvToGmt(openSrv);
       datetime exitGmt=(datetime)((long)NyDay(openGmt)*86400+Min(InpExitET)*60-NyOffset(openGmt));
       if(nowGmt<exitGmt) continue;
       if(TimeCurrent()-openSrv<InpMinHoldSeconds) continue;
@@ -131,7 +131,7 @@ void OnTick()
    if(bar==lastBar) return;          // act once per new M15 bar
    lastBar=bar;
 
-   datetime entryGmt=bar-(datetime)SrvOffset();       // open of bar 0 = close of bar 1
+   datetime entryGmt=PfmSrvToGmt(bar);                // open of bar 0 = close of bar 1
    int day=NyDay(entryGmt), dow=NyDow(entryGmt);
    if(day==lastSignalDay || dow==0 || dow==6) return;
    if(NyMin(entryGmt)!=ENTRY_MIN_ET) return;          // only the 09:30 ET bar open

@@ -7,6 +7,7 @@
 #define PFM_RISK_ENGINE_MQH
 
 #include <Trade/Trade.mqh>
+#include <PFM/TimeBase.mqh>
 
 input group "=== PFM risk engine ==="
 input double InpAccountSize        = 50000;  // initial balance of the challenge
@@ -31,7 +32,7 @@ input double InpSpreadMaxRatio     = 1.5;
 input int    InpStaleFeedSeconds   = 30;
 input long   InpMagic              = 1010;
 input string InpKillFlagFile       = "PFM_KILL.flag"; // in MQL5/Files (Common); monitor creates it
-input bool   InpUseNewsFilter      = true;   // calendar is unavailable in the Strategy Tester; filter is skipped there
+input bool   InpUseNewsFilter      = true;   // calendar is unavailable in the Strategy Tester; filter is skipped there (mql5/TESTER.md)
 input bool   InpMaxLossTrailing    = true;   // firm max_loss_trailing: kill and throttle follow the EOD high-water mark
 
 #define IST_OFFSET_SEC 19800   // UTC+5:30, India has no DST
@@ -58,7 +59,7 @@ private:
    double   m_spreadHist[];   // recent spreads in points for the median
 
    int      ToMinutes(string hhmm) { string p[]; if(StringSplit(hhmm,':',p)!=2) return -1; return (int)StringToInteger(p[0])*60+(int)StringToInteger(p[1]); }
-   datetime IstNow()    { return TimeGMT()+IST_OFFSET_SEC; }
+   datetime IstNow()    { return PfmGmtNow()+IST_OFFSET_SEC; }   // true GMT in the tester too (TimeBase.mqh, R-014)
    int      IstMinutes(){ MqlDateTime t; TimeToStruct(IstNow(),t); return t.hour*60+t.min; }
    int      IstDow()    { MqlDateTime t; TimeToStruct(IstNow(),t); return t.day_of_week; }
    int      IstDayKey() { MqlDateTime t; TimeToStruct(IstNow(),t); return t.year*1000+t.day_of_year; }
@@ -182,6 +183,7 @@ public:
    double   Check(double entry,double stop,bool newsBlackoutNow,string &reason)
      {
       RollDay();
+      if(!PfmTimeBaseOk())    { reason="time_base_unset"; return 0; }   // tester without broker offset inputs
       if(m_killed)            { reason="killed"; return 0; }
       if(m_lockedForDay)      { reason="locked_for_day"; return 0; }
       if(stop<=0)             { reason="no_stop"; return 0; }
